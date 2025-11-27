@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 class Footer extends StatelessWidget {
   const Footer({super.key});
 
-  final Color darkBlue = const Color(0xFF2F4156);
+  final Color darkBlue = const Color.fromARGB(255, 83, 150, 227);
+  final Color lightBlue = const Color.fromARGB(255, 133, 199, 249);
 
   @override
   Widget build(BuildContext context) {
