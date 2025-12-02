@@ -20,18 +20,18 @@ class RppFactory extends Factory
     public function definition(): array
     {
         return [
-            'nama_mata_pelajaran' => fake()->randomElement(['Matematika', 'Bahasa Indonesia', 'IPA', 'IPS', 'Bahasa Inggris']),
-            'kelas' => fake()->randomElement(['VII', 'VIII', 'IX', 'X', 'XI', 'XII']),
-            'tahun_pelajaran' => fake()->randomElement(['2024/2025', '2025/2026']),
-            'kompetensi_dasar' => fake()->sentence(10),
-            'kompetensi_inti' => fake()->sentence(10),
-            'tujuan_pembelajaran' => fake()->paragraph(),
-            'materi_pembelajaran' => fake()->paragraph(),
-            'asesmen_pembelajaran' => fake()->paragraph(),
-            'metode_pembelajaran' => fake()->randomElement(['Ceramah', 'Diskusi', 'Praktikum', 'Project Based Learning']),
-            'media_pembelajaran' => fake()->randomElement(['PowerPoint', 'Video', 'Buku', 'Internet']),
-            'sumber_belajar' => fake()->sentence(),
-            'lampiran_belajar' => fake()->sentence(),
+            'Nama_Mata_Pelajaran' => fake()->randomElement(['Matematika', 'Bahasa Indonesia', 'IPA', 'IPS', 'Bahasa Inggris']),
+            'Kelas' => fake()->randomElement(['VII', 'VIII', 'IX', 'X', 'XI', 'XII']),
+            'Tahun_Pelajaran' => fake()->randomElement(['2024/2025', '2025/2026']),
+            'Kompetensi_Dasar' => fake()->sentence(10),
+            'Kompetensi_Inti' => fake()->sentence(10),
+            'Tujuan_Pembelajaran' => fake()->paragraph(),
+            'Materi_Pembelajaran' => fake()->paragraph(),
+            'Asesmen_Pembelajaran' => fake()->paragraph(),
+            'Metode_Pembelajaran' => fake()->randomElement(['Ceramah', 'Diskusi', 'Praktikum', 'Project Based Learning']),
+            'Media_Pembelajaran' => fake()->randomElement(['PowerPoint', 'Video', 'Buku', 'Internet']),
+            'Sumber_Belajar' => fake()->sentence(),
+            'Lampiran_Belajar' => fake()->sentence(),
         ];
     }
 }

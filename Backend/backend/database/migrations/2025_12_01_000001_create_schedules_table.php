@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('schedules', function (Blueprint $table) {
-            $table->id('schedule_id');
-            $table->string('nama_schedule');
-            $table->date('tanggal_schedule');
-            $table->string('lokasi_schedule');
-            $table->string('jam_schedule');
-            $table->unsignedBigInteger('user_id');
-            $table->text('deskripsi_schedule')->nullable();
-            $table->string('dokumen')->nullable();
+        Schema::create('Schedules', function (Blueprint $table) {
+            $table->id('Schedule_ID');
+            $table->string('Nama_Schedule');
+            $table->date('Tanggal_Schedule');
+            $table->string('Lokasi_Schedule');
+            $table->string('Jam_Schedule');
+            $table->unsignedBigInteger('User_ID');
+            $table->text('Deskripsi_Schedule')->nullable();
+            $table->string('Dokumen')->nullable();
             $table->timestamps();
 
-            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
+            $table->foreign('User_ID')->references('User_ID')->on('Users')->onDelete('cascade');
         });
     }
 
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('schedules');
+        Schema::dropIfExists('Schedules');
     }
 };

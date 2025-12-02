@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Schedule;
+use App\Http\Resources\Schedule as ScheduleResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -15,7 +16,15 @@ class ScheduleApiController extends Controller
     public function index(): JsonResponse
     {
         $schedules = Schedule::latest()->paginate(15);
-        return response()->json($schedules);
+        return response()->json(ScheduleResource::collection($schedules));
+    }
+
+    /**
+     * Display the specified schedule.
+     */
+    public function show(Schedule $schedule): JsonResponse
+    {
+        return response()->json(new ScheduleResource($schedule));
     }
 
     /**
@@ -24,26 +33,14 @@ class ScheduleApiController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'nama_schedule' => 'required|string|max:255',
-            'tanggal_schedule' => 'required|date',
-            'lokasi_schedule' => 'nullable|string|max:255',
-            'jam_schedule' => 'nullable|string|max:50',
-            'user_id' => 'nullable|integer',
-            'deskripsi_schedule' => 'nullable|string',
-            'dokumen' => 'nullable|string',
+            'User_ID' => 'required|integer',
+            'Kegiatan' => 'required|string',
+            'Tanggal' => 'nullable|date',
+            'Waktu' => 'nullable|string',
         ]);
 
-        $schedule = Schedule::create($data);
-
-        return response()->json(['message' => 'Schedule created', 'data' => $schedule], 201);
-    }
-
-    /**
-     * Display the specified schedule.
-     */
-    public function show(Schedule $schedule): JsonResponse
-    {
-        return response()->json($schedule);
+        $model = Schedule::create($data);
+        return response()->json(new ScheduleResource($model), 201);
     }
 
     /**
@@ -52,18 +49,14 @@ class ScheduleApiController extends Controller
     public function update(Request $request, Schedule $schedule): JsonResponse
     {
         $data = $request->validate([
-            'nama_schedule' => 'sometimes|required|string|max:255',
-            'tanggal_schedule' => 'sometimes|required|date',
-            'lokasi_schedule' => 'nullable|string|max:255',
-            'jam_schedule' => 'nullable|string|max:50',
-            'user_id' => 'nullable|integer',
-            'deskripsi_schedule' => 'nullable|string',
-            'dokumen' => 'nullable|string',
+            'User_ID' => 'sometimes|integer',
+            'Kegiatan' => 'sometimes|string',
+            'Tanggal' => 'sometimes|nullable|date',
+            'Waktu' => 'sometimes|nullable|string',
         ]);
 
         $schedule->update($data);
-
-        return response()->json(['message' => 'Schedule updated', 'data' => $schedule]);
+        return response()->json(new ScheduleResource($schedule));
     }
 
     /**
@@ -72,6 +65,6 @@ class ScheduleApiController extends Controller
     public function destroy(Schedule $schedule): JsonResponse
     {
         $schedule->delete();
-        return response()->json(['message' => 'Schedule deleted']);
+        return response()->json(['message' => 'Deleted']);
     }
 }

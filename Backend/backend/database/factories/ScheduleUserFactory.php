@@ -14,8 +14,8 @@ class ScheduleUserFactory extends Factory
     public function definition()
     {
         return [
-            'user_id' => User::factory(),
-            'schedule_id' => Schedule::factory(),
+            'User_Id' => User::factory(),
+            'Schedule_ID' => Schedule::factory(),
         ];
     }
 }

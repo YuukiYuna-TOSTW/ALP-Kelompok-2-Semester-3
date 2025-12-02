@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('history_schedules', function (Blueprint $table) {
-            $table->id('history_schedule_id');
-            $table->unsignedBigInteger('schedule_id');
-            $table->date('tanggal_history_schedule');
+        Schema::create('History_Schedules', function (Blueprint $table) {
+            $table->id('History_Schedule_ID');
+            $table->unsignedBigInteger('Schedule_ID');
+            $table->date('Tanggal_History_Schedule');
             $table->timestamps();
 
-            $table->foreign('schedule_id')->references('schedule_id')->on('schedules')->onDelete('cascade');
+            $table->foreign('Schedule_ID')->references('Schedule_ID')->on('Schedules')->onDelete('cascade');
         });
     }
 
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('history_schedules');
+        Schema::dropIfExists('History_Schedules');
     }
 };

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\HistorySchedule;
+use App\Http\Resources\HistorySchedule as HistoryScheduleResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -11,25 +12,39 @@ class HistoryScheduleApiController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json(HistorySchedule::latest()->paginate(15));
-    }
-
-    public function store(Request $request): JsonResponse
-    {
-        $data = $request->all();
-        $model = HistorySchedule::create($data);
-        return response()->json(['message' => 'Created', 'data' => $model], 201);
+        $items = HistorySchedule::latest()->paginate(15);
+        return response()->json(HistoryScheduleResource::collection($items));
     }
 
     public function show(HistorySchedule $historySchedule): JsonResponse
     {
-        return response()->json($historySchedule);
+        return response()->json(new HistoryScheduleResource($historySchedule));
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'Schedule_ID' => 'required|integer',
+            'Status' => 'nullable|string',
+            'Catatan' => 'nullable|string',
+            'Waktu_Pelaksanaan' => 'nullable|date',
+        ]);
+
+        $model = HistorySchedule::create($data);
+        return response()->json(new HistoryScheduleResource($model), 201);
     }
 
     public function update(Request $request, HistorySchedule $historySchedule): JsonResponse
     {
-        $historySchedule->update($request->all());
-        return response()->json(['message' => 'Updated', 'data' => $historySchedule]);
+        $data = $request->validate([
+            'Schedule_ID' => 'sometimes|integer',
+            'Status' => 'sometimes|nullable|string',
+            'Catatan' => 'sometimes|nullable|string',
+            'Waktu_Pelaksanaan' => 'sometimes|nullable|date',
+        ]);
+
+        $historySchedule->update($data);
+        return response()->json(new HistoryScheduleResource($historySchedule));
     }
 
     public function destroy(HistorySchedule $historySchedule): JsonResponse
