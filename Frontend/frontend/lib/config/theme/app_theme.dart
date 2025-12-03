@@ -4,26 +4,31 @@ import 'colors.dart';
 
 class AppTheme {
   static ThemeData lightTheme = ThemeData(
-    brightness: Brightness.light,
-    scaffoldBackgroundColor: AppColors.background,
-    fontFamily: GoogleFonts.montserrat().fontFamily,
     useMaterial3: true,
+    brightness: Brightness.light,
 
-    colorScheme: const ColorScheme.light(
+    // warna dasar halaman
+    scaffoldBackgroundColor: AppColors.background,
+
+    // font global
+    fontFamily: GoogleFonts.montserrat().fontFamily,
+
+    // skema warna utama
+    colorScheme: ColorScheme.light(
       primary: AppColors.primary,
       secondary: AppColors.secondary,
       surface: Colors.white,
-      background: AppColors.background,
+      // background dihilangkan karena deprecated, diganti pakai scaffoldBackgroundColor
     ),
 
-    cardTheme: const CardTheme(
+    // styling card
+    cardTheme: CardThemeData(
       color: AppColors.cardLight,
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(16)),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
 
+    // app bar
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.white,
       elevation: 0,
