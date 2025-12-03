@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\HistoryScheduleApiController;
 use App\Http\Controllers\Api\RppApiController;
 use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\Api\ScheduleUserApiController;
+use App\Http\Controllers\ChatbotController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -24,3 +25,11 @@ Route::get('schedule-user', [ScheduleUserApiController::class, 'index']);
 Route::post('schedule-user', [ScheduleUserApiController::class, 'store']);
 Route::get('schedule-user/{user_id}/{schedule_id}', [ScheduleUserApiController::class, 'show']);
 Route::delete('schedule-user/{user_id}/{schedule_id}', [ScheduleUserApiController::class, 'destroy']);
+
+// Chatbot routes untuk Gemini AI
+Route::prefix('chatbot')->group(function () {
+    Route::get('validate-key', [ChatbotController::class, 'validateApiKey']);
+    Route::post('send-message', [ChatbotController::class, 'sendMessage']);
+    Route::get('list-models', [ChatbotController::class, 'listModels']);
+    Route::get('info', [ChatbotController::class, 'getApiInfo']);
+});
