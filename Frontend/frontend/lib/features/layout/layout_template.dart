@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../config/theme/colors.dart';
-import '../role_config/role_menu.dart';
-import 'sidebar.dart';
-import 'topbar.dart';
+import 'navbar.dart';
 import 'footer.dart';
+import 'mobile_navigation_drawer.dart';
 
 class LayoutTemplate extends StatelessWidget {
   final Widget child;
@@ -19,38 +18,28 @@ class LayoutTemplate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final menu = RoleMenuConfig.getMenu(role);
+    final bool isMobile = MediaQuery.of(context).size.width <= 850;
 
     return Scaffold(
       backgroundColor: AppColors.background,
 
       // Drawer untuk mobile
-      drawer: MediaQuery.of(context).size.width <= 850
-          ? Drawer(child: Sidebar(menuItems: menu))
+      drawer: isMobile
+          ? Drawer(child: MobileNavigationDrawer(role: role))
           : null,
 
-      body: Row(
+      body: Column(
         children: [
-          // Sidebar untuk desktop/tablet
-          if (MediaQuery.of(context).size.width > 850) Sidebar(menuItems: menu),
+          // NAVBAR
+          TopBar(userName: userName, role: role),
 
-          // Konten sebelah kanan
+          // HALAMAN
           Expanded(
-            child: Column(
-              children: [
-                TopBar(userName: userName),
-
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: child,
-                  ),
-                ),
-
-                const AppFooter(),
-              ],
-            ),
+            child: Padding(padding: const EdgeInsets.all(20), child: child),
           ),
+
+          // FOOTER
+          const AppFooter(),
         ],
       ),
     );
