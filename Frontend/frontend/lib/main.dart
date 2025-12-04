@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'config/theme/app_theme.dart';
 import 'features/layout/layout_template.dart';
-import 'features/dashboard/dashboard_page.dart';
+import 'features/dashboard/pages/dashboard_page.dart';
 
 void main() {
   runApp(const MyApp());
