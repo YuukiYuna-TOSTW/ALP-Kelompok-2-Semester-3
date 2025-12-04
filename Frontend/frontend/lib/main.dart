@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-
 import 'config/theme/app_theme.dart';
+
 import 'features/layout/layout_template.dart';
-import 'features/dashboard/pages/dashboard_page.dart';
+import 'features/dashboard/pages/dashboard_page.dart'; // FIXED PATH
 
 void main() {
   runApp(const MyApp());
@@ -17,16 +17,14 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'SMPN 1 Bontonompo Selatan',
 
-      // pakai tema yang sudah kamu buat
       theme: AppTheme.lightTheme,
-
-      // untuk sekarang: langsung preview dashboard admin
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system, // Dark mode otomatis
       home: const RootPreview(),
     );
   }
 }
 
-/// Halaman root sementara untuk preview UI
 class RootPreview extends StatelessWidget {
   const RootPreview({super.key});
 
@@ -35,7 +33,7 @@ class RootPreview extends StatelessWidget {
     return const LayoutTemplate(
       userName: 'Admin SMPN 1 Bontonompo Selatan',
       role: 'admin',
-      child: DashboardPage(role: 'admin'),
+      child: DashboardHome(), // FIXED
     );
   }
 }
