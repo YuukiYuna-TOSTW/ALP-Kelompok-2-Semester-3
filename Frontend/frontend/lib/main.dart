@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'features/homepage/pages/homepage.dart';
+import 'features/homepage/pages/aboutscreen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,6 +19,7 @@ class MyApp extends StatelessWidget {
         primaryColor: const Color(0xFF2F4156),
       ),
       home: HomePage(),
+      routes: {'/about': (context) => AboutScreen()},
     );
   }
 }
