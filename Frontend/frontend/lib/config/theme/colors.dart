@@ -8,3 +8,5 @@ const Color backgroundColor = Color(0xFFFBFBFB);
 
 const Color cardWhite = Color(0xFFF3F3F3);
 const Color cardBlue = Color(0xFFC6E3F8);
+
+const Color Gladys = Color(0xFFFFFFFF);
