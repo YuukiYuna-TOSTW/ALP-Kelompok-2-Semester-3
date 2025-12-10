@@ -21,13 +21,13 @@ class ScheduleFactory extends Factory
     public function definition(): array
     {
         return [
-            'nama_schedule' => fake()->sentence(3),
-            'tanggal_schedule' => fake()->date(),
-            'lokasi_schedule' => fake()->address(),
-            'jam_schedule' => fake()->time('H:i') . '-' . fake()->time('H:i'),
-            'user_id' => User::factory(),
-            'deskripsi_schedule' => fake()->paragraph(),
-            'dokumen' => fake()->randomElement(['document.pdf', 'image.png', 'file.jpg', null]),
+            'Nama_Schedule' => fake()->sentence(3),
+            'Tanggal_Schedule' => fake()->date(),
+            'Lokasi_Schedule' => fake()->address(),
+            'Jam_Schedule' => fake()->time('H:i') . '-' . fake()->time('H:i'),
+            'User_ID' => User::factory(),
+            'Deskripsi_Schedule' => fake()->paragraph(),
+            'Dokumen' => fake()->randomElement(['document.pdf', 'image.png', 'file.jpg', null]),
         ];
     }
 }

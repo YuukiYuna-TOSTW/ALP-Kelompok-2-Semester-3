@@ -9,7 +9,7 @@ class Rpp extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'rpp_id';
+    protected $primaryKey = 'RPP_ID';
 
     /**
      * The attributes that are mass assignable.
@@ -17,18 +17,18 @@ class Rpp extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'nama_mata_pelajaran',
-        'kelas',
-        'tahun_pelajaran',
-        'kompetensi_dasar',
-        'kompetensi_inti',
-        'tujuan_pembelajaran',
-        'materi_pembelajaran',
-        'asesmen_pembelajaran',
-        'metode_pembelajaran',
-        'media_pembelajaran',
-        'sumber_belajar',
-        'lampiran_belajar',
+        'Nama_Mata_Pelajaran',
+        'Kelas',
+        'Tahun_Pelajaran',
+        'Kompetensi_Dasar',
+        'Kompetensi_Inti',
+        'Tujuan_Pembelajaran',
+        'Materi_Pembelajaran',
+        'Asesmen_Pembelajaran',
+        'Metode_Pembelajaran',
+        'Media_Pembelajaran',
+        'Sumber_Belajar',
+        'Lampiran_Belajar',
     ];
 
     /**
@@ -36,6 +36,6 @@ class Rpp extends Model
      */
     public function chatbotSuggestions()
     {
-        return $this->hasMany(SaranChatbotRpp::class, 'rpp_id', 'rpp_id');
+        return $this->hasMany(ChatbotAi::class, 'RPP_ID', 'RPP_ID');
     }
 }

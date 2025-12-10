@@ -11,7 +11,7 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    protected $primaryKey = 'user_id';
+    protected $primaryKey = 'User_ID';
 
     /**
      * The attributes that are mass assignable.
@@ -19,9 +19,9 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'nama_user',
-        'email',
-        'password',
+        'Nama_User',
+        'Email',
+        'Password',
     ];
 
     /**
@@ -30,7 +30,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $hidden = [
-        'password',
+        'Password',
     ];
 
     /**
@@ -41,7 +41,7 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'password' => 'hashed',
+            'Password' => 'hashed',
         ];
     }
 
@@ -50,7 +50,7 @@ class User extends Authenticatable
      */
     public function createdSchedules()
     {
-        return $this->hasMany(Schedule::class, 'user_id', 'user_id');
+        return $this->hasMany(Schedule::class, 'User_ID', 'User_ID');
     }
 
     /**
@@ -58,6 +58,6 @@ class User extends Authenticatable
      */
     public function schedules()
     {
-        return $this->belongsToMany(Schedule::class, 'schedule_user', 'user_id', 'schedule_id');
+        return $this->belongsToMany(Schedule::class, 'schedule_user', 'User_ID', 'Schedule_ID');
     }
 }
