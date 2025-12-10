@@ -21,8 +21,8 @@ class HistoryScheduleFactory extends Factory
     public function definition(): array
     {
         return [
-            'schedule_id' => Schedule::factory(),
-            'tanggal_history_schedule' => fake()->date(),
+            'Schedule_ID' => Schedule::factory(),
+            'Tanggal_History_Schedule' => fake()->date(),
         ];
     }
 }

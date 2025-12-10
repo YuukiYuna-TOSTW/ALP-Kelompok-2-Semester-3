@@ -9,7 +9,7 @@ class ChatbotAi extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'chat_id';
+    protected $primaryKey = 'Chat_ID';
 
     /**
      * The attributes that are mass assignable.
@@ -17,8 +17,8 @@ class ChatbotAi extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'judul_chat',
-        'request_history',
-        'send_history',
+        'Judul_Chat',
+        'Request_History',
+        'Send_History',
     ];
 }

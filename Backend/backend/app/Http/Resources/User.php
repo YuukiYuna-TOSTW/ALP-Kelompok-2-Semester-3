@@ -16,11 +16,11 @@ class User extends JsonResource
     {
         return [
             // Informasi Dasar tentang Pengguna
-            'Name_User' => $this->Name_User,
+            'Nama_User' => $this->Nama_User,
             'Email' => $this->Email,
             
             // Informasi Tambahan Tentang Role Pengguna
-            'Role' => $this->Role,
+            'Role' => $this->Role ?? null,
 
             // Informasi Tambahan Tentang Tanggal Pembuatan dan Pembaruan
             'created_at' => $this->created_at,

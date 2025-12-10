@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateRppsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,19 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('rpps', function (Blueprint $table) {
-            $table->id('rpp_id');
-            $table->string('nama_mata_pelajaran');
-            $table->string('kelas');
-            $table->string('tahun_pelajaran');
-            $table->text('kompetensi_dasar')->nullable();
-            $table->text('kompetensi_inti')->nullable();
-            $table->text('tujuan_pembelajaran')->nullable();
-            $table->text('materi_pembelajaran')->nullable();
-            $table->text('asesmen_pembelajaran')->nullable();
-            $table->text('metode_pembelajaran')->nullable();
-            $table->text('media_pembelajaran')->nullable();
-            $table->text('sumber_belajar')->nullable();
-            $table->text('lampiran_belajar')->nullable();
+            $table->bigIncrements('RPP_ID');
+            $table->string('Nama_Mata_Pelajaran');
+            $table->string('Kelas');
+            $table->string('Tahun_Pelajaran');
+            $table->text('Kompetensi_Dasar')->nullable();
+            $table->text('Kompetensi_Inti')->nullable();
+            $table->text('Tujuan_Pembelajaran')->nullable();
+            $table->text('Materi_Pembelajaran')->nullable();
+            $table->text('Asesmen_Pembelajaran')->nullable();
+            $table->text('Metode_Pembelajaran')->nullable();
+            $table->text('Media_Pembelajaran')->nullable();
+            $table->text('Sumber_Belajar')->nullable();
+            $table->text('Lampiran_Belajar')->nullable();
             $table->timestamps();
         });
     }
@@ -36,4 +36,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('rpps');
     }
-};
+}

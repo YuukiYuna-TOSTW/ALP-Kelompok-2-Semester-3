@@ -9,7 +9,7 @@ class Schedule extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'schedule_id';
+    protected $primaryKey = 'Schedule_ID';
 
     /**
      * The attributes that are mass assignable.
@@ -17,13 +17,13 @@ class Schedule extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'nama_schedule',
-        'tanggal_schedule',
-        'lokasi_schedule',
-        'jam_schedule',
-        'user_id',
-        'deskripsi_schedule',
-        'dokumen',
+        'Nama_Schedule',
+        'Tanggal_Schedule',
+        'Lokasi_Schedule',
+        'Jam_Schedule',
+        'User_ID',
+        'Deskripsi_Schedule',
+        'Dokumen',
     ];
 
     /**
@@ -34,7 +34,7 @@ class Schedule extends Model
     protected function casts(): array
     {
         return [
-            'tanggal_schedule' => 'date',
+            'Tanggal_Schedule' => 'date',
         ];
     }
 
@@ -43,7 +43,7 @@ class Schedule extends Model
      */
     public function creator()
     {
-        return $this->belongsTo(User::class, 'user_id', 'user_id');
+        return $this->belongsTo(User::class, 'User_ID', 'User_ID');
     }
 
     /**
@@ -51,7 +51,7 @@ class Schedule extends Model
      */
     public function users()
     {
-        return $this->belongsToMany(User::class, 'schedule_user', 'schedule_id', 'user_id');
+        return $this->belongsToMany(User::class, 'schedule_user', 'Schedule_ID', 'User_ID');
     }
 
     /**
@@ -59,7 +59,7 @@ class Schedule extends Model
      */
     public function histories()
     {
-        return $this->hasMany(HistorySchedule::class, 'schedule_id', 'schedule_id');
+        return $this->hasMany(HistorySchedule::class, 'Schedule_ID', 'Schedule_ID');
     }
 
     /**
@@ -67,6 +67,6 @@ class Schedule extends Model
      */
     public function chatbotSuggestions()
     {
-        return $this->hasMany(SaranChatbotSchedule::class, 'schedule_id', 'schedule_id');
+        return $this->hasMany(ChatbotAi::class, 'Schedule_ID', 'Schedule_ID');
     }
 }

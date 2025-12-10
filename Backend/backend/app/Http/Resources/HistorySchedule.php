@@ -15,9 +15,11 @@ class HistorySchedule extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            // Informasi Dasar Tentang History Schedule
-            'Nama_Schedule' => $this->Nama_Schedule,
-            'Tanggal_History_Schedule' => $this->Tanggal_History_Schedule,
+            'Status' => $this->Status ?? null,
+            'Catatan' => $this->Catatan ?? null,
+            'Waktu_Pelaksanaan' => $this->Waktu_Pelaksanaan ?? $this->performed_at ?? null,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }
