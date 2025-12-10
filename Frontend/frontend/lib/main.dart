@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 //import 'features/homepage/pages/homepage.dart';
-import 'features/homepage/pages/tambah_kegiatan.dart';
-
+//import 'features/homepage/pages/tambah_kegiatan.dart';
+import 'package:frontend/features/homepage/pages/detail_kegiatan.dart';
 // import 'features/homepage/pages/otp_verification_screen.dart';
 // import '../../../widgets/otp_timer.dart';
 
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         primaryColor: const Color(0xFF75CFFF),
       ),
-      home: EventFormCard(),
+      home: EventDetailPage(),
     );
   }
 }
