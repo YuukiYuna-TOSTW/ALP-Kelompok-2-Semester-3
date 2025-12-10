@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "520666620714",
+    "project_id": "tonal-griffin-480105-m0",
+    "storage_bucket": "tonal-griffin-480105-m0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:520666620714:android:233ab6f63946d727b17453",
+        "android_client_info": {
+          "package_name": "com.example.frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCkxyuZ9scgbscaLsCeQcLmO9HxA4xquO4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,10 +1,23 @@
 import 'package:flutter/material.dart';
 import 'config/theme/app_theme.dart';
-
+import 'package:firebase_core/firebase_core.dart'; // Wajib: Firebase Core
+import 'firebase_options.dart'; // Wajib: File Konfigurasi
 import 'features/layout/layout_template.dart';
 import 'features/dashboard/pages/dashboard_page.dart'; // FIXED PATH
 
-void main() {
+// Hapus import 'package:firebase_ai/firebase_ai.dart';
+// karena tidak digunakan di sini.
+
+void main() async {
+  // 1. Wajib: Memastikan Flutter Widgets Binding sudah diinisialisasi
+  //    sebelum memanggil fungsi asynchronous (await).
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 2. Wajib: Inisialisasi Firebase Core.
+  //    Ini harus diselesaikan sebelum aplikasi berjalan.
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // 3. Menjalankan aplikasi setelah semua setup selesai.
   runApp(const MyApp());
 }
 
