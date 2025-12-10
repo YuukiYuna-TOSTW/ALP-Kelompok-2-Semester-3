@@ -23,4 +23,5 @@ Route::apiResource('users', UserApiController::class);
 Route::get('schedule-user', [ScheduleUserApiController::class, 'index']);
 Route::post('schedule-user', [ScheduleUserApiController::class, 'store']);
 Route::get('schedule-user/{user_id}/{schedule_id}', [ScheduleUserApiController::class, 'show']);
+Route::put('schedule-user/{user_id}/{schedule_id}', [ScheduleUserApiController::class, 'update']);
 Route::delete('schedule-user/{user_id}/{schedule_id}', [ScheduleUserApiController::class, 'destroy']);

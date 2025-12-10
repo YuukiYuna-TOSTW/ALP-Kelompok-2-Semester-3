@@ -62,21 +62,25 @@ class DashboardHome extends StatelessWidget {
             children:
                 [
                       _quickAction(
+                        context,
                         "Buat RPP",
                         Icons.add_chart,
                         AppColors.primary,
                       ),
                       _quickAction(
+                        context,
                         "Buat Jadwal",
                         Icons.schedule,
                         AppColors.secondary,
                       ),
                       _quickAction(
+                        context,
                         "Lihat RPP",
                         Icons.folder_open,
                         AppColors.accent,
                       ),
                       _quickAction(
+                        context,
                         "Kelola Pengguna",
                         Icons.people,
                         AppColors.cardBlue,
@@ -164,40 +168,50 @@ class DashboardHome extends StatelessWidget {
   // ⚡ QUICK ACTION BUTTON
   // =====================================================================
 
-  Widget _quickAction(String label, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 22),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: .15),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: .2),
-              borderRadius: BorderRadius.circular(14),
+  Widget _quickAction(
+    BuildContext context,
+    String label,
+    IconData icon,
+    Color color, {
+    VoidCallback? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 22),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: .15),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
-            child: Icon(icon, color: color, size: 26),
-          ),
-          const SizedBox(width: 16),
-          Text(
-            label,
-            style: AppTypography.body.copyWith(
-              color: AppColors.textDark,
-              fontWeight: FontWeight.w600,
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: .2),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(icon, color: color, size: 26),
             ),
-          ),
-        ],
+            const SizedBox(width: 16),
+            Text(
+              label,
+              style: AppTypography.body.copyWith(
+                color: AppColors.textDark,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
