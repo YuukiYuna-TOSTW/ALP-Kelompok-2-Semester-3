@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'tonal-griffin-480105-m0.firebasestorage.app',
     measurementId: 'G-BS59KTQ6HV',
   );
+
 }

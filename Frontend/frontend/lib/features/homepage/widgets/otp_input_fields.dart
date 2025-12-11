@@ -16,11 +16,11 @@ class OtpInputFields extends StatelessWidget {
           width: 50,
           height: 60,
           decoration: BoxDecoration(
-            color: cardWhite,
+            color: AppColors.cardLight,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: otp.focusNodes[i].hasFocus
-                  ? primaryColor
+                  ? AppColors.primary
                   : Colors.transparent,
               width: 2,
             ),
@@ -38,7 +38,7 @@ class OtpInputFields extends StatelessWidget {
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: secondaryColor,
+              color: AppColors.secondary,
             ),
             onChanged: (value) {
               if (value.isNotEmpty && i < 5) {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../../config/theme/colors.dart';
-import '../widgets/otp_background.dart';
+import '../../config/theme/colors.dart';
+import '../../features/homepage/widgets/otp_background.dart';
 import 'package:frontend/config/controller/otp_controller.dart';
-import '../widgets/otp_input_fields.dart';
+import '../../features/homepage/widgets/otp_input_fields.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   const OtpVerificationPage({super.key});
@@ -33,7 +33,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Stack(
           children: [
@@ -58,12 +58,12 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
                       height: 100,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [primaryColor, secondaryColor],
+                          colors: [AppColors.primary, AppColors.secondary],
                         ),
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: primaryColor.withOpacity(0.4),
+                            color: AppColors.primary.withOpacity(0.4),
                             blurRadius: 15,
                             spreadRadius: 2,
                           ),
@@ -81,7 +81,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
 
                   ShaderMask(
                     shaderCallback: (bounds) => LinearGradient(
-                      colors: [primaryColor, secondaryColor],
+                      colors: [AppColors.primary, AppColors.secondary],
                     ).createShader(bounds),
                     child: const Text(
                       'Verifikasi Email',
@@ -111,7 +111,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: secondaryColor,
+                      color: AppColors.secondary,
                     ),
                   ),
 
@@ -125,7 +125,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
                           ? null
                           : () => otp.verifyOtp(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor,
+                        backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
                         ),
@@ -156,7 +156,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: secondaryColor,
+                        color: AppColors.secondary,
                       ),
                     ),
                   ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../widgets/developer_item.dart';
-import '../widgets/contact_item.dart';
+import '../../features/homepage/widgets/developer_item.dart';
+import '../../features/homepage/widgets/contact_item.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
