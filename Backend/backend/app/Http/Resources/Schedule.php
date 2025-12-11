@@ -14,15 +14,16 @@ class Schedule extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return[
-            // Informasi Dasar Tentang Schedule
+        return [
             'Nama_Schedule' => $this->Nama_Schedule,
-            'Tanggal_Schedule' => $this->Tanggal_Schedule,
+            'Tanggal_Schedule' => optional($this->Tanggal_Schedule)->toDateString(),
             'Lokasi_Schedule' => $this->Lokasi_Schedule,
             'Jam_Schedule' => $this->Jam_Schedule,
-            'Penyelenggara' => $this->Penyelenggara,
-            'Deskripsi' => $this->Deskripsi,
+            'User_ID' => $this->User_ID,
+            'Deskripsi_Schedule' => $this->Deskripsi_Schedule,
             'Dokumen' => $this->Dokumen,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

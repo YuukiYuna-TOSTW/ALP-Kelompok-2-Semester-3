@@ -9,7 +9,7 @@ class HistorySchedule extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'history_schedule_id';
+    protected $primaryKey = 'History_Schedule_ID';
 
     /**
      * The attributes that are mass assignable.
@@ -17,8 +17,8 @@ class HistorySchedule extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'schedule_id',
-        'tanggal_history_schedule',
+        'Schedule_ID',
+        'Tanggal_History_Schedule',
     ];
 
     /**
@@ -29,7 +29,7 @@ class HistorySchedule extends Model
     protected function casts(): array
     {
         return [
-            'tanggal_history_schedule' => 'date',
+            'Tanggal_History_Schedule' => 'date',
         ];
     }
 
@@ -38,6 +38,6 @@ class HistorySchedule extends Model
      */
     public function schedule()
     {
-        return $this->belongsTo(Schedule::class, 'schedule_id', 'schedule_id');
+        return $this->belongsTo(Schedule::class, 'Schedule_ID', 'Schedule_ID');
     }
 }

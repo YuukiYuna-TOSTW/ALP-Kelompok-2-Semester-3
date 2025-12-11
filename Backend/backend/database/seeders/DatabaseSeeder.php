@@ -7,10 +7,9 @@ use App\Models\Schedule;
 use App\Models\HistorySchedule;
 use App\Models\Rpp;
 use App\Models\ChatbotAi;
-use App\Models\SaranChatbotSchedule;
-use App\Models\SaranChatbotRpp;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -24,44 +23,43 @@ class DatabaseSeeder extends Seeder
         // Create users
         $users = User::factory(10)->create();
 
-        // Create a specific test user
-        $testUser = User::factory()->create([
-            'nama_user' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Create or update a specific test user (idempotent) and ensure it's in the collection
+        $testUser = User::updateOrCreate(
+            ['Email' => 'test@example.com'],
+            [
+                'Nama_User' => 'Test User',
+                'Password' => Hash::make('password'),
+            ]
+        );
 
-        // Create schedules for users
-        $schedules = Schedule::factory(20)->create([
-            'user_id' => $users->random()->user_id,
-        ]);
+        if (! $users->contains('User_ID', $testUser->User_ID)) {
+            $users->push($testUser);
+        }
+
+        // Create schedules and assign a random user for each schedule
+        $schedules = Schedule::factory()->count(20)->make()->each(function ($schedule) use ($users) {
+            $schedule->User_ID = $users->random()->User_ID;
+            $schedule->save();
+        });
 
         // Create history schedules
         HistorySchedule::factory(15)->create([
-            'schedule_id' => $schedules->random()->schedule_id,
+            'Schedule_ID' => $schedules->random()->Schedule_ID,
         ]);
 
         // Create pivot table entries (Jumlah Jam Kegiatan User)
         foreach ($users->take(5) as $user) {
             $user->schedules()->attach(
-                $schedules->random(3)->pluck('schedule_id')->toArray()
+                $schedules->random(3)->pluck('Schedule_ID')->toArray()
             );
         }
 
         // Create RPPs
-        $rpps = Rpp::factory(15)->create();
+        $rpp = Rpp::factory(15)->create();
 
         // Create Chatbot AI entries
         ChatbotAi::factory(10)->create();
 
-        // Create Saran Chatbot Schedule
-        SaranChatbotSchedule::factory(10)->create([
-            'schedule_id' => $schedules->random()->schedule_id,
-        ]);
-
-        // Create Saran Chatbot RPP
-        SaranChatbotRpp::factory(10)->create([
-            'rpp_id' => $rpps->random()->rpp_id,
-        ]);
     }
 }
 

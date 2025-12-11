@@ -20,9 +20,9 @@ class ChatbotAiFactory extends Factory
     public function definition(): array
     {
         return [
-            'judul_chat' => fake()->sentence(4),
-            'request_history' => fake()->text(500),
-            'send_history' => fake()->text(500),
+            'Judul_Chat' => fake()->sentence(4),
+            'Request_History' => fake()->text(500),
+            'Send_History' => fake()->text(500),
         ];
     }
 }
