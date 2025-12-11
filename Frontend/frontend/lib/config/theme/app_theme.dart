@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import 'colors.dart';
+import 'typography.dart';
 
 class AppTheme {
   // =============================
-  // LIGHT THEME (Aesthetic Pastel)
+  //  🔵 LIGHT THEME (No Dark Mode)
   // =============================
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
@@ -12,95 +14,77 @@ class AppTheme {
 
     scaffoldBackgroundColor: AppColors.background,
 
-    textTheme: GoogleFonts.montserratTextTheme(),
+    // TEXT THEME – kecil & modern
+    textTheme: GoogleFonts.montserratTextTheme().copyWith(
+      headlineMedium: AppTypography.h1,
+      headlineSmall: AppTypography.h2,
+      titleLarge: AppTypography.h3,
+      bodyMedium: AppTypography.body,
+      bodySmall: AppTypography.small,
+    ),
+
     fontFamily: GoogleFonts.montserrat().fontFamily,
 
-    colorScheme: ColorScheme.light(
+    colorScheme: const ColorScheme.light(
       primary: AppColors.primary,
       secondary: AppColors.secondary,
       surface: Colors.white,
     ),
 
-    // NAVBAR
-    appBarTheme: const AppBarTheme(
+    // 🔹 APP BAR
+    appBarTheme: AppBarTheme(
       backgroundColor: AppColors.primary,
-      elevation: 0,
-      centerTitle: false,
       foregroundColor: AppColors.textDark,
+      centerTitle: false,
+      titleTextStyle: GoogleFonts.montserrat(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        color: AppColors.textDark,
+      ),
+      elevation: 0,
     ),
 
-    // BUTTONS
+    // 🔹 BUTTONS
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.textDark,
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 22),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 0,
       ),
     ),
 
     textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+      style: TextButton.styleFrom(
+        foregroundColor: AppColors.primary,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+      ),
     ),
 
-    // CARDS
+    // 🔹 CARDS
     cardTheme: CardThemeData(
       color: Colors.white,
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
     ),
 
-    // INPUT FIELD
+    // 🔹 INPUT FIELDS
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: AppColors.primary.withOpacity(.3)),
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: AppColors.primary.withOpacity(.30)),
       ),
-      focusedBorder: const OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(16)),
-        borderSide: BorderSide(color: AppColors.primary, width: 1.6),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.primary, width: 1.3),
       ),
     ),
 
-    // EFFECTS
-    splashColor: AppColors.primary.withOpacity(.20),
-    highlightColor: AppColors.primary.withOpacity(.15),
-
-    iconTheme: const IconThemeData(color: AppColors.primary),
-  );
-
-  // =============================
-  // DARK THEME
-  // =============================
-  static ThemeData darkTheme = ThemeData(
-    brightness: Brightness.dark,
-    scaffoldBackgroundColor: Colors.black,
-
-    colorScheme: const ColorScheme.dark(
-      primary: AppColors.primary,
-      secondary: AppColors.secondary,
-    ),
-
-    textTheme: GoogleFonts.montserratTextTheme(
-      ThemeData.dark().textTheme,
-    ).apply(bodyColor: Colors.white, displayColor: Colors.white),
-
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.black,
-      foregroundColor: Colors.white,
-      elevation: 0,
-    ),
-
-    cardTheme: CardThemeData(
-      color: Colors.grey[900],
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-    ),
+    // 🔹 ICON THEME – lebih kecil
+    iconTheme: const IconThemeData(color: AppColors.primary, size: 18),
   );
 }
