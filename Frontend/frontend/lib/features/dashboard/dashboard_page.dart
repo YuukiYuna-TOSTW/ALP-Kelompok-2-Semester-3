@@ -5,6 +5,7 @@ import 'widgets/guru_dashboard.dart';
 import 'widgets/kepsek_dashboard.dart';
 import 'right_panels/guru_right_panels.dart';
 import 'right_panels/kepsek_right_panel.dart';
+import 'right_panels/admin_right_panels.dart';
 
 class DashboardPage extends StatelessWidget {
   final String role;
@@ -43,8 +44,8 @@ class DashboardPage extends StatelessWidget {
   // ============================
   Widget _buildRightPanel(String role) {
     switch (role) {
-      // case "admin":
-      //   return const AdminRightPanel();
+      case "admin":
+        return const AdminRightPanel();
 
       case "guru":
         return const GuruRightPanel();
