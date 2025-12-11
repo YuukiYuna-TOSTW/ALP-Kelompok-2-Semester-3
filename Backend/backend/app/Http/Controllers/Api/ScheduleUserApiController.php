@@ -21,8 +21,8 @@ class ScheduleUserApiController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'user_id' => 'required|exists:users,user_id',
-            'schedule_id' => 'required|exists:schedules,schedule_id',
+            'user_id' => 'required|exists:users,User_ID',
+            'schedule_id' => 'required|exists:schedules,Schedule_ID',
         ]);
 
         // prevent duplicate
@@ -45,6 +45,42 @@ class ScheduleUserApiController extends Controller
             return response()->json(['message' => 'Not found'], 404);
         }
         return response()->json($item);
+    }
+
+    // PUT /api/schedule-user/{user_id}/{schedule_id}
+    public function update(Request $request, $user_id, $schedule_id): JsonResponse
+    {
+        $item = ScheduleUser::where('user_id', $user_id)->where('schedule_id', $schedule_id)->first();
+        
+        if (!$item) {
+            return response()->json(['message' => 'Not found'], 404);
+        }
+
+        $data = $request->validate([
+            'user_id' => 'sometimes|exists:users,User_ID',
+            'schedule_id' => 'sometimes|exists:schedules,Schedule_ID',
+        ]);
+
+        // Check duplicate jika mengubah relasi
+        if (isset($data['user_id']) || isset($data['schedule_id'])) {
+            $newUserId = $data['user_id'] ?? $user_id;
+            $newScheduleId = $data['schedule_id'] ?? $schedule_id;
+
+            $exists = ScheduleUser::where('user_id', $newUserId)
+                ->where('schedule_id', $newScheduleId)
+                ->where(function($query) use ($user_id, $schedule_id) {
+                    $query->where('user_id', '!=', $user_id)
+                        ->orWhere('schedule_id', '!=', $schedule_id);
+                })
+                ->exists();
+
+            if ($exists) {
+                return response()->json(['message' => 'Relation already exists'], 409);
+            }
+        }
+
+        $item->update($data);
+        return response()->json(['message' => 'Updated', 'data' => $item]);
     }
 
     // DELETE /api/schedule-user/{user_id}/{schedule_id}

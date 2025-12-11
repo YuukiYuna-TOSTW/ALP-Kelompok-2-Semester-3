@@ -11,10 +11,15 @@ void showOtpSuccessDialog(BuildContext context) {
         child: Container(
           padding: const EdgeInsets.all(30),
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [cardWhite, cardBlue]),
+            gradient: LinearGradient(
+              colors: [AppColors.cardLight, AppColors.cardBlue],
+            ),
             borderRadius: BorderRadius.circular(25),
             boxShadow: [
-              BoxShadow(color: primaryColor.withOpacity(0.3), blurRadius: 20),
+              BoxShadow(
+                color: AppColors.primary.withOpacity(0.3),
+                blurRadius: 20,
+              ),
             ],
           ),
           child: Column(
@@ -25,7 +30,7 @@ void showOtpSuccessDialog(BuildContext context) {
                 height: 80,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [primaryColor, secondaryColor],
+                    colors: [AppColors.primary, AppColors.secondary],
                   ),
                   shape: BoxShape.circle,
                 ),
@@ -51,7 +56,7 @@ void showOtpSuccessDialog(BuildContext context) {
                 height: 50,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
+                    backgroundColor: AppColors.primary,
                   ),
                   onPressed: () => Navigator.pop(context),
                   child: const Text(

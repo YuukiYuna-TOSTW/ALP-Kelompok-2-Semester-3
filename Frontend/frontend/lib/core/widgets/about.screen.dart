@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:kalender/kalender.dart';
+=======
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../features/homepage/widgets/developer_item.dart';
+import '../../features/homepage/widgets/contact_item.dart';
+>>>>>>> a72c25488a760764e92fa40631f67b7447272df6
 
 void main() {
   runApp(MyApp());

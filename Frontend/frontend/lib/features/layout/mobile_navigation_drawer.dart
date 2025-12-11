@@ -51,10 +51,12 @@ class MobileNavigationDrawer extends StatelessWidget {
             const SizedBox(height: 30),
 
             // contoh menu aesthetic
-            _drawerButton(Icons.dashboard_outlined, "Dashboard", () {}),
-            _drawerButton(Icons.schedule_rounded, "Jadwal", () {}),
-            _drawerButton(Icons.menu_book_outlined, "RPP", () {}),
-            _drawerButton(Icons.logout, "Logout", () {}),
+            _drawerButton(context, Icons.dashboard_outlined, "Dashboard", () {
+              Navigator.pop(context);
+            }),
+            _drawerButton(context, Icons.schedule_rounded, "Jadwal", () {}),
+            _drawerButton(context, Icons.menu_book_outlined, "RPP", () {}),
+            _drawerButton(context, Icons.logout, "Logout", () {}),
 
             const Spacer(),
             const Padding(
@@ -70,7 +72,12 @@ class MobileNavigationDrawer extends StatelessWidget {
     );
   }
 
-  Widget _drawerButton(IconData icon, String title, VoidCallback onTap) {
+  Widget _drawerButton(
+    BuildContext context,
+    IconData icon,
+    String title,
+    VoidCallback onTap,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: ListTile(

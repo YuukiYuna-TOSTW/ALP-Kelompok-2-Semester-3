@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'package:google_fonts/google_fonts.dart';
 import 'colors.dart';
 
@@ -102,18 +101,6 @@ class AppTheme {
       color: Colors.grey[900],
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-=======
-import 'colors.dart';
-
-ThemeData getAppTheme() {
-  return ThemeData(
-    primaryColor: primaryColor,
-    colorScheme: ColorScheme.fromSwatch().copyWith(primary: primaryColor),
-    inputDecorationTheme: const InputDecorationTheme(
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8.0)),
-      ),
->>>>>>> autentikasi_login
     ),
   );
 }

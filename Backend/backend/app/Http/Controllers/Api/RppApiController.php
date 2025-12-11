@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Rpp;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Resources\Rpp as RppResource; // alias untuk resource
+use App\Http\Resources\Rpp as RppResource;
 
 class RppApiController extends Controller
 {
@@ -19,10 +19,18 @@ class RppApiController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'Nama_Mata_Pelajaran' => 'required|string',
-            'Kelas' => 'required|string',
-            'Tahun_Pelajaran' => 'required|string',
-            // tambahkan validasi lain sesuai $fillable
+            'Nama_Mata_Pelajaran' => 'required|string|max:255',
+            'Kelas' => 'required|string|max:50',
+            'Tahun_Pelajaran' => 'required|string|max:50',
+            'Kompetensi_Dasar' => 'required|string',
+            'Kompetensi_Inti' => 'required|string',
+            'Tujuan_Pembelajaran' => 'required|string',
+            'Materi_Pembelajaran' => 'required|string',
+            'Asesmen_Pembelajaran' => 'required|string',
+            'Metode_Pembelajaran' => 'required|string',
+            'Media_Pembelajaran' => 'required|string',
+            'Sumber_Belajar' => 'required|string',
+            'Lampiran_Belajar' => 'nullable|string',
         ]);
 
         $model = Rpp::create($data);
@@ -36,7 +44,22 @@ class RppApiController extends Controller
 
     public function update(Request $request, Rpp $rpp): JsonResponse
     {
-        $rpp->update($request->all());
+        $data = $request->validate([
+            'Nama_Mata_Pelajaran' => 'sometimes|string|max:255',
+            'Kelas' => 'sometimes|string|max:50',
+            'Tahun_Pelajaran' => 'sometimes|string|max:50',
+            'Kompetensi_Dasar' => 'sometimes|string',
+            'Kompetensi_Inti' => 'sometimes|string',
+            'Tujuan_Pembelajaran' => 'sometimes|string',
+            'Materi_Pembelajaran' => 'sometimes|string',
+            'Asesmen_Pembelajaran' => 'sometimes|string',
+            'Metode_Pembelajaran' => 'sometimes|string',
+            'Media_Pembelajaran' => 'sometimes|string',
+            'Sumber_Belajar' => 'sometimes|string',
+            'Lampiran_Belajar' => 'nullable|string',
+        ]);
+
+        $rpp->update($data);
         return response()->json(new RppResource($rpp));
     }
 
