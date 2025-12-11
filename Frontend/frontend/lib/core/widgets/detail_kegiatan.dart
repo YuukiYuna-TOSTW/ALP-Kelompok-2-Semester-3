@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../config/theme/colors.dart';
-import '../widgets/read_box.dart';
+import '../../config/theme/colors.dart';
+import '../../features/homepage/widgets/read_box.dart';
 
 class EventDetailPage extends StatelessWidget {
   const EventDetailPage({super.key});
@@ -43,7 +43,7 @@ class EventDetailPage extends StatelessWidget {
                       Text(
                         "Detail kegiatan",
                         style: TextStyle(
-                          color: primaryColor,
+                          color: AppColors.primary,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -189,7 +189,7 @@ class EventDetailPage extends StatelessWidget {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: fileTagColor,
+                          color: AppColors.primary,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Row(
@@ -225,7 +225,7 @@ class EventDetailPage extends StatelessWidget {
                         width: 140,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryColor,
+                            backgroundColor: AppColors.primary,
                           ),
                           onPressed: () {},
                           child: const Text(

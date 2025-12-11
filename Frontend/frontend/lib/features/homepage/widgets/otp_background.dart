@@ -11,17 +11,17 @@ class OtpBackground extends StatelessWidget {
         Positioned(
           top: -50,
           right: -30,
-          child: _bubble(150, primaryColor.withOpacity(0.1)),
+          child: _bubble(150, AppColors.primary.withOpacity(0.1)),
         ),
         Positioned(
           bottom: -80,
           left: -40,
-          child: _bubble(200, accentColor.withOpacity(0.1)),
+          child: _bubble(200, AppColors.accent.withOpacity(0.1)),
         ),
         Positioned(
           top: MediaQuery.of(context).size.height * 0.4,
           left: 20,
-          child: _bubble(60, secondaryColor.withOpacity(0.07)),
+          child: _bubble(60, AppColors.secondary.withOpacity(0.07)),
         ),
       ],
     );

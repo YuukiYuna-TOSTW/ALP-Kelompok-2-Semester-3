@@ -90,7 +90,7 @@ class _EventFormCardState extends State<EventFormCard> {
                     Text(
                       'Tambahkan kegiatan',
                       style: TextStyle(
-                        color: primaryColor,
+                        color: AppColors.primary,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
@@ -326,7 +326,7 @@ class _EventFormCardState extends State<EventFormCard> {
                         height: 48,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryColor,
+                            backgroundColor: AppColors.primary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(6),
                             ),
