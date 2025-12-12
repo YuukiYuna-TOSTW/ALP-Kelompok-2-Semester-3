@@ -4,12 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Schedule extends Model
 {
     use HasFactory;
 
+    protected $table = 'Schedules';
     protected $primaryKey = 'Schedule_ID';
+    public $timestamps = true;
 
     /**
      * The attributes that are mass assignable.
@@ -18,7 +21,7 @@ class Schedule extends Model
      */
     protected $fillable = [
         'Nama_Schedule',
-        'Penyelenggara_Schedule',
+        'Penyelenggara',
         'Tanggal_Schedule_Dimulai',
         'Tanggal_Schedule_Berakhir',
         'Jam_Schedule_Dimulai',
@@ -30,9 +33,9 @@ class Schedule extends Model
     /**
      * Get the user who created this schedule.
      */
-    public function penyelenggara()
+    public function penyelenggara(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'Penyelenggara_Schedule', 'Nama_User');
+        return $this->belongsTo(User::class, 'User_ID', 'User_ID');
     }
 
     /**

@@ -4,18 +4,12 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
  */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
-    protected static ?string $password;
-
     /**
      * Define the model's default state.
      *
@@ -24,10 +18,40 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'Nama_User' => 'Kelompok2',
-            'Email' => 'Kelompok2ALPGacor@gmail.com',
-            'Password' =>'Kelompok2Gacor',
-            'role' => 'Admin',
+            'Nama_User' => $this->faker->unique()->userName(),
+            'Email' => $this->faker->unique()->safeEmail(),
+            'Password' => Hash::make('password123'),
+            'Role' => $this->faker->randomElement(['Admin', 'User', 'Kepala_Sekolah']),
         ];
+    }
+
+    public function admin(): static
+    {
+        return $this->state([
+            'Nama_User' => 'Kelompok2Admin',
+            'Email' => 'Kelompok2Admin@gmail.com',
+            'Password' => Hash::make('Kelompok2Admin'),
+            'Role' => 'Admin',
+        ]);
+    }
+
+    public function guru(): static
+    {
+        return $this->state([
+            'Nama_User' => 'Kelompok2Guru',
+            'Email' => 'Kelompok2Guru@gmail.com',
+            'Password' => Hash::make('Kelompok2Guru'),
+            'Role' => 'Guru',
+        ]);
+    }
+
+    public function kepalaSekolah(): static
+    {
+        return $this->state([
+            'Nama_User' => 'Kelompok2KepalaSekolah',
+            'Email' => 'Kelompok2KepalaSekolah@gmail.com',
+            'Password' => Hash::make('Kelompok2KepalaSekolah'),
+            'Role' => 'Kepala_Sekolah',
+        ]);
     }
 }
