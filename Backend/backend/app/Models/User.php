@@ -61,4 +61,12 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Schedule::class, 'schedule_user', 'User_ID', 'Schedule_ID');
     }
+
+    /**
+     * Get the OTP code for this user.
+     */
+    public function otpCode()
+    {
+        return $this->hasOne(OtpCode::class, 'Email', 'Email');
+    }
 }
