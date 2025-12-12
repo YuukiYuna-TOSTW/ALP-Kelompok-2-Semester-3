@@ -21,7 +21,7 @@ class Schedule extends Model
      */
     protected $fillable = [
         'Nama_Schedule',
-        'Penyelenggara',
+        'Penyelenggara_ID',
         'Tanggal_Schedule_Dimulai',
         'Tanggal_Schedule_Berakhir',
         'Jam_Schedule_Dimulai',
@@ -35,7 +35,7 @@ class Schedule extends Model
      */
     public function penyelenggara(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'User_ID', 'User_ID');
+        return $this->belongsTo(\App\Models\User::class, 'Penyelenggara_ID', 'User_ID');
     }
 
     /**

@@ -9,24 +9,24 @@ class ScheduleUser extends Model
 {
     use HasFactory;
 
-    protected $table = 'schedule_user';
+    protected $table = 'Schedule_User';
 
     // No single auto-incrementing primary key on pivot table
     public $incrementing = false;
     public $timestamps = true;
 
     protected $fillable = [
-        'user_id',
-        'schedule_id',
+        'User_ID',
+        'Schedule_ID',
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'user_id');
+        return $this->belongsTo(User::class, 'User_ID', 'User_ID');
     }
 
     public function schedule()
     {
-        return $this->belongsTo(Schedule::class, 'schedule_id', 'schedule_id');
+        return $this->belongsTo(Schedule::class, 'Schedule_ID', 'Schedule_ID');
     }
 }

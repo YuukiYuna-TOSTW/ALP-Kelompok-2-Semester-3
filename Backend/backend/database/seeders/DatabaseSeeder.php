@@ -35,7 +35,7 @@ class DatabaseSeeder extends Seeder
 
         // ✅ Create schedules dengan User_ID (bukan Penyelenggara_Schedule)
         $schedules = Schedule::factory()->count(20)->create()->each(function ($schedule) use ($users) {
-            $schedule->Penyelenggara = $users->random()->User_ID;
+            $schedule->Penyelenggara_ID = $users->where('Role','Guru')->random()->User_ID ?? $users->random()->User_ID;
             $schedule->save();
         });
 

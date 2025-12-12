@@ -15,7 +15,7 @@ class ScheduleApiController extends Controller
      */
     public function index(): JsonResponse
     {
-        $schedules = Schedule::with('creator')->latest()->paginate(15);
+        $schedules = Schedule::with('penyelenggara')->latest()->paginate(15);
         return response()->json(ScheduleResource::collection($schedules));
     }
 
@@ -24,7 +24,7 @@ class ScheduleApiController extends Controller
      */
     public function show($id): JsonResponse
     {
-        $schedule = Schedule::with('creator')->findOrFail($id);
+        $schedule = Schedule::with('penyelenggara')->findOrFail($id);
         return response()->json(new ScheduleResource($schedule));
     }
 
@@ -35,13 +35,13 @@ class ScheduleApiController extends Controller
     {
         $data = $request->validate([
             'Nama_Schedule' => 'required|string|max:255',
-            'Penyelenggara_Schedule' => 'required|string|exists:users,Nama_User',
+            'Penyelenggara_ID' => 'required|exists:Users,User_ID',
             'Tanggal_Schedule_Dimulai' => 'required|date',
-            'Tanggal_Schedule_Berakhir' => 'required|date',
-            'Jam_Schedule_Dimulai' => 'time|max:100',
-            'Jam_Schedule_Berakhir' => 'time|max:100',
+            'Tanggal_Schedule_Berakhir' => 'required|date|after_or_equal:Tanggal_Schedule_Dimulai',
+            'Jam_Schedule_Dimulai' => 'required|date_format:H:i',
+            'Jam_Schedule_Berakhir' => 'required|date_format:H:i',
             'Deskripsi_Schedule' => 'nullable|string',
-            'Dokumen' => 'nullable|string', // jika file upload, tangani secara terpisah
+            'Dokumen' => 'nullable|string',
         ]);
 
         $model = Schedule::create($data);
@@ -55,19 +55,19 @@ class ScheduleApiController extends Controller
     public function update(Request $request, $id): JsonResponse
     {
         $schedule = Schedule::findOrFail($id);
-
         $data = $request->validate([
             'Nama_Schedule' => 'sometimes|string|max:255',
-            'Penyelenggara_Schedule' => 'required|string|exists:users,Nama_User',
+            'Penyelenggara_Schedule' => 'sometimes|exists:Users,User_ID',
             'Tanggal_Schedule_Dimulai' => 'sometimes|date',
-            'Tanggal_Schedule_Berakhir' => 'sometimes|date',
-            'Jam_Schedule_Dimulai' => 'sometimes|time|max:100',
-            'Jam_Schedule_Berakhir' => 'sometimes|time|max:100',
+            'Tanggal_Schedule_Berakhir' => 'sometimes|date|after_or_equal:Tanggal_Schedule_Dimulai',
+            'Jam_Schedule_Dimulai' => 'sometimes|date_format:H:i',
+            'Jam_Schedule_Berakhir' => 'sometimes|date_format:H:i',
             'Deskripsi_Schedule' => 'sometimes|nullable|string',
             'Dokumen' => 'sometimes|nullable|string',
         ]);
 
         $schedule->update($data);
+        $schedule->load('penyelenggara');
         return response()->json(new ScheduleResource($schedule));
     }
 
