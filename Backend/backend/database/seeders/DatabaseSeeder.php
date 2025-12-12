@@ -6,10 +6,8 @@ use App\Models\User;
 use App\Models\Schedule;
 use App\Models\HistorySchedule;
 use App\Models\Rpp;
-use App\Models\ChatbotAi;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,25 +18,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create users
-        $users = User::factory(10)->create();
+        // ✅ Buat 1 admin khusus menggunakan factory
+        $admin = User::factory()->admin()->create();
 
-        // Create or update a specific test user (idempotent) and ensure it's in the collection
-        $testUser = User::updateOrCreate(
-            ['Email' => 'test@example.com'],
-            [
-                'Nama_User' => 'Test User',
-                'Password' => Hash::make('password'),
-            ]
-        );
+        // ✅ Buat 1 guru khusus menggunakan factory
+        $guru = User::factory()->guru()->create();
 
-        if (! $users->contains('User_ID', $testUser->User_ID)) {
-            $users->push($testUser);
-        }
+        // ✅ Buat 1 kepala sekolah khusus menggunakan factory
+        $kepalaSekolah = User::factory()->kepalaSekolah()->create();
 
-        // Create schedules and assign a random user for each schedule
-        $schedules = Schedule::factory()->count(20)->make()->each(function ($schedule) use ($users) {
-            $schedule->User_ID = $users->random()->User_ID;
+        // ✅ Buat 7 user random dengan role acak
+        $randomUsers = User::factory()->count(7)->create();
+
+        // Gabungkan semua users
+        $users = collect([$admin, $guru, $kepalaSekolah])->merge($randomUsers);
+
+        // ✅ Create schedules dengan User_ID (bukan Penyelenggara_Schedule)
+        $schedules = Schedule::factory()->count(20)->create()->each(function ($schedule) use ($users) {
+            $schedule->Penyelenggara = $users->random()->User_ID;
             $schedule->save();
         });
 
@@ -56,9 +53,6 @@ class DatabaseSeeder extends Seeder
 
         // Create RPPs
         $rpp = Rpp::factory(15)->create();
-
-        // Create Chatbot AI entries
-        ChatbotAi::factory(10)->create();
 
     }
 }

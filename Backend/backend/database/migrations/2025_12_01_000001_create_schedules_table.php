@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('Schedules', function (Blueprint $table) {
             $table->id('Schedule_ID');
             $table->string('Nama_Schedule');
-            $table->string('Penyelenggara_Schedule');
+            $table->unsignedBigInteger('Penyelenggara'); 
             $table->date('Tanggal_Schedule_Dimulai');
             $table->date('Tanggal_Schedule_Berakhir');
             $table->time('Jam_Schedule_Dimulai');
@@ -23,8 +23,9 @@ return new class extends Migration
             $table->string('Dokumen')->nullable();
             $table->timestamps();
 
-            $table->foreign('Penyelenggara_Schedule')
-                ->references('Nama_User')
+            // ✅ Foreign key dengan nama kolom baru
+            $table->foreign('Penyelenggara')
+                ->references('User_ID')
                 ->on('Users')
                 ->onDelete('cascade');
         });
