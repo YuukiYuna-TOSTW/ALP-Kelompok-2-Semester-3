@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/widgets/tambah_kegiatan.dart';
+import '../../features/auth/widgets/tambah_kegiatan.dart';
 import '../../features/calendar/table_calender.dart';
 
 class AppRoutes {

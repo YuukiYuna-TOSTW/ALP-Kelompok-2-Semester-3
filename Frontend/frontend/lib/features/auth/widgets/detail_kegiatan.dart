@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../config/theme/colors.dart';
-import '../../features/homepage/widgets/read_box.dart';
+import '../../../config/theme/colors.dart';
+import '../../homepage/widgets/read_box.dart';
 
 class EventDetailPage extends StatelessWidget {
   const EventDetailPage({super.key});

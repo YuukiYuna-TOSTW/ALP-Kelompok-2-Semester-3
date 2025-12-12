@@ -46,11 +46,19 @@ class DashboardSidebar extends StatelessWidget {
           // ====================== MENU UTAMA ======================
           ...menuItems.map((item) {
             final bool active = selectedRoute == item.route;
+
             return Container(
               margin: const EdgeInsets.only(bottom: 12),
               child: InkWell(
-                onTap: () {},
                 borderRadius: BorderRadius.circular(12),
+
+                // 🔥 NAVIGASI SUDDAH DIBENERIN
+                onTap: () {
+                  if (item.route != selectedRoute) {
+                    Navigator.pushReplacementNamed(context, item.route);
+                  }
+                },
+
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     vertical: 10,

@@ -49,23 +49,52 @@ class DashboardFooter extends StatelessWidget {
                 ],
               ),
 
-              // 🤖 AI SUPPORT
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.support_agent,
-                  color: AppColors.primary,
-                  size: 22,
-                ),
+              // 🤖 AI SUPPORT + CONTACT DEV
+              Row(
+                children: [
+                  // Contact Developer
+                  InkWell(
+                    onTap: () {
+                      // === MASUKKAN KONTAK DEVELOPERMU DI SINI ===
+                      // contoh akses email:
+                      // launchUrl(Uri.parse("mailto:developer@email"));
+                    },
+                    child: Row(
+                      children: const [
+                        Icon(Icons.code_rounded, color: Colors.white, size: 22),
+                        SizedBox(width: 6),
+                        Text(
+                          "Contact Developer",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+
+                  // AI Support Icon
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.support_agent,
+                      color: AppColors.primary,
+                      size: 22,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
           // Garis tipis pemisah
           Container(

@@ -2,14 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'config/theme/app_theme.dart';
+
+// DASHBOARD
 import 'features/dashboard/dashboard_page.dart';
+
+// RPP PAGES
+import 'features/rpp/pages/rpp_list_pages.dart';
+import 'features/rpp/pages/rpp_form_page.dart';
+import 'features/rpp/pages/rpp_edit_page.dart';
+import 'features/rpp/pages/rpp_preview_page.dart';
+import 'features/rpp/pages/rpp_history_page.dart';
 
 //
 // =======================================================
 // 🟣 ROLE CONTROLLER (Untuk testing role tanpa login)
 // =======================================================
 class RoleController extends ChangeNotifier {
-  String role = "admin"; // default role
+  String role = "admin";
 
   void setRole(String newRole) {
     role = newRole;
@@ -32,7 +41,7 @@ void main() {
 
 //
 // =======================================================
-// 🏫 ROOT APP (Tema + Routing Utama)
+// 🏫 ROOT APP (Routing Utama + Tema)
 // =======================================================
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -42,11 +51,61 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "SMPN 1 Bontonompo Selatan",
-
-      // hanya light mode kecil
       theme: AppTheme.lightTheme,
 
-      home: const RolePreviewPage(),
+      initialRoute: "/role-preview",
+
+      routes: {
+        "/role-preview": (_) => const RolePreviewPage(),
+
+        "/dashboard": (context) {
+          final role = context.read<RoleController>().role;
+          return DashboardPage(role: role);
+        },
+
+        // =====================================================
+        // 🟦 RPP ROUTES — FINAL VERSION
+        // =====================================================
+        "/rpp": (_) => const RppListPage(),
+
+        "/rpp/create": (_) => const RppFormPage(),
+
+        "/rpp/edit": (context) {
+          final args = ModalRoute.of(context)!.settings.arguments;
+
+          // Jika args berupa Map (data lengkap)
+          if (args is Map<String, dynamic>) {
+            return RppEditPage(data: args);
+          }
+
+          // Jika args berupa format lama
+          if (args is Map) {
+            return RppEditPage(
+              data: {
+                "status": args["status"],
+                "revisi": args["revisionNotes"] ?? [],
+              },
+            );
+          }
+
+          return const RppEditPage();
+        },
+
+        "/rpp/preview": (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map?;
+          return RppPreviewPage(
+            mapel: args?["mapel"] ?? "",
+            kelas: args?["kelas"] ?? "",
+            bab: args?["bab"] ?? "",
+            status: args?["status"] ?? "",
+          );
+        },
+
+        "/rpp/history": (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map?;
+          return RppHistoryPage(data: args);
+        },
+      },
     );
   }
 }
@@ -118,7 +177,7 @@ class RolePreviewPage extends StatelessWidget {
                 ],
                 onChanged: (value) {
                   if (value != null) {
-                    context.read<RoleController>().setRole(value);
+                    roleCtrl.setRole(value);
                   }
                 },
               ),
@@ -129,25 +188,13 @@ class RolePreviewPage extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: 12,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    textStyle: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    ),
                   ),
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => DashboardPage(role: roleCtrl.role),
-                      ),
-                    );
+                    Navigator.pushNamed(context, "/dashboard");
                   },
                   child: const Text("Tampilkan Dashboard"),
                 ),
