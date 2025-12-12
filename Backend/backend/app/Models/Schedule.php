@@ -18,27 +18,14 @@ class Schedule extends Model
      */
     protected $fillable = [
         'Nama_Schedule',
-        'Tanggal_Schedule',
-        'Mata_Pelajaran',
-        'Lokasi_Schedule',
+        'Penyelenggara_Schedule',
+        'Tanggal_Schedule_Dimulai',
+        'Tanggal_Schedule_Berakhir',
         'Jam_Schedule_Dimulai',
         'Jam_Schedule_Berakhir',
-        'Penyelenggara_Schedule',
         'Deskripsi_Schedule',
         'Dokumen',
     ];
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'Tanggal_Schedule' => 'date',
-        ];
-    }
 
     /**
      * Get the user who created this schedule.
