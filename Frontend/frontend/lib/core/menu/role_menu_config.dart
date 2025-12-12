@@ -24,7 +24,10 @@ class RoleMenuConfig {
     MenuItemModel("Dashboard", Icons.dashboard_rounded, "/dashboard"),
     MenuItemModel("Jadwal", Icons.calendar_month_rounded, "/schedule"),
     MenuItemModel("Data Guru & Kelas", Icons.people_alt_rounded, "/management"),
-    MenuItemModel("RPP", Icons.menu_book_rounded, "/rpp"),
+
+    /// ADMIN → lihat semua RPP
+    MenuItemModel("RPP Guru", Icons.menu_book_rounded, "/admin/rpp"),
+
     MenuItemModel("Pengumuman", Icons.campaign_rounded, "/announcement"),
     MenuItemModel(
       "Notifikasi",
@@ -38,8 +41,13 @@ class RoleMenuConfig {
   // ================================
   static final List<MenuItemModel> kepsekMenu = [
     MenuItemModel("Dashboard", Icons.dashboard_rounded, "/dashboard"),
-    MenuItemModel("RPP", Icons.menu_book_rounded, "/rpp"),
-    MenuItemModel("Review", Icons.fact_check_rounded, "/review"),
+
+    /// KEPSEK → lihat semua RPP
+    MenuItemModel("RPP Guru", Icons.menu_book_rounded, "/kepsek/rpp"),
+
+    /// Bisa beri review
+    MenuItemModel("Review", Icons.fact_check_rounded, "/kepsek/rpp"),
+
     MenuItemModel(
       "Jadwal Sekolah",
       Icons.calendar_view_month_rounded,
@@ -59,7 +67,10 @@ class RoleMenuConfig {
   static final List<MenuItemModel> guruMenu = [
     MenuItemModel("Dashboard", Icons.dashboard_rounded, "/dashboard"),
     MenuItemModel("Jadwal", Icons.calendar_today_rounded, "/schedule"),
-    MenuItemModel("RPP", Icons.menu_book_rounded, "/rpp"),
+
+    /// GURU → hanya RPP miliknya
+    MenuItemModel("RPP Saya", Icons.menu_book_rounded, "/rpp"),
+
     MenuItemModel(
       "Notifikasi",
       Icons.notification_add_rounded,
@@ -71,10 +82,24 @@ class RoleMenuConfig {
   // ⭐ PERMISSION KHUSUS HALAMAN RPP
   // ========================================
   static final Map<String, List<String>> rppPermissions = {
-    "admin": ["/rpp", "/rpp/create", "/rpp/history", "/rpp/review"],
+    // ADMIN -> hanya read all, preview, history (NO create, NO review)
+    "admin": ["/admin/rpp", "/rpp/preview", "/rpp/history"],
 
-    "kepsek": ["/rpp", "/rpp/review", "/rpp/history"],
+    // KEPSEK -> lihat semua RPP + review + history
+    "kepsek": [
+      "/kepsek/rpp",
+      "/kepsek/rpp/review",
+      "/rpp/preview",
+      "/rpp/history",
+    ],
 
-    "guru": ["/rpp", "/rpp/create", "/rpp/history"],
+    // GURU -> create/edit/view/history RPP pribadi
+    "guru": [
+      "/rpp",
+      "/rpp/create",
+      "/rpp/edit",
+      "/rpp/preview",
+      "/rpp/history",
+    ],
   };
 }
