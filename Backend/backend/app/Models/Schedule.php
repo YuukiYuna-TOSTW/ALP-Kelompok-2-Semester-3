@@ -19,9 +19,11 @@ class Schedule extends Model
     protected $fillable = [
         'Nama_Schedule',
         'Tanggal_Schedule',
+        'Mata_Pelajaran',
         'Lokasi_Schedule',
-        'Jam_Schedule',
-        'User_ID',
+        'Jam_Schedule_Dimulai',
+        'Jam_Schedule_Berakhir',
+        'Penyelenggara_Schedule',
         'Deskripsi_Schedule',
         'Dokumen',
     ];
@@ -41,9 +43,9 @@ class Schedule extends Model
     /**
      * Get the user who created this schedule.
      */
-    public function creator()
+    public function penyelenggara()
     {
-        return $this->belongsTo(User::class, 'User_ID', 'User_ID');
+        return $this->belongsTo(User::class, 'Penyelenggara_Schedule', 'Nama_User');
     }
 
     /**

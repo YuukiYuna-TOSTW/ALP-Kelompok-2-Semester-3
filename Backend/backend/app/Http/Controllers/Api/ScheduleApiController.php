@@ -35,15 +35,18 @@ class ScheduleApiController extends Controller
     {
         $data = $request->validate([
             'Nama_Schedule' => 'required|string|max:255',
-            'Tanggal_Schedule' => 'nullable|date',
-            'Lokasi_Schedule' => 'nullable|string|max:255',
-            'Jam_Schedule' => 'nullable|string|max:100',
-            'User_ID' => 'required|integer|exists:users,User_ID',
+            'Tanggal_Schedule' => 'date',
+            'Lokasi_Schedule' => 'string|max:255',
+            'Mata_Pelajaran' => 'required|in:Sekolah,Matematika,Bahasa_Indonesia,IPA,IPS,Bahasa_Inggris,Pendidikan_Kewarganegaraan,Seni_Budaya,Pendidikan_Jasmani,TIK,Agama,PKN',
+            'Jam_Schedule_Dimulai' => 'time|max:100',
+            'Jam_Schedule_Berakhir' => 'time|max:100',
+            'Penyelenggara_Schedule' => 'required|string|exists:users,Nama_User',
             'Deskripsi_Schedule' => 'nullable|string',
             'Dokumen' => 'nullable|string', // jika file upload, tangani secara terpisah
         ]);
 
         $model = Schedule::create($data);
+        $model->load('penyelenggara');
         return response()->json(new ScheduleResource($model), 201);
     }
 
@@ -56,10 +59,12 @@ class ScheduleApiController extends Controller
 
         $data = $request->validate([
             'Nama_Schedule' => 'sometimes|string|max:255',
-            'Tanggal_Schedule' => 'sometimes|nullable|date',
-            'Lokasi_Schedule' => 'sometimes|nullable|string|max:255',
-            'Jam_Schedule' => 'sometimes|nullable|string|max:100',
-            'User_ID' => 'sometimes|integer|exists:users,User_ID',
+            'Tanggal_Schedule' => 'sometimes|date',
+            'Lokasi_Schedule' => 'sometimes|string|max:255',
+            'Mata_Pelajaran' => 'sometimes|in:Sekolah,Matematika,Bahasa_Indonesia,IPA,IPS,Bahasa_Inggris,Pendidikan_Kewarganegaraan,Seni_Budaya,Pendidikan_Jasmani,TIK,Agama,PKN',
+            'Jam_Schedule_Dimulai' => 'sometimes|time|max:100',
+            'Jam_Schedule_Berakhir' => 'sometimes|time|max:100',
+            'Penyelenggara_Schedule' => 'sometimes|string|exists:users,Nama_User',
             'Deskripsi_Schedule' => 'sometimes|nullable|string',
             'Dokumen' => 'sometimes|nullable|string',
         ]);
