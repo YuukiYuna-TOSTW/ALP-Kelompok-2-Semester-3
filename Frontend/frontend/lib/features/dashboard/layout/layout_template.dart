@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../config/theme/colors.dart';
 import '../layout/sidebar.dart';
 import '../layout/footer.dart';
-import '../role_config/role_menu.dart';
+import '../../../core/menu/role_menu_config.dart';
 
 class DashboardLayout extends StatelessWidget {
   final String role;

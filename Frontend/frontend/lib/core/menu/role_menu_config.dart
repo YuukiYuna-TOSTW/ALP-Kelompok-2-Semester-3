@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/menu_item_model.dart';
+import '../../features/dashboard/models/menu_item_model.dart';
 
 class RoleMenuConfig {
   static List<MenuItemModel> getMenu(String role) {
@@ -24,7 +24,7 @@ class RoleMenuConfig {
     MenuItemModel("Dashboard", Icons.dashboard_rounded, "/dashboard"),
     MenuItemModel("Jadwal", Icons.calendar_month_rounded, "/schedule"),
     MenuItemModel("Data Guru & Kelas", Icons.people_alt_rounded, "/management"),
-    MenuItemModel("RPP & Template", Icons.menu_book_rounded, "/rpp"),
+    MenuItemModel("RPP", Icons.menu_book_rounded, "/rpp"),
     MenuItemModel("Pengumuman", Icons.campaign_rounded, "/announcement"),
     MenuItemModel(
       "Notifikasi",
@@ -66,4 +66,15 @@ class RoleMenuConfig {
       "/notifications",
     ),
   ];
+
+  // ========================================
+  // ⭐ PERMISSION KHUSUS HALAMAN RPP
+  // ========================================
+  static final Map<String, List<String>> rppPermissions = {
+    "admin": ["/rpp", "/rpp/create", "/rpp/history", "/rpp/review"],
+
+    "kepsek": ["/rpp", "/rpp/review", "/rpp/history"],
+
+    "guru": ["/rpp", "/rpp/create", "/rpp/history"],
+  };
 }

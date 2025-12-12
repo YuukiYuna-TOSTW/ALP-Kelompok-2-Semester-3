@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../config/theme/colors.dart';
-import '../../features/homepage/widgets/otp_background.dart';
+import '../../../config/theme/colors.dart';
+import '../../homepage/widgets/otp_background.dart';
 import 'package:frontend/config/controller/otp_controller.dart';
-import '../../features/homepage/widgets/otp_input_fields.dart';
+import '../../homepage/widgets/otp_input_fields.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   const OtpVerificationPage({super.key});
