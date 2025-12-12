@@ -35,12 +35,11 @@ class ScheduleApiController extends Controller
     {
         $data = $request->validate([
             'Nama_Schedule' => 'required|string|max:255',
-            'Tanggal_Schedule' => 'date',
-            'Lokasi_Schedule' => 'string|max:255',
-            'Mata_Pelajaran' => 'required|in:Sekolah,Matematika,Bahasa_Indonesia,IPA,IPS,Bahasa_Inggris,Pendidikan_Kewarganegaraan,Seni_Budaya,Pendidikan_Jasmani,TIK,Agama,PKN',
+            'Penyelenggara_Schedule' => 'required|string|exists:users,Nama_User',
+            'Tanggal_Schedule_Dimulai' => 'required|date',
+            'Tanggal_Schedule_Berakhir' => 'required|date',
             'Jam_Schedule_Dimulai' => 'time|max:100',
             'Jam_Schedule_Berakhir' => 'time|max:100',
-            'Penyelenggara_Schedule' => 'required|string|exists:users,Nama_User',
             'Deskripsi_Schedule' => 'nullable|string',
             'Dokumen' => 'nullable|string', // jika file upload, tangani secara terpisah
         ]);
@@ -59,12 +58,11 @@ class ScheduleApiController extends Controller
 
         $data = $request->validate([
             'Nama_Schedule' => 'sometimes|string|max:255',
-            'Tanggal_Schedule' => 'sometimes|date',
-            'Lokasi_Schedule' => 'sometimes|string|max:255',
-            'Mata_Pelajaran' => 'sometimes|in:Sekolah,Matematika,Bahasa_Indonesia,IPA,IPS,Bahasa_Inggris,Pendidikan_Kewarganegaraan,Seni_Budaya,Pendidikan_Jasmani,TIK,Agama,PKN',
+            'Penyelenggara_Schedule' => 'required|string|exists:users,Nama_User',
+            'Tanggal_Schedule_Dimulai' => 'sometimes|date',
+            'Tanggal_Schedule_Berakhir' => 'sometimes|date',
             'Jam_Schedule_Dimulai' => 'sometimes|time|max:100',
             'Jam_Schedule_Berakhir' => 'sometimes|time|max:100',
-            'Penyelenggara_Schedule' => 'sometimes|string|exists:users,Nama_User',
             'Deskripsi_Schedule' => 'sometimes|nullable|string',
             'Dokumen' => 'sometimes|nullable|string',
         ]);

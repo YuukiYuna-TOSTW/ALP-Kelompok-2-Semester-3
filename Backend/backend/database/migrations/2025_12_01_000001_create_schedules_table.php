@@ -14,12 +14,11 @@ return new class extends Migration
         Schema::create('Schedules', function (Blueprint $table) {
             $table->id('Schedule_ID');
             $table->string('Nama_Schedule');
-            $table->date('Tanggal_Schedule');
-            $table->enum('Mata_Pelajaran', ['Sekolah','Matematika', 'Bahasa_Indonesia', 'IPA', 'IPS', 'Bahasa_Inggris', 'Pendidikan_Kewarganegaraan', 'Seni_Budaya', 'Pendidikan_Jasmani', 'TIK', 'Agama', 'PKN']);
-            $table->string('Lokasi_Schedule');
+            $table->string('Penyelenggara_Schedule');
+            $table->date('Tanggal_Schedule_Dimulai');
+            $table->date('Tanggal_Schedule_Berakhir');
             $table->time('Jam_Schedule_Dimulai');
             $table->time('Jam_Schedule_Berakhir');
-            $table->string('Penyelenggara_Schedule');
             $table->text('Deskripsi_Schedule')->nullable();
             $table->string('Dokumen')->nullable();
             $table->timestamps();
