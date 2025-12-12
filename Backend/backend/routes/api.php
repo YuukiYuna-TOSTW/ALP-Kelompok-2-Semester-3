@@ -8,10 +8,21 @@ use App\Http\Controllers\Api\HistoryScheduleApiController;
 use App\Http\Controllers\Api\RppApiController;
 use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\Api\ScheduleUserApiController;
+use App\Http\Controllers\Api\OtpApiController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+// OTP Routes
+Route::prefix('otp')->group(function () {
+    Route::get('/', [OtpApiController::class, 'index']);
+    Route::post('/generate', [OtpApiController::class, 'generate']);
+    Route::post('/verify', [OtpApiController::class, 'verify']);
+    Route::post('/resend', [OtpApiController::class, 'resend']);
+    Route::get('/{email}', [OtpApiController::class, 'show']);
+    Route::delete('/{email}', [OtpApiController::class, 'destroy']);
+});
 
 // API resource routes for models (Schedule)
 Route::apiResource('schedules', ScheduleApiController::class);
