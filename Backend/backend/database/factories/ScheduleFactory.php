@@ -22,10 +22,11 @@ class ScheduleFactory extends Factory
     {
         return [
             'Nama_Schedule' => fake()->sentence(3),
-            'Tanggal_Schedule' => fake()->date(),
-            'Lokasi_Schedule' => fake()->address(),
-            'Jam_Schedule' => fake()->time('H:i') . '-' . fake()->time('H:i'),
-            'User_ID' => User::factory(),
+            'Tanggal_Schedule_Dimulai' => fake()->date(),
+            'Tanggal_Schedule_Berakhir' => fake()->date(),
+            'Jam_Schedule_Dimulai' => fake()->time('H:i'),
+            'Jam_Schedule_Berakhir' => fake()->time('H:i'),
+            'Penyelenggara_Schedule' => User::factory(),
             'Deskripsi_Schedule' => fake()->paragraph(),
             'Dokumen' => fake()->randomElement(['document.pdf', 'image.png', 'file.jpg', null]),
         ];
