@@ -28,12 +28,8 @@ class RoleMenuConfig {
     /// ADMIN → lihat semua RPP
     MenuItemModel("RPP Guru", Icons.menu_book_rounded, "/admin/rpp"),
 
+    /// ADMIN → bisa membuat & mengatur pengumuman
     MenuItemModel("Pengumuman", Icons.campaign_rounded, "/announcement"),
-    MenuItemModel(
-      "Notifikasi",
-      Icons.notification_add_rounded,
-      "/notifications",
-    ),
   ];
 
   // ================================
@@ -42,18 +38,18 @@ class RoleMenuConfig {
   static final List<MenuItemModel> kepsekMenu = [
     MenuItemModel("Dashboard", Icons.dashboard_rounded, "/dashboard"),
 
-    /// KEPSEK → lihat semua RPP
-    MenuItemModel("RPP Guru", Icons.menu_book_rounded, "/kepsek/rpp"),
-
-    /// Bisa beri review
-    MenuItemModel("Review", Icons.fact_check_rounded, "/kepsek/rpp"),
+    /// Bisa melakukan review
+    MenuItemModel("Review RPP Guru", Icons.fact_check_rounded, "/kepsek/rpp"),
 
     MenuItemModel(
       "Jadwal Sekolah",
       Icons.calendar_view_month_rounded,
       "/schedule",
     ),
+
+    /// Bisa membuat/manajemen pengumuman
     MenuItemModel("Pengumuman", Icons.campaign_rounded, "/announcement"),
+
     MenuItemModel(
       "Notifikasi",
       Icons.notification_add_rounded,
@@ -68,9 +64,10 @@ class RoleMenuConfig {
     MenuItemModel("Dashboard", Icons.dashboard_rounded, "/dashboard"),
     MenuItemModel("Jadwal", Icons.calendar_today_rounded, "/schedule"),
 
-    /// GURU → hanya RPP miliknya
+    /// Guru hanya melihat RPP sendiri
     MenuItemModel("RPP Saya", Icons.menu_book_rounded, "/rpp"),
 
+    /// Guru hanya MELIHAT pengumuman lewat notifikasi
     MenuItemModel(
       "Notifikasi",
       Icons.notification_add_rounded,
@@ -79,13 +76,11 @@ class RoleMenuConfig {
   ];
 
   // ========================================
-  // ⭐ PERMISSION KHUSUS HALAMAN RPP
+  // ⭐ PERMISSION KHUSUS RPP
   // ========================================
   static final Map<String, List<String>> rppPermissions = {
-    // ADMIN -> hanya read all, preview, history (NO create, NO review)
     "admin": ["/admin/rpp", "/rpp/preview", "/rpp/history"],
 
-    // KEPSEK -> lihat semua RPP + review + history
     "kepsek": [
       "/kepsek/rpp",
       "/kepsek/rpp/review",
@@ -93,13 +88,35 @@ class RoleMenuConfig {
       "/rpp/history",
     ],
 
-    // GURU -> create/edit/view/history RPP pribadi
     "guru": [
       "/rpp",
       "/rpp/create",
       "/rpp/edit",
       "/rpp/preview",
       "/rpp/history",
+    ],
+  };
+
+  // ========================================
+  // ⭐ PERMISSION KHUSUS PENGUMUMAN
+  // ========================================
+  static final Map<String, List<String>> announcementPermissions = {
+    "admin": [
+      "/announcement",
+      "/announcement/create",
+      "/announcement/edit",
+      "/announcement/detail",
+    ],
+
+    "kepsek": [
+      "/announcement",
+      "/announcement/create",
+      "/announcement/edit",
+      "/announcement/detail",
+    ],
+
+    "guru": [
+      "/announcement/detail", // hanya bisa lihat & download lampiran
     ],
   };
 }

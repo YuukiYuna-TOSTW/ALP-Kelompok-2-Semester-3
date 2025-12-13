@@ -4,9 +4,8 @@ import 'package:provider/provider.dart';
 // ROLE CONTROLLER
 import '../../main.dart';
 
-// AUTH
+// AUTH — pastikan hanya ini yang punya RolePreviewPage
 import '../../features/auth/pages/role_preview_page.dart';
-import '../../features/auth/widgets/tambah_kegiatan.dart';
 
 // DASHBOARD
 import '../../features/dashboard/dashboard_page.dart';
@@ -25,50 +24,44 @@ import '../../features/rpp/pages/rpp_review_page.dart';
 // RPP — ADMIN
 import '../../features/rpp/pages/admin_rpp_list_page.dart';
 
+// PENGUMUMAN
+import '../../features/announcement/pages/pengumuman_form_page.dart';
+import '../../features/announcement/pages/pengumuman_list_page.dart';
+import '../../features/announcement/pages/pengumuman_detail_page.dart';
+
 // KALENDER
 import '../../features/calendar/table_calender.dart';
 
 class AppRoutes {
   static Map<String, WidgetBuilder> allRoutes(BuildContext context) {
     return {
-      // =======================================================
+      // ========================
       // ROLE PREVIEW
-      // =======================================================
+      // ========================
       "/role-preview": (_) => const RolePreviewPage(),
 
-      // =======================================================
-      // DASHBOARD (Dynamic by Role)
-      // =======================================================
+      // ========================
+      // DASHBOARD
+      // ========================
       "/dashboard": (_) {
         final role = context.read<RoleController>().role;
         return DashboardPage(role: role);
       },
 
-      // =======================================================
+      // ========================
       // RPP — GURU
-      // =======================================================
+      // ========================
       "/rpp": (_) => const RppListPage(),
 
       "/rpp/create": (_) => const RppFormPage(),
 
-      "/rpp/edit": (context) {
-        final args = ModalRoute.of(context)!.settings.arguments;
-
-        if (args is Map) {
-          final safeMap = Map<String, dynamic>.from(args);
-          return RppEditPage(data: safeMap);
-        }
-
-        return const RppEditPage();
+      "/rpp/edit": (ctx) {
+        final data = _safeArgs(ModalRoute.of(ctx)!.settings.arguments);
+        return RppEditPage(data: data);
       },
 
-      "/rpp/preview": (context) {
-        final args = ModalRoute.of(context)!.settings.arguments;
-
-        final data = (args is Map)
-            ? Map<String, dynamic>.from(args)
-            : <String, dynamic>{};
-
+      "/rpp/preview": (ctx) {
+        final data = _safeArgs(ModalRoute.of(ctx)!.settings.arguments);
         return RppPreviewPage(
           mapel: data["mapel"] ?? "",
           kelas: data["kelas"] ?? "",
@@ -77,45 +70,61 @@ class AppRoutes {
         );
       },
 
-      "/rpp/history": (context) {
-        final args = ModalRoute.of(context)!.settings.arguments;
-
-        final data = (args is Map)
-            ? Map<String, dynamic>.from(args)
-            : <String, dynamic>{};
-
+      "/rpp/history": (ctx) {
+        final data = _safeArgs(ModalRoute.of(ctx)!.settings.arguments);
         return RppHistoryPage(data: data);
       },
 
-      // =======================================================
-      // RPP — KEPSEK / WAKASEK
-      // =======================================================
+      // ========================
+      // RPP — KEPSEK
+      // ========================
       "/kepsek/rpp": (_) => const RppAllListPage(),
 
-      "/kepsek/rpp/review": (context) {
-        final args = ModalRoute.of(context)!.settings.arguments;
-
-        final data = (args is Map)
-            ? Map<String, dynamic>.from(args)
-            : <String, dynamic>{};
-
+      "/kepsek/rpp/review": (ctx) {
+        final data = _safeArgs(ModalRoute.of(ctx)!.settings.arguments);
         return RppReviewPage(data: data);
       },
 
-      // =======================================================
+      // ========================
       // RPP — ADMIN
-      // =======================================================
+      // ========================
       "/admin/rpp": (_) => const AdminRppListPage(),
 
-      // =======================================================
-      // FITUR LAIN
-      // =======================================================
-      '/': (_) => const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(child: EventFormCard()),
-      ),
+      // ========================
+      // PENGUMUMAN — ADMIN & KEPSEK
+      // ========================
+      "/announcement": (_) {
+        final role = context.read<RoleController>().role;
+        return PengumumanListPage(role: role);
+      },
 
-      '/calendar': (_) => const CalendarPage(),
+      "/announcement/create": (_) => const PengumumanFormPage(),
+
+      "/announcement/edit": (ctx) {
+        final data = _safeArgs(ModalRoute.of(ctx)!.settings.arguments);
+        return PengumumanFormPage(data: data);
+      },
+
+      // ========================
+      // PENGUMUMAN — GURU
+      // ========================
+      "/announcement/detail": (ctx) {
+        final data = _safeArgs(ModalRoute.of(ctx)!.settings.arguments);
+        return PengumumanDetailPage(data: data);
+      },
+
+      // ========================
+      // OTHER ROUTES
+      // ========================
+      "/": (_) => const Scaffold(body: Center(child: Text("Welcome"))),
+
+      "/calendar": (_) => const CalendarPage(),
     };
+  }
+
+  // SAFE MAP HELPER
+  static Map<String, dynamic> _safeArgs(dynamic args) {
+    if (args is Map) return Map<String, dynamic>.from(args);
+    return {};
   }
 }

@@ -41,7 +41,11 @@ class DashboardNavbar extends StatelessWidget {
           Icon(Icons.notifications_none, color: AppColors.textDark),
           const SizedBox(width: 20),
 
-          // PROFILE
+          // SETTINGS MENU
+          _settingsMenu(context),
+          const SizedBox(width: 20),
+
+          // PROFILE AVATAR
           CircleAvatar(
             radius: 20,
             backgroundColor: AppColors.primary,
@@ -49,6 +53,39 @@ class DashboardNavbar extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  // ======================================================
+  // SETTINGS POPUP MENU
+  // ======================================================
+  Widget _settingsMenu(BuildContext context) {
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.settings, color: AppColors.textDark),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      onSelected: (value) {
+        if (value == "profile") {
+          Navigator.pushNamed(context, "/profile/edit");
+        } else if (value == "password") {
+          Navigator.pushNamed(context, "/profile/password");
+        }
+      },
+      itemBuilder: (context) => [
+        const PopupMenuItem(
+          value: "profile",
+          child: ListTile(
+            leading: Icon(Icons.person),
+            title: Text("Edit Profil"),
+          ),
+        ),
+        const PopupMenuItem(
+          value: "password",
+          child: ListTile(
+            leading: Icon(Icons.lock),
+            title: Text("Ganti Password"),
+          ),
+        ),
+      ],
     );
   }
 }
