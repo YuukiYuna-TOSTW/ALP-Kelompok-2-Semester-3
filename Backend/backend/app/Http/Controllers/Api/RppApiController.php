@@ -21,16 +21,11 @@ class RppApiController extends Controller
         $data = $request->validate([
             'Nama_Mata_Pelajaran' => 'required|string|max:255',
             'Kelas' => 'required|string|max:50',
-            'Tahun_Pelajaran' => 'required|string|max:50',
+            'Semester' => 'required|string|max:50',
+            'Bab/Materi' => 'required|string|max:255',
             'Kompetensi_Dasar' => 'required|string',
             'Kompetensi_Inti' => 'required|string',
             'Tujuan_Pembelajaran' => 'required|string',
-            'Materi_Pembelajaran' => 'required|string',
-            'Asesmen_Pembelajaran' => 'required|string',
-            'Metode_Pembelajaran' => 'required|string',
-            'Media_Pembelajaran' => 'required|string',
-            'Sumber_Belajar' => 'required|string',
-            'Lampiran_Belajar' => 'nullable|string',
         ]);
 
         $model = Rpp::create($data);
@@ -45,18 +40,13 @@ class RppApiController extends Controller
     public function update(Request $request, Rpp $rpp): JsonResponse
     {
         $data = $request->validate([
-            'Nama_Mata_Pelajaran' => 'sometimes|string|max:255',
-            'Kelas' => 'sometimes|string|max:50',
-            'Tahun_Pelajaran' => 'sometimes|string|max:50',
-            'Kompetensi_Dasar' => 'sometimes|string',
-            'Kompetensi_Inti' => 'sometimes|string',
-            'Tujuan_Pembelajaran' => 'sometimes|string',
-            'Materi_Pembelajaran' => 'sometimes|string',
-            'Asesmen_Pembelajaran' => 'sometimes|string',
-            'Metode_Pembelajaran' => 'sometimes|string',
-            'Media_Pembelajaran' => 'sometimes|string',
-            'Sumber_Belajar' => 'sometimes|string',
-            'Lampiran_Belajar' => 'nullable|string',
+            'Nama_Mata_Pelajaran' => 'required|string|max:255',
+            'Kelas' => 'required|string|max:50',
+            'Semester' => 'required|string|max:50',
+            'Bab/Materi' => 'required|string|max:255',
+            'Kompetensi_Dasar' => 'required|string',
+            'Kompetensi_Inti' => 'required|string',
+            'Tujuan_Pembelajaran' => 'required|string',
         ]);
 
         $rpp->update($data);

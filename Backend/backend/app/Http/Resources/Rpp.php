@@ -17,16 +17,11 @@ class Rpp extends JsonResource
         return [
             'Nama_Mata_Pelajaran' => $this->Nama_Mata_Pelajaran,
             'Kelas' => $this->Kelas,
-            'Tahun_Pelajaran' => $this->Tahun_Pelajaran,
+            'Bab/Materi' => $this->{"Bab/Materi"},
+            'Semester' => $this->Semester,
             'Kompetensi_Dasar' => $this->Kompetensi_Dasar,
             'Kompetensi_Inti' => $this->Kompetensi_Inti,
             'Tujuan_Pembelajaran' => $this->Tujuan_Pembelajaran,
-            'Materi_Pembelajaran' => $this->Materi_Pembelajaran,
-            'Asesmen_Pembelajaran' => $this->Asesmen_Pembelajaran,
-            'Metode_Pembelajaran' => $this->Metode_Pembelajaran,
-            'Media_Pembelajaran' => $this->Media_Pembelajaran,
-            'Sumber_Belajar' => $this->Sumber_Belajar,
-            'Lampiran_Belajar' => $this->Lampiran_Belajar,
         ];
     }
 }
