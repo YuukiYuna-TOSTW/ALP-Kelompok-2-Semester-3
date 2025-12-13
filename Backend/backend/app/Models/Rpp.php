@@ -9,6 +9,7 @@ class Rpp extends Model
 {
     use HasFactory;
 
+    protected $table = 'rpps';
     protected $primaryKey = 'RPP_ID';
 
     /**
@@ -19,16 +20,11 @@ class Rpp extends Model
     protected $fillable = [
         'Nama_Mata_Pelajaran',
         'Kelas',
-        'Tahun_Pelajaran',
+        'Bab/Materi',
+        'Semester',
         'Kompetensi_Dasar',
         'Kompetensi_Inti',
         'Tujuan_Pembelajaran',
-        'Materi_Pembelajaran',
-        'Asesmen_Pembelajaran',
-        'Metode_Pembelajaran',
-        'Media_Pembelajaran',
-        'Sumber_Belajar',
-        'Lampiran_Belajar',
     ];
 
     /**
