@@ -28,8 +28,17 @@ class RoleMenuConfig {
     /// ADMIN → lihat semua RPP
     MenuItemModel("RPP Guru", Icons.menu_book_rounded, "/admin/rpp"),
 
-    /// ADMIN → bisa membuat & mengatur pengumuman
+    /// ADMIN → mengelola pengumuman
     MenuItemModel("Pengumuman", Icons.campaign_rounded, "/announcement"),
+
+    /// PROFIL
+    MenuItemModel("Profil Saya", Icons.person_rounded, "/profile"),
+
+    MenuItemModel(
+      "Notifikasi",
+      Icons.notification_add_rounded,
+      "/notifications",
+    ),
   ];
 
   // ================================
@@ -38,7 +47,7 @@ class RoleMenuConfig {
   static final List<MenuItemModel> kepsekMenu = [
     MenuItemModel("Dashboard", Icons.dashboard_rounded, "/dashboard"),
 
-    /// Bisa melakukan review
+    /// Bisa mereview RPP
     MenuItemModel("Review RPP Guru", Icons.fact_check_rounded, "/kepsek/rpp"),
 
     MenuItemModel(
@@ -47,7 +56,7 @@ class RoleMenuConfig {
       "/schedule",
     ),
 
-    /// Bisa membuat/manajemen pengumuman
+    /// Pengumuman
     MenuItemModel("Pengumuman", Icons.campaign_rounded, "/announcement"),
 
     MenuItemModel(
@@ -55,6 +64,9 @@ class RoleMenuConfig {
       Icons.notification_add_rounded,
       "/notifications",
     ),
+
+    /// PROFIL
+    MenuItemModel("Profil Saya", Icons.person_rounded, "/profile"),
   ];
 
   // ================================
@@ -64,15 +76,18 @@ class RoleMenuConfig {
     MenuItemModel("Dashboard", Icons.dashboard_rounded, "/dashboard"),
     MenuItemModel("Jadwal", Icons.calendar_today_rounded, "/schedule"),
 
-    /// Guru hanya melihat RPP sendiri
+    /// Guru → hanya RPP pribadi
     MenuItemModel("RPP Saya", Icons.menu_book_rounded, "/rpp"),
 
-    /// Guru hanya MELIHAT pengumuman lewat notifikasi
+    /// Notifikasi (pengumuman masuk)
     MenuItemModel(
       "Notifikasi",
       Icons.notification_add_rounded,
       "/notifications",
     ),
+
+    /// PROFIL
+    MenuItemModel("Profil Saya", Icons.person_rounded, "/profile"),
   ];
 
   // ========================================
@@ -80,14 +95,12 @@ class RoleMenuConfig {
   // ========================================
   static final Map<String, List<String>> rppPermissions = {
     "admin": ["/admin/rpp", "/rpp/preview", "/rpp/history"],
-
     "kepsek": [
       "/kepsek/rpp",
       "/kepsek/rpp/review",
       "/rpp/preview",
       "/rpp/history",
     ],
-
     "guru": [
       "/rpp",
       "/rpp/create",
@@ -107,16 +120,14 @@ class RoleMenuConfig {
       "/announcement/edit",
       "/announcement/detail",
     ],
-
     "kepsek": [
       "/announcement",
       "/announcement/create",
       "/announcement/edit",
       "/announcement/detail",
     ],
-
     "guru": [
-      "/announcement/detail", // hanya bisa lihat & download lampiran
+      "/announcement/detail", // hanya view
     ],
   };
 }

@@ -14,174 +14,122 @@ class GuruProfilePage extends StatelessWidget {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _profileHeader(context),
+          _header(context),
           const SizedBox(height: 20),
-          _personalInformationCard(),
+          _infoPribadi(),
           const SizedBox(height: 20),
-          _academicInformationCard(),
+          _infoAkademik(),
           const SizedBox(height: 20),
           _accountSettings(context),
-          const SizedBox(height: 40),
         ],
       ),
     );
   }
 
-  // ============================================================
-  // HEADER PROFIL
-  // ============================================================
-  Widget _profileHeader(BuildContext context) {
+  // ================= HEADER =================
+  Widget _header(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        children: [
-          // BLUE HEADER
-          Container(
-            padding: const EdgeInsets.all(18),
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppColors.primary, AppColors.primary.withOpacity(.7)],
-              ),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
-              ),
-            ),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 35,
-                  backgroundImage: NetworkImage(data["foto"] ?? ""),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        data["nama"] ?? "-",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        "NIP: ${data["nip"] ?? "-"}",
-                        style: const TextStyle(color: Colors.white70),
-                      ),
-                      Text(
-                        "Guru ${data["mapel"] ?? "-"}",
-                        style: const TextStyle(color: Colors.white70),
-                      ),
-                    ],
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () =>
-                      Navigator.pushNamed(context, "/profile/edit"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                  ),
-                  child: Text(
-                    "Edit Profil",
-                    style: TextStyle(color: AppColors.primary),
-                  ),
-                ),
-              ],
-            ),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        width: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppColors.primary, AppColors.primary.withOpacity(.7)],
           ),
-        ],
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 35,
+              backgroundImage: NetworkImage(data["foto"] ?? ""),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(data["nama"] ?? "-", style: _headerName),
+                  Text("NIP: ${data["nip"] ?? "-"}", style: _headerSub),
+                  Text("Guru ${data["mapel"] ?? "-"}", style: _headerSub),
+                ],
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pushNamed(context, "/profile/edit"),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+              child: const Text(
+                "Edit Profil",
+                style: TextStyle(color: AppColors.primary),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // ============================================================
-  // CARD INFORMASI PRIBADI
-  // ============================================================
-  Widget _personalInformationCard() {
-    return _infoCard(
-      title: "Informasi Pribadi",
-      children: [
-        _row("Nama Lengkap", data["nama"]),
-        _row("NIP", data["nip"]),
-        _row("Email", data["email"]),
-        _row("No HP", data["hp"]),
-        _row("Jenis Kelamin", data["gender"]),
-        _row("Alamat", data["alamat"]),
-      ],
-    );
+  // ================= INFORMASI PRIBADI =================
+  Widget _infoPribadi() {
+    return _cardSection("Informasi Pribadi", [
+      _row("Nama", data["nama"]),
+      _row("NIP", data["nip"]),
+      _row("Email", data["email"]),
+      _row("No HP", data["hp"]),
+      _row("Jenis Kelamin", data["gender"]),
+      _row("Alamat", data["alamat"]),
+    ]);
   }
 
-  // ============================================================
-  // CARD INFORMASI AKADEMIK (Guru)
-  // ============================================================
-  Widget _academicInformationCard() {
+  // ================= INFORMASI AKADEMIK =================
+  Widget _infoAkademik() {
     List kelas = data["kelas"] ?? [];
 
-    return _infoCard(
-      title: "Informasi Akademik",
-      children: [
-        _row("Mata Pelajaran", data["mapel"]),
-        Row(
-          children: [
-            const Text(
-              "Kelas yang Diampu:",
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-        Wrap(
-          spacing: 8,
-          children: kelas
-              .map(
-                (e) => Chip(
-                  label: Text(e.toString()),
-                  backgroundColor: AppColors.primary.withOpacity(.15),
-                ),
-              )
-              .toList(),
-        ),
-        _row("Total RPP Dibuat", data["rpp"].toString()),
-        _row("Total Jam Mengajar", data["jam"].toString()),
-      ],
-    );
-  }
-
-  // ============================================================
-  // CARD PENGATURAN AKUN
-  // ============================================================
-  Widget _accountSettings(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            ElevatedButton(
-              onPressed: () =>
-                  Navigator.pushNamed(context, "/profile/password"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                minimumSize: const Size(double.infinity, 45),
-              ),
-              child: const Text("Ubah Kata Sandi"),
-            ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: () {},
-              child: const Text("Logout", style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        ),
+    return _cardSection("Informasi Akademik", [
+      _row("Mata Pelajaran", data["mapel"]),
+      const SizedBox(height: 6),
+      const Text(
+        "Kelas Diampu:",
+        style: TextStyle(fontWeight: FontWeight.w600),
       ),
-    );
+      Wrap(
+        spacing: 8,
+        children: kelas
+            .map(
+              (e) => Chip(
+                label: Text(e.toString()),
+                backgroundColor: AppColors.primary.withOpacity(.15),
+              ),
+            )
+            .toList(),
+      ),
+      _row("Total RPP Dibuat", data["rpp"]),
+      _row("Total Jam Mengajar", data["jam"]),
+    ]);
   }
 
-  // ============================================================
-  // UTIL CARD TEMPLATE
-  // ============================================================
-  Widget _infoCard({required String title, required List<Widget> children}) {
+  // ================= ACCOUNT SETTINGS =================
+  Widget _accountSettings(BuildContext context) {
+    return _cardSection("Pengaturan Akun", [
+      ElevatedButton(
+        onPressed: () => Navigator.pushNamed(context, "/profile/password"),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          minimumSize: const Size(double.infinity, 45),
+        ),
+        child: const Text("Ubah Kata Sandi"),
+      ),
+      const SizedBox(height: 12),
+      TextButton(
+        onPressed: () {},
+        child: const Text("Logout", style: TextStyle(color: Colors.red)),
+      ),
+    ]);
+  }
+
+  // =============== TEMPLATE CARD ===============
+  Widget _cardSection(String title, List<Widget> children) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
@@ -189,14 +137,7 @@ class GuruProfilePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-                color: AppColors.primary,
-              ),
-            ),
+            Text(title, style: _sectionTitle),
             const SizedBox(height: 12),
             ...children,
           ],
@@ -210,7 +151,7 @@ class GuruProfilePage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          SizedBox(width: 180, child: Text("$label")),
+          SizedBox(width: 180, child: Text(label)),
           Expanded(
             child: Text(
               value?.toString() ?? "-",
@@ -221,4 +162,19 @@ class GuruProfilePage extends StatelessWidget {
       ),
     );
   }
+
+  // TEXT STYLE
+  TextStyle get _headerName => const TextStyle(
+    color: Colors.white,
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+  );
+
+  TextStyle get _headerSub => const TextStyle(color: Colors.white70);
+
+  TextStyle get _sectionTitle => const TextStyle(
+    color: AppColors.primary,
+    fontSize: 17,
+    fontWeight: FontWeight.bold,
+  );
 }

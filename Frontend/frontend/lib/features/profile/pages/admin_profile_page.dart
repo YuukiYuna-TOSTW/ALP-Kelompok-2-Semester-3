@@ -19,116 +19,45 @@ class AdminProfilePage extends StatelessWidget {
           _personalInfo(),
           const SizedBox(height: 20),
           _accountSettings(context),
-          const SizedBox(height: 30),
         ],
       ),
     );
   }
 
-  // ============================================================
-  // HEADER PROFIL
-  // ============================================================
+  // ================= HEADER =================
   Widget _header(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(18),
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppColors.primary, AppColors.primary.withOpacity(.7)],
-              ),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
-              ),
-            ),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 35,
-                  backgroundImage: NetworkImage(data["foto"] ?? ""),
-                ),
-                const SizedBox(width: 18),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        data["nama"] ?? "-",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        "Admin",
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                    ],
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () =>
-                      Navigator.pushNamed(context, "/profile/edit"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                  ),
-                  child: Text(
-                    "Edit Profil",
-                    style: TextStyle(color: AppColors.primary),
-                  ),
-                ),
-              ],
-            ),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppColors.primary, AppColors.primary.withOpacity(.7)],
           ),
-        ],
-      ),
-    );
-  }
-
-  // ============================================================
-  // INFORMASI PRIBADI
-  // ============================================================
-  Widget _personalInfo() {
-    return _infoCard(
-      title: "Informasi Pribadi",
-      children: [
-        _row("Nama", data["nama"]),
-        _row("Email", data["email"]),
-        _row("No HP", data["hp"]),
-      ],
-    );
-  }
-
-  // ============================================================
-  // PENGATURAN AKUN
-  // ============================================================
-  Widget _accountSettings(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Row(
           children: [
-            ElevatedButton(
-              onPressed: () =>
-                  Navigator.pushNamed(context, "/profile/password"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                minimumSize: const Size(double.infinity, 45),
-              ),
-              child: const Text("Ubah Kata Sandi"),
+            CircleAvatar(
+              radius: 35,
+              backgroundImage: NetworkImage(data["foto"] ?? ""),
             ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: () {},
+            const SizedBox(width: 18),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(data["nama"] ?? "-", style: _headerName),
+                  const Text("Admin", style: TextStyle(color: Colors.white70)),
+                ],
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pushNamed(context, "/profile/edit"),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
               child: const Text(
-                "Logout",
-                style: TextStyle(color: Colors.red, fontSize: 16),
+                "Edit Profil",
+                style: TextStyle(color: AppColors.primary),
               ),
             ),
           ],
@@ -137,10 +66,39 @@ class AdminProfilePage extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // UTIL TEMPLATE
-  // ============================================================
-  Widget _infoCard({required String title, required List<Widget> children}) {
+  // ================= INFORMASI PRIBADI =================
+  Widget _personalInfo() {
+    return _cardSection("Informasi Pribadi", [
+      _row("Nama", data["nama"]),
+      _row("Email", data["email"]),
+      _row("No HP", data["hp"]),
+    ]);
+  }
+
+  // ================= ACCOUNT =================
+  Widget _accountSettings(BuildContext context) {
+    return _cardSection("Pengaturan Akun", [
+      ElevatedButton(
+        onPressed: () => Navigator.pushNamed(context, "/profile/password"),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          minimumSize: const Size(double.infinity, 45),
+        ),
+        child: const Text("Ubah Kata Sandi"),
+      ),
+      const SizedBox(height: 12),
+      TextButton(
+        onPressed: () {},
+        child: const Text(
+          "Logout",
+          style: TextStyle(color: Colors.red, fontSize: 16),
+        ),
+      ),
+    ]);
+  }
+
+  // =============== CARD TEMPLATE ===============
+  Widget _cardSection(String title, List<Widget> children) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
@@ -148,14 +106,7 @@ class AdminProfilePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-                color: AppColors.primary,
-              ),
-            ),
+            Text(title, style: _titleStyle),
             const SizedBox(height: 12),
             ...children,
           ],
@@ -180,4 +131,17 @@ class AdminProfilePage extends StatelessWidget {
       ),
     );
   }
+
+  // TEXT STYLES
+  TextStyle get _headerName => const TextStyle(
+    color: Colors.white,
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+  );
+
+  TextStyle get _titleStyle => const TextStyle(
+    color: AppColors.primary,
+    fontSize: 17,
+    fontWeight: FontWeight.bold,
+  );
 }

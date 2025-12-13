@@ -21,138 +21,50 @@ class KepsekProfilePage extends StatelessWidget {
           _infoPribadi(),
           const SizedBox(height: 20),
           _accountSettings(context),
-          const SizedBox(height: 30),
         ],
       ),
     );
   }
 
-  // ============================================================
-  // HEADER PROFIL
-  // ============================================================
+  // ================= HEADER =================
   Widget _header(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(18),
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppColors.primary, AppColors.primary.withOpacity(.7)],
-              ),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
-              ),
-            ),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 35,
-                  backgroundImage: NetworkImage(data["foto"] ?? ""),
-                ),
-                const SizedBox(width: 18),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        data["nama"] ?? "-",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        "NIP: ${data["nip"] ?? "-"}",
-                        style: const TextStyle(color: Colors.white70),
-                      ),
-                      Text(
-                        data["jabatan"] ?? "Kepala Sekolah",
-                        style: const TextStyle(color: Colors.white70),
-                      ),
-                      Text(
-                        "Menjabat sejak ${data["tahun_menjabat"] ?? "-"}",
-                        style: const TextStyle(color: Colors.white70),
-                      ),
-                    ],
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () =>
-                      Navigator.pushNamed(context, "/profile/edit"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                  ),
-                  child: Text(
-                    "Edit Profil",
-                    style: TextStyle(color: AppColors.primary),
-                  ),
-                ),
-              ],
-            ),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppColors.primary, AppColors.primary.withOpacity(.7)],
           ),
-        ],
-      ),
-    );
-  }
-
-  // ============================================================
-  // INFORMASI JABATAN
-  // ============================================================
-  Widget _infoJabatan() {
-    return _infoCard(
-      title: "Informasi Jabatan",
-      children: [
-        _row("Jabatan", data["jabatan"]),
-        _row("Tahun Menjabat", data["tahun_menjabat"]),
-      ],
-    );
-  }
-
-  // ============================================================
-  // INFORMASI PRIBADI
-  // ============================================================
-  Widget _infoPribadi() {
-    return _infoCard(
-      title: "Informasi Pribadi",
-      children: [
-        _row("Nama", data["nama"]),
-        _row("NIP", data["nip"]),
-        _row("Email", data["email"]),
-        _row("No HP", data["hp"]),
-        _row("Alamat", data["alamat"]),
-      ],
-    );
-  }
-
-  // ============================================================
-  // PENGATURAN AKUN
-  // ============================================================
-  Widget _accountSettings(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Row(
           children: [
-            ElevatedButton(
-              onPressed: () =>
-                  Navigator.pushNamed(context, "/profile/password"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                minimumSize: const Size(double.infinity, 45),
-              ),
-              child: const Text("Ubah Kata Sandi"),
+            CircleAvatar(
+              radius: 35,
+              backgroundImage: NetworkImage(data["foto"] ?? ""),
             ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: () {},
+            const SizedBox(width: 18),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(data["nama"] ?? "-", style: _headerName),
+                  Text("NIP: ${data["nip"] ?? "-"}", style: _headerSub),
+                  Text(data["jabatan"] ?? "Kepala Sekolah", style: _headerSub),
+                  Text(
+                    "Menjabat sejak ${data["tahun_menjabat"] ?? "-"}",
+                    style: _headerSub,
+                  ),
+                ],
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pushNamed(context, "/profile/edit"),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
               child: const Text(
-                "Logout",
-                style: TextStyle(color: Colors.red, fontSize: 16),
+                "Edit Profil",
+                style: TextStyle(color: AppColors.primary),
               ),
             ),
           ],
@@ -161,10 +73,49 @@ class KepsekProfilePage extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // UTIL TEMPLATE
-  // ============================================================
-  Widget _infoCard({required String title, required List<Widget> children}) {
+  // ================= SECTION: JABATAN =================
+  Widget _infoJabatan() {
+    return _cardSection("Informasi Jabatan", [
+      _row("Jabatan", data["jabatan"]),
+      _row("Tahun Menjabat", data["tahun_menjabat"]),
+    ]);
+  }
+
+  // ================= SECTION: PRIBADI =================
+  Widget _infoPribadi() {
+    return _cardSection("Informasi Pribadi", [
+      _row("Nama", data["nama"]),
+      _row("NIP", data["nip"]),
+      _row("Email", data["email"]),
+      _row("No HP", data["hp"]),
+      _row("Alamat", data["alamat"]),
+    ]);
+  }
+
+  // ================= SECTION: ACCOUNT =================
+  Widget _accountSettings(BuildContext context) {
+    return _cardSection("Pengaturan Akun", [
+      ElevatedButton(
+        onPressed: () => Navigator.pushNamed(context, "/profile/password"),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          minimumSize: const Size(double.infinity, 45),
+        ),
+        child: const Text("Ubah Kata Sandi"),
+      ),
+      const SizedBox(height: 12),
+      TextButton(
+        onPressed: () {},
+        child: const Text(
+          "Logout",
+          style: TextStyle(color: Colors.red, fontSize: 16),
+        ),
+      ),
+    ]);
+  }
+
+  // ================= TEMPLATE =================
+  Widget _cardSection(String title, List<Widget> children) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
@@ -172,14 +123,7 @@ class KepsekProfilePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 17,
-                color: AppColors.primary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            Text(title, style: _sectionTitle),
             const SizedBox(height: 12),
             ...children,
           ],
@@ -204,4 +148,20 @@ class KepsekProfilePage extends StatelessWidget {
       ),
     );
   }
+
+  // TEXT STYLES
+  TextStyle get _headerName => const TextStyle(
+    color: Colors.white,
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+  );
+
+  TextStyle get _headerSub =>
+      const TextStyle(color: Colors.white70, fontSize: 13);
+
+  TextStyle get _sectionTitle => const TextStyle(
+    fontSize: 17,
+    color: AppColors.primary,
+    fontWeight: FontWeight.w700,
+  );
 }
