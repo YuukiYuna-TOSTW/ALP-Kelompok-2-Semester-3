@@ -6,18 +6,9 @@ class WeeklyRosterAdminPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WeeklyRosterBase(
+    return const WeeklyRosterRppPage(
       role: "admin",
-      profileData: const {},
-      schedule: const [
-        {
-          "subject": "Bahasa Indonesia",
-          "start": "08:20",
-          "end": "09:10",
-          "teacher": "Ibu Siti",
-          "kelas": "7B",
-        },
-      ],
+      title: "Manajemen Jadwal Sekolah",
     );
   }
 }

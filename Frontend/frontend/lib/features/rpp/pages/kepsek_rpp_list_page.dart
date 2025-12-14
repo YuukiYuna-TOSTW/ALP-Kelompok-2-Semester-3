@@ -50,21 +50,21 @@ class _RppAllListPageState extends State<RppAllListPage> {
   @override
   void initState() {
     super.initState();
-    _filtered = [..._allRpp];
+    _filtered = List.from(_allRpp);
   }
 
   // =====================================================
   // FILTER FUNCTION
   // =====================================================
   void _applyFilters() {
-    setState(() {
-      final q = search.toLowerCase();
+    final q = search.toLowerCase();
 
+    setState(() {
       _filtered = _allRpp.where((item) {
         final matchesSearch =
+            item["guru"].toLowerCase().contains(q) ||
             item["mapel"].toLowerCase().contains(q) ||
-            item["kelas"].toLowerCase().contains(q) ||
-            item["guru"].toLowerCase().contains(q);
+            item["kelas"].toLowerCase().contains(q);
 
         final g = fGuru == "Semua" || item["guru"] == fGuru;
         final m = fMapel == "Semua" || item["mapel"] == fMapel;
@@ -82,27 +82,50 @@ class _RppAllListPageState extends State<RppAllListPage> {
   @override
   Widget build(BuildContext context) {
     return RppLayout(
-      selectedRoute: "/kepsek/rpp",
       role: "kepsek",
+      selectedRoute: "/kepsek/rpp",
       content: _buildContent(),
     );
   }
 
   // =====================================================
-  // MAIN CONTENT
+  // MAIN CONTENT (❌ TANPA Expanded)
   // =====================================================
   Widget _buildContent() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _pageHeader(),
-        const SizedBox(height: 20),
-        _searchAndExportBar(),
-        const SizedBox(height: 15),
-        _buildFilters(),
-        const SizedBox(height: 20),
-        Expanded(child: SingleChildScrollView(child: _buildTable())),
-      ],
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _pageHeader(),
+          const SizedBox(height: 20),
+          _searchAndExportBar(),
+          const SizedBox(height: 16),
+          _buildFilters(),
+          const SizedBox(height: 20),
+
+          // ================= TABLE CONTAINER =================
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: _buildTable(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -126,7 +149,6 @@ class _RppAllListPageState extends State<RppAllListPage> {
   Widget _searchAndExportBar() {
     return Row(
       children: [
-        // Search bar
         Expanded(
           child: TextField(
             decoration: InputDecoration(
@@ -142,25 +164,22 @@ class _RppAllListPageState extends State<RppAllListPage> {
             },
           ),
         ),
-
         const SizedBox(width: 16),
-
-        // Export button
         ElevatedButton.icon(
-          onPressed: () => exportRppToPdf({"all": _filtered}),
+          onPressed: () => exportRppToPdf({"data": _filtered}),
+          icon: const Icon(Icons.picture_as_pdf),
+          label: const Text("Export"),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
-          icon: const Icon(Icons.picture_as_pdf),
-          label: const Text("Export"),
         ),
       ],
     );
   }
 
   // =====================================================
-  // FILTER ROW
+  // FILTERS
   // =====================================================
   Widget _buildFilters() {
     return Row(
@@ -222,8 +241,8 @@ class _RppAllListPageState extends State<RppAllListPage> {
   }) {
     return Expanded(
       child: DropdownButtonFormField<String>(
-        decoration: InputDecoration(labelText: title),
         value: value,
+        decoration: InputDecoration(labelText: title),
         items: items
             .map(
               (e) => DropdownMenuItem(
@@ -242,6 +261,9 @@ class _RppAllListPageState extends State<RppAllListPage> {
   // =====================================================
   Widget _buildTable() {
     return DataTable(
+      columnSpacing: 28,
+      headingRowHeight: 48,
+      dataRowHeight: 56,
       headingRowColor: WidgetStateProperty.all(AppColors.primary),
       headingTextStyle: const TextStyle(
         color: Colors.white,
@@ -272,7 +294,9 @@ class _RppAllListPageState extends State<RppAllListPage> {
     );
   }
 
+  // =====================================================
   // STATUS CHIP
+  // =====================================================
   Widget _statusChip(String status) {
     Color color;
     switch (status) {
@@ -302,17 +326,21 @@ class _RppAllListPageState extends State<RppAllListPage> {
     );
   }
 
+  // =====================================================
   // ACTION BUTTONS
+  // =====================================================
   Widget _actionButtons(Map<String, dynamic> item) {
     return Row(
       children: [
         IconButton(
+          tooltip: "Lihat RPP",
           icon: const Icon(Icons.visibility, color: AppColors.primary),
           onPressed: () {
             Navigator.pushNamed(context, "/rpp/preview", arguments: item);
           },
         ),
         IconButton(
+          tooltip: "Review RPP",
           icon: const Icon(Icons.edit_note, color: Colors.orange),
           onPressed: () {
             Navigator.pushNamed(context, "/kepsek/rpp/review", arguments: item);

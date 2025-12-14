@@ -6,18 +6,6 @@ class WeeklyRosterKepsekPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WeeklyRosterBase(
-      role: "kepsek",
-      profileData: const {},
-      schedule: const [
-        {
-          "subject": "Biologi",
-          "start": "09:10",
-          "end": "10:00",
-          "teacher": "Pak Budi",
-          "kelas": "9A",
-        },
-      ],
-    );
+    return const WeeklyRosterRppPage(role: "kepsek", title: "Jadwal Sekolah");
   }
 }
