@@ -46,6 +46,8 @@ class GuruProfilePage extends StatelessWidget {
               backgroundImage: NetworkImage(data["foto"] ?? ""),
             ),
             const SizedBox(width: 16),
+
+            // INFO
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,8 +58,14 @@ class GuruProfilePage extends StatelessWidget {
                 ],
               ),
             ),
+
+            // TOMBOL EDIT
             ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, "/profile/edit"),
+              onPressed: () => Navigator.pushNamed(
+                context,
+                "/profile/edit",
+                arguments: data,
+              ),
               style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
               child: const Text(
                 "Edit Profil",
@@ -88,11 +96,21 @@ class GuruProfilePage extends StatelessWidget {
 
     return _cardSection("Informasi Akademik", [
       _row("Mata Pelajaran", data["mapel"]),
-      const SizedBox(height: 6),
+
+      const SizedBox(height: 10),
+
+      // ⭐ Label tidak bold lagi
       const Text(
         "Kelas Diampu:",
-        style: TextStyle(fontWeight: FontWeight.w600),
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.normal,
+          color: AppColors.textDark,
+        ),
       ),
+
+      const SizedBox(height: 10), // ⭐ Tambah spacing lebih besar
+
       Wrap(
         spacing: 8,
         children: kelas
@@ -104,6 +122,9 @@ class GuruProfilePage extends StatelessWidget {
             )
             .toList(),
       ),
+
+      const SizedBox(height: 10),
+
       _row("Total RPP Dibuat", data["rpp"]),
       _row("Total Jam Mengajar", data["jam"]),
     ]);
@@ -112,18 +133,46 @@ class GuruProfilePage extends StatelessWidget {
   // ================= ACCOUNT SETTINGS =================
   Widget _accountSettings(BuildContext context) {
     return _cardSection("Pengaturan Akun", [
-      ElevatedButton(
-        onPressed: () => Navigator.pushNamed(context, "/profile/password"),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          minimumSize: const Size(double.infinity, 45),
+      Container(
+        width: double.infinity,
+        alignment: Alignment.centerLeft,
+        child: TextButton(
+          onPressed: () => Navigator.pushNamed(context, "/profile/password"),
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+            alignment: Alignment.centerLeft,
+          ),
+          child: const Text(
+            "Ubah Kata Sandi",
+            style: TextStyle(
+              color: AppColors.primary,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
-        child: const Text("Ubah Kata Sandi"),
       ),
-      const SizedBox(height: 12),
-      TextButton(
-        onPressed: () {},
-        child: const Text("Logout", style: TextStyle(color: Colors.red)),
+
+      const SizedBox(height: 4),
+
+      Container(
+        width: double.infinity,
+        alignment: Alignment.centerLeft,
+        child: TextButton(
+          onPressed: () {},
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+            alignment: Alignment.centerLeft,
+          ),
+          child: const Text(
+            "Logout",
+            style: TextStyle(
+              color: Colors.red,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
       ),
     ]);
   }
@@ -170,7 +219,8 @@ class GuruProfilePage extends StatelessWidget {
     fontWeight: FontWeight.bold,
   );
 
-  TextStyle get _headerSub => const TextStyle(color: Colors.white70);
+  TextStyle get _headerSub =>
+      const TextStyle(color: Colors.white70, fontSize: 13);
 
   TextStyle get _sectionTitle => const TextStyle(
     color: AppColors.primary,

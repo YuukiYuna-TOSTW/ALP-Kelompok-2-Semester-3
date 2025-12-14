@@ -52,7 +52,6 @@ class DashboardSidebar extends StatelessWidget {
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
 
-                // 🔥 NAVIGASI SUDDAH DIBENERIN
                 onTap: () {
                   if (item.route != selectedRoute) {
                     Navigator.pushReplacementNamed(context, item.route);
@@ -104,19 +103,97 @@ class DashboardSidebar extends StatelessWidget {
 
           Row(
             children: [
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: AppColors.primary,
-                child: const Icon(Icons.person, color: Colors.white, size: 18),
+              // Klik → buka halaman profil
+              InkWell(
+                onTap: () =>
+                    Navigator.pushReplacementNamed(context, "/profile"),
+                borderRadius: BorderRadius.circular(20),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 18,
+                      backgroundColor: AppColors.primary,
+                      child: const Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text("Akun Saya", style: TextStyle(fontSize: 14)),
+                  ],
+                ),
               ),
-              const SizedBox(width: 12),
-              const Text("Akun Saya", style: TextStyle(fontSize: 14)),
+
               const Spacer(),
-              const Icon(Icons.settings, size: 20),
+
+              // Settings Button
+              InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () => _openSettingsSheet(context),
+                child: const Icon(Icons.settings, size: 20),
+              ),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  // ============================================================
+  // BOTTOM SHEET: EDIT PROFIL / GANTI PASSWORD / LOGOUT
+  // ============================================================
+  void _openSettingsSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.edit, color: AppColors.primary),
+                title: const Text("Edit Profil"),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushReplacementNamed(context, "/profile/edit");
+                },
+              ),
+
+              ListTile(
+                leading: Icon(
+                  Icons.lock_reset_rounded,
+                  color: AppColors.primary,
+                ),
+                title: const Text("Ubah Password"),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushReplacementNamed(context, "/profile/password");
+                },
+              ),
+
+              const Divider(),
+
+              ListTile(
+                leading: const Icon(Icons.logout, color: Colors.red),
+                title: const Text(
+                  "Logout",
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushReplacementNamed(context, "/role-preview");
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -41,15 +41,19 @@ class KepsekProfilePage extends StatelessWidget {
         child: Row(
           children: [
             CircleAvatar(
-              radius: 35,
+              radius: 40,
               backgroundImage: NetworkImage(data["foto"] ?? ""),
             ),
+
             const SizedBox(width: 18),
+
+            // INFO
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(data["nama"] ?? "-", style: _headerName),
+                  const SizedBox(height: 4),
                   Text("NIP: ${data["nip"] ?? "-"}", style: _headerSub),
                   Text(data["jabatan"] ?? "Kepala Sekolah", style: _headerSub),
                   Text(
@@ -59,9 +63,20 @@ class KepsekProfilePage extends StatelessWidget {
                 ],
               ),
             ),
+
+            // TOMBOL EDIT PROFIL
             ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, "/profile/edit"),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  "/profile/edit",
+                  arguments: data, // ✔ kirim data ke edit page
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+              ),
               child: const Text(
                 "Edit Profil",
                 style: TextStyle(color: AppColors.primary),
@@ -92,23 +107,48 @@ class KepsekProfilePage extends StatelessWidget {
     ]);
   }
 
-  // ================= SECTION: ACCOUNT =================
+  // ================= ACCOUNT SETTINGS =================
   Widget _accountSettings(BuildContext context) {
     return _cardSection("Pengaturan Akun", [
-      ElevatedButton(
-        onPressed: () => Navigator.pushNamed(context, "/profile/password"),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          minimumSize: const Size(double.infinity, 45),
+      Container(
+        width: double.infinity,
+        alignment: Alignment.centerLeft,
+        child: TextButton(
+          onPressed: () => Navigator.pushNamed(context, "/profile/password"),
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+            alignment: Alignment.centerLeft,
+          ),
+          child: const Text(
+            "Ubah Kata Sandi",
+            style: TextStyle(
+              color: AppColors.primary,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
-        child: const Text("Ubah Kata Sandi"),
       ),
-      const SizedBox(height: 12),
-      TextButton(
-        onPressed: () {},
-        child: const Text(
-          "Logout",
-          style: TextStyle(color: Colors.red, fontSize: 16),
+
+      const SizedBox(height: 4),
+
+      Container(
+        width: double.infinity,
+        alignment: Alignment.centerLeft,
+        child: TextButton(
+          onPressed: () {},
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+            alignment: Alignment.centerLeft,
+          ),
+          child: const Text(
+            "Logout",
+            style: TextStyle(
+              color: Colors.red,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       ),
     ]);
@@ -137,7 +177,7 @@ class KepsekProfilePage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          SizedBox(width: 180, child: Text(label)),
+          SizedBox(width: 170, child: Text(label)),
           Expanded(
             child: Text(
               value?.toString() ?? "-",

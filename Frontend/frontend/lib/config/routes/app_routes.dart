@@ -6,6 +6,7 @@ import '../../main.dart';
 
 // AUTH
 import '../../features/auth/pages/role_preview_page.dart';
+import '../../features/auth/widgets/about.screen.dart';
 
 // DASHBOARD
 import '../../features/dashboard/dashboard_page.dart';
@@ -37,11 +38,23 @@ import '../../features/profile/pages/change_password_page.dart';
 // KALENDER
 import '../../features/calendar/table_calender.dart';
 
+// NOTIFICATIONS
+import '../../features/notifications/notification_page.dart';
+import '../../features/notifications/notification_detail_page.dart';
+
+// JADWAL (PER ROLE)
+import '../../features/roster/pages/weekly_roster_guru_page.dart';
+import '../../features/roster/pages/weekly_roster_admin_page.dart';
+import '../../features/roster/pages/weekly_roster_kepsek_page.dart';
+
+// CHATBOT
+import '../../features/chatbot/pages/chatbot_page.dart';
+
 class AppRoutes {
   static Map<String, WidgetBuilder> allRoutes(BuildContext context) {
     return {
       // ============================================================
-      // ROLE PREVIEW
+      // AUTH
       // ============================================================
       "/role-preview": (_) => const RolePreviewPage(),
 
@@ -58,10 +71,8 @@ class AppRoutes {
       // ============================================================
       "/rpp": (_) => const RppListPage(),
       "/rpp/create": (_) => const RppFormPage(),
-
       "/rpp/edit": (ctx) =>
           RppEditPage(data: _safeArgs(ModalRoute.of(ctx)!.settings.arguments)),
-
       "/rpp/preview": (ctx) {
         final data = _safeArgs(ModalRoute.of(ctx)!.settings.arguments);
         return RppPreviewPage(
@@ -71,7 +82,6 @@ class AppRoutes {
           status: data["status"] ?? "",
         );
       },
-
       "/rpp/history": (ctx) => RppHistoryPage(
         data: _safeArgs(ModalRoute.of(ctx)!.settings.arguments),
       ),
@@ -80,7 +90,6 @@ class AppRoutes {
       // RPP — KEPSEK
       // ============================================================
       "/kepsek/rpp": (_) => const RppAllListPage(),
-
       "/kepsek/rpp/review": (ctx) => RppReviewPage(
         data: _safeArgs(ModalRoute.of(ctx)!.settings.arguments),
       ),
@@ -97,68 +106,93 @@ class AppRoutes {
         final role = context.read<RoleController>().role;
         return PengumumanListPage(role: role);
       },
-
       "/announcement/create": (_) => const PengumumanFormPage(),
-
       "/announcement/edit": (ctx) => PengumumanFormPage(
         data: _safeArgs(ModalRoute.of(ctx)!.settings.arguments),
       ),
-
       "/announcement/detail": (ctx) => PengumumanDetailPage(
         data: _safeArgs(ModalRoute.of(ctx)!.settings.arguments),
       ),
+
+      // ============================================================
+      // NOTIFICATIONS
+      // ============================================================
+      "/notifications": (_) {
+        final role = context.read<RoleController>().role;
+        return NotificationPage(role: role);
+      },
+      "/notifications/detail": (ctx) {
+        final role = context.read<RoleController>().role;
+        final data = _safeArgs(ModalRoute.of(ctx)!.settings.arguments);
+        return NotificationDetailPage(role: role, data: data);
+      },
 
       // ============================================================
       // PROFILE
       // ============================================================
       "/profile": (_) {
         final role = context.read<RoleController>().role;
-
-        Map<String, dynamic> data = {
-          "nama": "Nama Pengguna",
-          "nip": "1234567",
-          "email": "email@sekolah.id",
-          "hp": "08123456789",
-          "foto": "https://cdn-icons-png.flaticon.com/512/149/149071.png",
-          "jabatan": role == "kepsek" ? "Kepala Sekolah" : "Guru",
-          "tahun_menjabat": "2022",
-          "mapel": "Matematika",
-          "kelas": ["7A", "8B", "9C"],
-          "alamat": "",
-          "gender": "Laki-laki",
-        };
-
-        return ProfilePage(role: role, data: data);
+        return ProfilePage(
+          role: role,
+          data: {
+            "nama": "Nama Pengguna",
+            "kelas": ["7A", "8B", "9C"],
+          },
+        );
       },
-
       "/profile/edit": (ctx) {
         final role = context.read<RoleController>().role;
-        final rawArgs = ModalRoute.of(ctx)!.settings.arguments;
-
-        final Map<String, dynamic> data = (rawArgs is Map)
-            ? Map<String, dynamic>.from(rawArgs)
-            : {};
-
-        return EditProfilePage(role: role, data: data);
+        return EditProfilePage(
+          role: role,
+          data: _safeArgs(ModalRoute.of(ctx)!.settings.arguments),
+        );
       },
-
       "/profile/password": (_) => const ChangePasswordPage(),
 
       // ============================================================
-      // OTHER ROUTES
+      // 📅 JADWAL — SATU ROUTE, PER ROLE
       // ============================================================
-      "/": (_) => const Scaffold(body: Center(child: Text("Welcome"))),
+      "/schedule": (_) {
+        final role = context.read<RoleController>().role;
+
+        final profileData = {
+          "kelas": ["7A", "8B", "9C"],
+        };
+
+        switch (role) {
+          case "guru":
+            return WeeklyRosterGuruPage(profileData: profileData);
+          case "admin":
+            return const WeeklyRosterAdminPage();
+          case "kepsek":
+          case "wakasek":
+            return const WeeklyRosterKepsekPage();
+          default:
+            return const Scaffold(
+              body: Center(child: Text("Role tidak dikenali")),
+            );
+        }
+      },
+
+      // ============================================================
+      // CHATBOT
+      // ============================================================
+      "/assistant": (_) => const ChatbotPage(),
+
+      // ============================================================
+      // MISC
+      // ============================================================
       "/calendar": (_) => const CalendarPage(),
+      "/about": (_) => const AboutScreen(),
+      "/": (_) => const Scaffold(body: Center(child: Text("Welcome"))),
     };
   }
 
   // ============================================================
-  // SAFE MAP HELPER — FIX Map<dynamic,dynamic> → Map<String,dynamic>
+  // SAFE ARGS
   // ============================================================
   static Map<String, dynamic> _safeArgs(dynamic args) {
-    if (args is Map) {
-      return Map<String, dynamic>.from(args);
-    }
+    if (args is Map) return Map<String, dynamic>.from(args);
     return {};
   }
 }

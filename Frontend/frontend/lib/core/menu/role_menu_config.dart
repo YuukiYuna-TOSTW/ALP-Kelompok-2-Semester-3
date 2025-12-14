@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../features/dashboard/models/menu_item_model.dart';
 
 class RoleMenuConfig {
+  // ============================================================
+  // 🔑 GET MENU BY ROLE
+  // ============================================================
   static List<MenuItemModel> getMenu(String role) {
     switch (role) {
       case "admin":
@@ -17,82 +20,70 @@ class RoleMenuConfig {
     }
   }
 
-  // ================================
-  // ⭐ ADMIN
-  // ================================
+  // ============================================================
+  // ⭐ ADMIN MENU
+  // ============================================================
   static final List<MenuItemModel> adminMenu = [
     MenuItemModel("Dashboard", Icons.dashboard_rounded, "/dashboard"),
-    MenuItemModel("Jadwal", Icons.calendar_month_rounded, "/schedule"),
+
+    // 📅 Jadwal Sekolah
+    MenuItemModel("Jadwal Sekolah", Icons.calendar_month_rounded, "/schedule"),
+
+    // 👥 Manajemen Guru & Kelas
     MenuItemModel("Data Guru & Kelas", Icons.people_alt_rounded, "/management"),
 
-    /// ADMIN → lihat semua RPP
+    // 📘 RPP Guru
     MenuItemModel("RPP Guru", Icons.menu_book_rounded, "/admin/rpp"),
 
-    /// ADMIN → mengelola pengumuman
-    MenuItemModel("Pengumuman", Icons.campaign_rounded, "/announcement"),
-
-    /// PROFIL
-    MenuItemModel("Profil Saya", Icons.person_rounded, "/profile"),
-
-    MenuItemModel(
-      "Notifikasi",
-      Icons.notification_add_rounded,
-      "/notifications",
-    ),
+    // 🔔 Notifikasi
+    MenuItemModel("Notifikasi", Icons.notifications_rounded, "/notifications"),
   ];
 
-  // ================================
-  // ⭐ KEPSEK / WAKASEK
-  // ================================
+  // ============================================================
+  // ⭐ KEPALA SEKOLAH / WAKASEK
+  // ============================================================
   static final List<MenuItemModel> kepsekMenu = [
     MenuItemModel("Dashboard", Icons.dashboard_rounded, "/dashboard"),
 
-    /// Bisa mereview RPP
+    // 📘 Review RPP
     MenuItemModel("Review RPP Guru", Icons.fact_check_rounded, "/kepsek/rpp"),
 
-    MenuItemModel(
-      "Jadwal Sekolah",
-      Icons.calendar_view_month_rounded,
-      "/schedule",
-    ),
+    // 📅 Jadwal Sekolah
+    MenuItemModel("Jadwal Sekolah", Icons.calendar_today_rounded, "/schedule"),
 
-    /// Pengumuman
-    MenuItemModel("Pengumuman", Icons.campaign_rounded, "/announcement"),
-
-    MenuItemModel(
-      "Notifikasi",
-      Icons.notification_add_rounded,
-      "/notifications",
-    ),
-
-    /// PROFIL
-    MenuItemModel("Profil Saya", Icons.person_rounded, "/profile"),
+    // 🔔 Notifikasi
+    MenuItemModel("Notifikasi", Icons.notifications_rounded, "/notifications"),
   ];
 
-  // ================================
-  // ⭐ GURU
-  // ================================
+  // ============================================================
+  // ⭐ GURU MENU
+  // ============================================================
   static final List<MenuItemModel> guruMenu = [
     MenuItemModel("Dashboard", Icons.dashboard_rounded, "/dashboard"),
+
+    // 📅 Jadwal Mengajar
     MenuItemModel("Jadwal", Icons.calendar_today_rounded, "/schedule"),
 
-    /// Guru → hanya RPP pribadi
+    // 📘 RPP Saya
     MenuItemModel("RPP Saya", Icons.menu_book_rounded, "/rpp"),
 
-    /// Notifikasi (pengumuman masuk)
-    MenuItemModel(
-      "Notifikasi",
-      Icons.notification_add_rounded,
-      "/notifications",
-    ),
-
-    /// PROFIL
-    MenuItemModel("Profil Saya", Icons.person_rounded, "/profile"),
+    // 🔔 Notifikasi
+    MenuItemModel("Notifikasi", Icons.notifications_rounded, "/notifications"),
   ];
 
-  // ========================================
-  // ⭐ PERMISSION KHUSUS RPP
-  // ========================================
+  // ============================================================
+  // 🔐 PERMISSION — JADWAL (⭐ INI YANG PENTING)
+  // ============================================================
+  static final Map<String, List<String>> schedulePermissions = {
+    "admin": ["/schedule"],
+    "kepsek": ["/schedule"],
+    "wakasek": ["/schedule"],
+    "guru": ["/schedule"],
+  };
+
+  // ============================================================
+  // 🔐 PERMISSION — RPP
+  // ============================================================
   static final Map<String, List<String>> rppPermissions = {
     "admin": ["/admin/rpp", "/rpp/preview", "/rpp/history"],
     "kepsek": [
@@ -110,9 +101,9 @@ class RoleMenuConfig {
     ],
   };
 
-  // ========================================
-  // ⭐ PERMISSION KHUSUS PENGUMUMAN
-  // ========================================
+  // ============================================================
+  // 🔐 PERMISSION — PENGUMUMAN
+  // ============================================================
   static final Map<String, List<String>> announcementPermissions = {
     "admin": [
       "/announcement",
@@ -126,8 +117,6 @@ class RoleMenuConfig {
       "/announcement/edit",
       "/announcement/detail",
     ],
-    "guru": [
-      "/announcement/detail", // hanya view
-    ],
+    "guru": ["/announcement/detail"],
   };
 }

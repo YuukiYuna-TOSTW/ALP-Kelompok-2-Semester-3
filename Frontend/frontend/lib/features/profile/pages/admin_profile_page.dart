@@ -75,23 +75,48 @@ class AdminProfilePage extends StatelessWidget {
     ]);
   }
 
-  // ================= ACCOUNT =================
+  // ================= ACCOUNT SETTINGS =================
   Widget _accountSettings(BuildContext context) {
     return _cardSection("Pengaturan Akun", [
-      ElevatedButton(
-        onPressed: () => Navigator.pushNamed(context, "/profile/password"),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          minimumSize: const Size(double.infinity, 45),
+      Container(
+        width: double.infinity,
+        alignment: Alignment.centerLeft,
+        child: TextButton(
+          onPressed: () => Navigator.pushNamed(context, "/profile/password"),
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+            alignment: Alignment.centerLeft,
+          ),
+          child: const Text(
+            "Ubah Kata Sandi",
+            style: TextStyle(
+              color: AppColors.primary,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
-        child: const Text("Ubah Kata Sandi"),
       ),
-      const SizedBox(height: 12),
-      TextButton(
-        onPressed: () {},
-        child: const Text(
-          "Logout",
-          style: TextStyle(color: Colors.red, fontSize: 16),
+
+      const SizedBox(height: 4),
+
+      Container(
+        width: double.infinity,
+        alignment: Alignment.centerLeft,
+        child: TextButton(
+          onPressed: () {},
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+            alignment: Alignment.centerLeft,
+          ),
+          child: const Text(
+            "Logout",
+            style: TextStyle(
+              color: Colors.red,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       ),
     ]);
