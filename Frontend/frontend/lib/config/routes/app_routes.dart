@@ -150,18 +150,14 @@ class AppRoutes {
       "/profile/password": (_) => const ChangePasswordPage(),
 
       // ============================================================
-      // 📅 JADWAL — SATU ROUTE, PER ROLE
+      // 📅 JADWAL — SATU ROUTE, PER ROLE (FIXED)
       // ============================================================
       "/schedule": (_) {
         final role = context.read<RoleController>().role;
 
-        final profileData = {
-          "kelas": ["7A", "8B", "9C"],
-        };
-
         switch (role) {
           case "guru":
-            return WeeklyRosterGuruPage(profileData: profileData);
+            return const WeeklyRosterGuruPage();
           case "admin":
             return const WeeklyRosterAdminPage();
           case "kepsek":

@@ -17,9 +17,9 @@ class KepsekDashboardContent extends StatelessWidget {
         // ===============================
         // ⭐ RPP PENDING REVIEW
         // ===============================
-        Text(
+        const Text(
           "RPP Pending Review",
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w700,
             color: AppColors.textDark,
@@ -27,8 +27,8 @@ class KepsekDashboardContent extends StatelessWidget {
         ),
         const SizedBox(height: 14),
 
-        Column(
-          children: const [
+        const Column(
+          children: [
             RppReviewCard(
               subject: "Matematika",
               className: "8A",
@@ -36,7 +36,6 @@ class KepsekDashboardContent extends StatelessWidget {
               time: "10 menit lalu",
             ),
             SizedBox(height: 10),
-
             RppReviewCard(
               subject: "PJOK",
               className: "9C",
@@ -44,7 +43,6 @@ class KepsekDashboardContent extends StatelessWidget {
               time: "32 menit lalu",
             ),
             SizedBox(height: 10),
-
             RppReviewCard(
               subject: "Bahasa Indonesia",
               className: "7B",
@@ -59,9 +57,9 @@ class KepsekDashboardContent extends StatelessWidget {
         // ===============================
         // ⭐ STATISTIK SEKOLAH
         // ===============================
-        Text(
+        const Text(
           "Statistik Sekolah",
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w700,
             color: AppColors.textDark,
@@ -69,8 +67,8 @@ class KepsekDashboardContent extends StatelessWidget {
         ),
         const SizedBox(height: 14),
 
-        Row(
-          children: const [
+        const Row(
+          children: [
             Expanded(
               child: StatCard(
                 icon: Icons.person_rounded,
@@ -102,44 +100,47 @@ class KepsekDashboardContent extends StatelessWidget {
         // ===============================
         // ⭐ AKSI CEPAT
         // ===============================
-        Text(
+        const Text(
           "Aksi Cepat",
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w700,
             color: AppColors.textDark,
           ),
         ),
-
         const SizedBox(height: 14),
 
         Row(
-          children: const [
+          children: [
             Expanded(
               child: QuickActionButton(
-                icon: Icons.fact_check_rounded,
-                label: "Review & Approve RPP",
+                icon: Icons.event_available_rounded,
+                label: "Buat Kegiatan Baru",
+                onTap: () {
+                  Navigator.pushNamed(context, "/kegiatan/create");
+                },
               ),
             ),
-            SizedBox(width: 14),
-            Expanded(
-              child: QuickActionButton(
-                icon: Icons.file_download_rounded,
-                label: "Export Semua RPP",
-              ),
-            ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
+
             Expanded(
               child: QuickActionButton(
                 icon: Icons.calendar_today_rounded,
                 label: "Export Jadwal",
+                onTap: () {
+                  Navigator.pushNamed(context, "/schedule/export");
+                },
               ),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
+
             Expanded(
               child: QuickActionButton(
                 icon: Icons.campaign_rounded,
                 label: "Buat Pengumuman",
+                onTap: () {
+                  Navigator.pushNamed(context, "/announcement/create");
+                },
               ),
             ),
           ],

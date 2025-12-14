@@ -1,25 +1,22 @@
 import 'package:flutter/material.dart';
 import '../../../config/theme/colors.dart';
+import '../../rpp/layout/rpp_layout.dart';
 
-class WeeklyRosterBase extends StatefulWidget {
+class WeeklyRosterRppPage extends StatefulWidget {
   final String role;
-  final Map<String, dynamic> profileData;
+  final String title;
 
-  /// ⭐ DATA JADWAL DIKIRIM DARI PAGE (guru/admin/kepsek)
-  final List<Map<String, String>> schedule;
-
-  const WeeklyRosterBase({
+  const WeeklyRosterRppPage({
     super.key,
     required this.role,
-    required this.profileData,
-    required this.schedule,
+    required this.title,
   });
 
   @override
-  State<WeeklyRosterBase> createState() => _WeeklyRosterBaseState();
+  State<WeeklyRosterRppPage> createState() => _WeeklyRosterRppPageState();
 }
 
-class _WeeklyRosterBaseState extends State<WeeklyRosterBase> {
+class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
   int selectedDay = 0;
   late DateTime weekStart;
 
@@ -31,54 +28,92 @@ class _WeeklyRosterBaseState extends State<WeeklyRosterBase> {
   }
 
   final List<String> dayNames = const [
-    "Senin",
-    "Selasa",
-    "Rabu",
-    "Kamis",
-    "Jumat",
-    "Sabtu",
-    "Minggu",
+    "Sen",
+    "Sel",
+    "Rab",
+    "Kam",
+    "Jum",
+    "Sab",
+    "Min",
   ];
+
+  final Map<int, List<Map<String, String>>> weeklySchedule = {
+    0: [
+      {
+        "subject": "Biologi",
+        "start": "09:10",
+        "end": "10:00",
+        "teacher": "Pak Budi",
+        "kelas": "9A",
+      },
+    ],
+    1: [
+      {
+        "subject": "Matematika",
+        "start": "08:00",
+        "end": "09:30",
+        "teacher": "Bu Sinta",
+        "kelas": "8B",
+      },
+    ],
+    3: [
+      {
+        "subject": "IPA",
+        "start": "10:00",
+        "end": "11:30",
+        "teacher": "Pak Amir",
+        "kelas": "9C",
+      },
+    ],
+  };
 
   List<int> get dayDate =>
       List.generate(7, (i) => weekStart.add(Duration(days: i)).day);
 
-  /// ⭐ sekarang BENAR-BENAR pakai data dari luar
-  List<Map<String, String>> get todaySchedule => widget.schedule;
+  List<Map<String, String>> get todaySchedule =>
+      weeklySchedule[selectedDay] ?? [];
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _header(),
-        const SizedBox(height: 20),
-        _daySelector(),
-        const SizedBox(height: 12),
-        Expanded(child: _scheduleList()),
-      ],
+    return RppLayout(
+      role: widget.role,
+      selectedRoute: "/schedule",
+      content: _content(),
     );
   }
 
-  // ================= HEADER =================
+  Widget _content() {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _header(),
+          const SizedBox(height: 16),
+          _daySelector(),
+          const SizedBox(height: 20),
+          Expanded(child: _scheduleList()),
+        ],
+      ),
+    );
+  }
+
   Widget _header() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.primary.withOpacity(.75)],
-        ),
+        color: AppColors.primary,
         borderRadius: BorderRadius.circular(14),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.calendar_month, color: Colors.white),
-          SizedBox(width: 10),
+          const Icon(Icons.calendar_month, color: Colors.white),
+          const SizedBox(width: 10),
           Text(
-            "Jadwal Mingguan",
-            style: TextStyle(
+            widget.title,
+            style: const TextStyle(
               color: Colors.white,
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -87,10 +122,9 @@ class _WeeklyRosterBaseState extends State<WeeklyRosterBase> {
     );
   }
 
-  // ================= DAY SELECTOR =================
   Widget _daySelector() {
     return SizedBox(
-      height: 90,
+      height: 72,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: 7,
@@ -100,11 +134,11 @@ class _WeeklyRosterBaseState extends State<WeeklyRosterBase> {
           return GestureDetector(
             onTap: () => setState(() => selectedDay = i),
             child: Container(
-              width: 100,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
+              width: 72,
+              margin: const EdgeInsets.only(right: 12),
               decoration: BoxDecoration(
                 color: active ? AppColors.primary : Colors.white,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: active
                       ? AppColors.primary
@@ -117,17 +151,18 @@ class _WeeklyRosterBaseState extends State<WeeklyRosterBase> {
                   Text(
                     dayNames[i],
                     style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
                       color: active ? Colors.white : Colors.black87,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     dayDate[i].toString(),
                     style: TextStyle(
-                      color: active ? Colors.white : Colors.black87,
-                      fontSize: 20,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
+                      color: active ? Colors.white : Colors.black87,
                     ),
                   ),
                 ],
@@ -139,14 +174,13 @@ class _WeeklyRosterBaseState extends State<WeeklyRosterBase> {
     );
   }
 
-  // ================= LIST =================
   Widget _scheduleList() {
     if (todaySchedule.isEmpty) {
       return const Center(
         child: Text(
-          "Tidak Ada Jadwal",
+          "Tidak ada jadwal hari ini",
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
             color: Colors.black54,
           ),
@@ -154,48 +188,40 @@ class _WeeklyRosterBaseState extends State<WeeklyRosterBase> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.only(top: 8, bottom: 20),
-      itemCount: todaySchedule.length,
-      itemBuilder: (context, i) => _scheduleCard(todaySchedule[i]),
-    );
+    return ListView(children: todaySchedule.map(_scheduleCard).toList());
   }
 
-  // ================= CARD =================
   Widget _scheduleCard(Map<String, String> item) {
-    final bool isGuru = widget.role == "guru";
-
-    final String kelasGuru = (widget.profileData["kelas"] is List)
-        ? (widget.profileData["kelas"] as List).join(", ")
-        : "-";
-
-    final String kelas = isGuru ? kelasGuru : (item["kelas"] ?? "-");
-
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              item["subject"] ?? "-",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-              ),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(.05),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            item["subject"] ?? "-",
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
             ),
-            const SizedBox(height: 8),
-            Text("Waktu: ${item['start']} - ${item['end']}"),
-            if (!isGuru && item["teacher"] != null)
-              Text("Guru: ${item['teacher']}"),
-            const SizedBox(height: 4),
-            Text("Kelas: $kelas"),
-          ],
-        ),
+          ),
+          const SizedBox(height: 8),
+          Text("Waktu: ${item['start']} - ${item['end']}"),
+          if (widget.role != "guru") Text("Guru: ${item['teacher']}"),
+          Text("Kelas: ${item['kelas']}"),
+        ],
       ),
     );
   }
