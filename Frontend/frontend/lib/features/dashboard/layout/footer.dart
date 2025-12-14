@@ -52,12 +52,10 @@ class DashboardFooter extends StatelessWidget {
               // 🤖 AI SUPPORT + CONTACT DEV
               Row(
                 children: [
-                  // Contact Developer
+                  // Contact Developer → pindah ke AboutScreen
                   InkWell(
                     onTap: () {
-                      // === MASUKKAN KONTAK DEVELOPERMU DI SINI ===
-                      // contoh akses email:
-                      // launchUrl(Uri.parse("mailto:developer@email"));
+                      Navigator.pushNamed(context, "/about");
                     },
                     child: Row(
                       children: const [
@@ -74,9 +72,10 @@ class DashboardFooter extends StatelessWidget {
                       ],
                     ),
                   ),
+
                   const SizedBox(width: 20),
 
-                  // AI Support Icon
+                  // AI Support Button (optional)
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: const BoxDecoration(
@@ -96,7 +95,6 @@ class DashboardFooter extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          // Garis tipis pemisah
           Container(
             width: double.infinity,
             height: 1,

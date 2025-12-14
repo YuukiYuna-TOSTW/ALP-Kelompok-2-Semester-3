@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../config/theme/colors.dart';
 
 class EditProfilePage extends StatefulWidget {
-  final String role; // "guru", "kepsek", "admin"
+  final String role;
   final Map<String, dynamic> data;
 
   const EditProfilePage({super.key, required this.role, required this.data});
@@ -21,6 +23,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   String gender = "Laki-laki";
   String foto = "";
+  File? pickedImage; // foto asli dari file picker
+
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -32,59 +37,71 @@ class _EditProfilePageState extends State<EditProfilePage> {
     emailCtrl = TextEditingController(text: widget.data["email"] ?? "");
     phoneCtrl = TextEditingController(text: widget.data["hp"] ?? "");
     addressCtrl = TextEditingController(text: widget.data["alamat"] ?? "");
-
     tugasCtrl = TextEditingController(text: widget.data["tugas"] ?? "");
     tahunCtrl = TextEditingController(
       text: widget.data["tahun_menjabat"] ?? "",
     );
-
     gender = widget.data["gender"] ?? "Laki-laki";
+  }
+
+  Future<void> _pickPhoto() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      setState(() {
+        pickedImage = File(image.path);
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
+
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 900),
+          constraints: const BoxConstraints(
+            maxWidth: 760,
+          ), // tidak terlalu besar
           child: Card(
             margin: const EdgeInsets.all(24),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(18),
             ),
+            elevation: 5,
+            shadowColor: Colors.black12,
+
             child: Column(
               children: [
                 _header(context),
 
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 20,
+                      horizontal: 26,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _photoPicker(),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 24),
 
-                        if (widget.role == "admin")
-                          _textField("Nama", nameCtrl),
-
-                        if (widget.role == "kepsek")
-                          _disabledField("Jabatan", widget.data["jabatan"]),
-
-                        if (widget.role == "kepsek")
-                          _textField("Tugas Utama", tugasCtrl),
-
-                        if (widget.role == "kepsek")
-                          _textField("Tahun Menjabat", tahunCtrl),
-
+                        _textField("Nama", nameCtrl),
                         _textField("Email", emailCtrl),
                         _textField("No HP", phoneCtrl),
                         _textField("Alamat", addressCtrl),
 
+                        if (widget.role == "kepsek") ...[
+                          _disabledField("Jabatan", widget.data["jabatan"]),
+                          _textField("Tugas Utama", tugasCtrl),
+                          _textField("Tahun Menjabat", tahunCtrl),
+                        ],
+
                         if (widget.role == "guru") _genderSelector(),
 
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 32),
                         _buttons(context),
                       ],
                     ),
@@ -107,18 +124,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.primary.withOpacity(.7)],
+          colors: [AppColors.primary, AppColors.primary.withOpacity(.75)],
         ),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
       ),
+
       child: Row(
-        children: [
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-          ),
-          const SizedBox(width: 10),
-          const Text(
+        children: const [
+          Icon(Icons.edit, color: Colors.white, size: 22),
+          SizedBox(width: 10),
+          Text(
             "Edit Profil",
             style: TextStyle(
               color: Colors.white,
@@ -132,24 +147,32 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   // ============================================================
-  // FOTO PICKER (dummy)
+  // FOTO PICKER
   // ============================================================
   Widget _photoPicker() {
     return Row(
       children: [
         CircleAvatar(
-          radius: 45,
-          backgroundImage: foto.isNotEmpty ? NetworkImage(foto) : null,
-          child: foto.isEmpty ? const Icon(Icons.person, size: 45) : null,
+          radius: 48,
+          backgroundImage: pickedImage != null
+              ? FileImage(pickedImage!)
+              : (foto.isNotEmpty ? NetworkImage(foto) : null) as ImageProvider?,
+          child: (pickedImage == null && foto.isEmpty)
+              ? const Icon(Icons.person, size: 48)
+              : null,
         ),
         const SizedBox(width: 16),
+
         ElevatedButton.icon(
-          onPressed: () {
-            setState(() {
-              foto = "https://picsum.photos/200"; // dummy foto baru
-            });
-          },
-          icon: const Icon(Icons.upload),
+          onPressed: _pickPhoto,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          icon: const Icon(Icons.upload_rounded),
           label: const Text("Ganti Foto"),
         ),
       ],
@@ -157,7 +180,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   // ============================================================
-  // TEXTFIELD
+  // TEXT FIELD
   // ============================================================
   Widget _textField(String label, TextEditingController ctrl) {
     return Padding(
@@ -168,7 +191,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
           labelText: label,
           filled: true,
           fillColor: Colors.grey[100],
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 14,
+            horizontal: 14,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
         ),
       ),
     );
@@ -182,7 +212,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
         controller: TextEditingController(text: value),
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          filled: true,
+          fillColor: Colors.grey[200],
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
     );
@@ -201,6 +233,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             "Jenis Kelamin",
             style: TextStyle(fontWeight: FontWeight.w600),
           ),
+          const SizedBox(height: 6),
           Row(
             children: [
               Radio(
@@ -230,18 +263,28 @@ class _EditProfilePageState extends State<EditProfilePage> {
       children: [
         Expanded(
           child: ElevatedButton(
+            onPressed: () => Navigator.pop(context),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Simpan Perubahan"),
+            child: const Text("Simpan"),
           ),
         ),
         const SizedBox(width: 12),
+
         Expanded(
           child: OutlinedButton(
             onPressed: () => Navigator.pop(context),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
             child: const Text("Batal"),
           ),
         ),

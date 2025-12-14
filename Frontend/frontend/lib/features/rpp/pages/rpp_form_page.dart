@@ -40,15 +40,52 @@ class _RppFormPageState extends State<RppFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    return RppLayout(
-      role: "guru",
-      selectedRoute: "/rpp",
-      content: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 900),
-          child: _buildContent(context),
+    return Stack(
+      children: [
+        RppLayout(
+          role: "guru",
+          selectedRoute: "/rpp",
+          content: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 900),
+              child: _buildContent(context),
+            ),
+          ),
         ),
-      ),
+
+        // ============================================================
+        // ⭐ FLOATING CHATBOT BUTTON (selalu terlihat)
+        // ============================================================
+        Positioned(
+          bottom: 26,
+          right: 26,
+          child: GestureDetector(
+            onTap: () {
+              // Bisa diarahkan ke halaman chatbot
+              Navigator.pushNamed(context, "/assistant");
+            },
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.smart_toy_rounded,
+                size: 30,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -77,15 +114,13 @@ class _RppFormPageState extends State<RppFormPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ------------ HEADER BIRU + BACK BUTTON ------------
+          // ------------ HEADER BIRU ------------
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 18),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [AppColors.primary, AppColors.primary.withOpacity(0.7)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
               ),
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(16),
@@ -101,7 +136,7 @@ class _RppFormPageState extends State<RppFormPage> {
                 const Text(
                   "Buat RPP Baru",
                   style: TextStyle(
-                    fontSize: 18, // lebih kecil
+                    fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
@@ -116,7 +151,6 @@ class _RppFormPageState extends State<RppFormPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ========================== METADATA ==========================
                 _blueLabel("Informasi Dasar RPP"),
                 const SizedBox(height: 16),
 
@@ -128,8 +162,6 @@ class _RppFormPageState extends State<RppFormPage> {
                 ),
 
                 const SizedBox(height: 28),
-
-                // ========================== ISI RPP ==========================
                 _blueLabel("Isi RPP"),
                 const SizedBox(height: 18),
 
@@ -171,7 +203,7 @@ class _RppFormPageState extends State<RppFormPage> {
   }
 
   // ======================================================================
-  // LABELS & EDITOR HELPERS
+  // LABEL HELPERS
   // ======================================================================
   Widget _blueLabel(String text) {
     return Text(
@@ -201,18 +233,20 @@ class _RppFormPageState extends State<RppFormPage> {
       children: [
         _sectionLabel(title),
         const SizedBox(height: 6),
+
         RppSectionEditor(
           title: "",
           controller: controller,
           onAiPressed: () => showRppAiDialog(context, controller: controller),
         ),
+
         const SizedBox(height: 16),
       ],
     );
   }
 
   // ======================================================================
-  // BUTTON BAR (WITHOUT EXPORT BUTTON)
+  // BUTTON BAR
   // ======================================================================
   Widget _buildActionButtons() {
     return Row(

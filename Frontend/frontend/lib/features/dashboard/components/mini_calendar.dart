@@ -11,14 +11,7 @@ class CalendarEvent {
 class MiniCalendar extends StatefulWidget {
   final List<CalendarEvent> events;
 
-  /// NEW → Callback ketika tanggal diklik
-  final Function(DateTime) onDateSelected;
-
-  const MiniCalendar({
-    super.key,
-    required this.events,
-    required this.onDateSelected,
-  });
+  const MiniCalendar({super.key, required this.events});
 
   @override
   State<MiniCalendar> createState() => _MiniCalendarState();
@@ -26,11 +19,13 @@ class MiniCalendar extends StatefulWidget {
 
 class _MiniCalendarState extends State<MiniCalendar> {
   late DateTime _currentMonth;
+  late DateTime _selectedDate;
 
   @override
   void initState() {
     super.initState();
-    _currentMonth = DateTime.now();
+    _currentMonth = DateTime(DateTime.now().year, DateTime.now().month, 1);
+    _selectedDate = DateTime.now();
   }
 
   void _nextMonth() {
@@ -47,31 +42,32 @@ class _MiniCalendarState extends State<MiniCalendar> {
 
   @override
   Widget build(BuildContext context) {
-    int daysInMonth = DateTime(
+    final int daysInMonth = DateTime(
       _currentMonth.year,
       _currentMonth.month + 1,
       0,
     ).day;
 
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(.05),
-            blurRadius: 8,
+            color: Colors.black.withOpacity(.06),
+            blurRadius: 10,
             offset: const Offset(0, 3),
           ),
         ],
       ),
 
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // =========================
-          // HEADER (Bulan)
-          // =========================
+          // ======================================
+          // ⭐ HEADER (BULAN + TOMBOL NAVIGASI)
+          // ======================================
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -82,8 +78,9 @@ class _MiniCalendarState extends State<MiniCalendar> {
               Text(
                 "${months[_currentMonth.month - 1]} ${_currentMonth.year}",
                 style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textDark,
                 ),
               ),
               IconButton(
@@ -95,9 +92,32 @@ class _MiniCalendarState extends State<MiniCalendar> {
 
           const SizedBox(height: 10),
 
-          // =========================
-          // GRID KALENDER
-          // =========================
+          // ======================================
+          // ⭐ HEADER NAMA HARI
+          // ======================================
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(7, (i) {
+              return Expanded(
+                child: Center(
+                  child: Text(
+                    weekDays[i],
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+
+          const SizedBox(height: 6),
+
+          // ======================================
+          // ⭐ GRID KALENDER
+          // ======================================
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -116,58 +136,141 @@ class _MiniCalendarState extends State<MiniCalendar> {
                 day,
               );
 
-              final dayEvents = widget.events
-                  .where(
-                    (e) =>
-                        e.date.year == date.year &&
-                        e.date.month == date.month &&
-                        e.date.day == date.day,
-                  )
-                  .toList();
+              // Event check
+              final bool hasEvent = widget.events.any(
+                (e) =>
+                    e.date.year == date.year &&
+                    e.date.month == date.month &&
+                    e.date.day == date.day,
+              );
 
-              final bool hasEvent = dayEvents.isNotEmpty;
+              // Hari ini
+              final bool isToday = _isSameDate(date, DateTime.now());
+
+              // Tanggal yang dipilih
+              final bool isSelected = _isSameDate(date, _selectedDate);
 
               return GestureDetector(
-                onTap: () => widget.onDateSelected(date),
-                child: Container(
+                onTap: () {
+                  setState(() => _selectedDate = date);
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    border: hasEvent
-                        ? Border.all(color: AppColors.primary, width: 2)
-                        : Border.all(color: Colors.grey.shade300),
-                    color: hasEvent
-                        ? AppColors.primary.withOpacity(.1)
+                    color: isToday
+                        ? AppColors.primary
+                        : isSelected
+                        ? AppColors.primary.withOpacity(.25)
+                        : hasEvent
+                        ? AppColors.primary.withOpacity(.12)
                         : Colors.white,
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.primary
+                          : hasEvent
+                          ? AppColors.primary
+                          : Colors.grey.shade300,
+                      width: isSelected ? 2 : 1,
+                    ),
                   ),
                   child: Text(
                     "$day",
                     style: TextStyle(
-                      color: hasEvent ? AppColors.primary : AppColors.textDark,
-                      fontWeight: hasEvent ? FontWeight.bold : FontWeight.w500,
+                      fontSize: 13,
+                      fontWeight: isToday || isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
+                      color: isToday ? Colors.white : AppColors.textDark,
                     ),
                   ),
                 ),
               );
             },
           ),
+
+          const SizedBox(height: 16),
+
+          // ======================================
+          // ⭐ KEGIATAN SEKOLAH HARI INI / TERPILIH
+          // ======================================
+          const Text(
+            "Kegiatan Hari Ini",
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textDark,
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          _buildEventsList(_selectedDate),
         ],
       ),
     );
   }
+
+  // ================================================================
+  // Cetak list event untuk tanggal yang dipilih
+  // ================================================================
+  Widget _buildEventsList(DateTime date) {
+    final todaysEvents = widget.events
+        .where(
+          (e) =>
+              e.date.year == date.year &&
+              e.date.month == date.month &&
+              e.date.day == date.day,
+        )
+        .toList();
+
+    if (todaysEvents.isEmpty) {
+      return const Text(
+        "Tidak ada kegiatan.",
+        style: TextStyle(color: AppColors.textGrey),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: todaysEvents.map((e) {
+        return Container(
+          padding: const EdgeInsets.all(12),
+          margin: const EdgeInsets.only(bottom: 8),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withOpacity(.08),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            "• ${e.title}",
+            style: const TextStyle(
+              color: AppColors.primary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // Helper
+  bool _isSameDate(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
 }
 
 final months = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
   "Mei",
-  "Jun",
-  "Jul",
-  "Agu",
-  "Sep",
-  "Okt",
-  "Nov",
-  "Des",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
 ];
+
+final weekDays = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];

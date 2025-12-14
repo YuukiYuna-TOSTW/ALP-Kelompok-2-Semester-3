@@ -3,21 +3,14 @@ import '../../../config/theme/colors.dart';
 import '../components/guru_activity_tile.dart';
 import '../components/mini_calendar.dart';
 
-class AdminRightPanel extends StatefulWidget {
+class AdminRightPanel extends StatelessWidget {
   const AdminRightPanel({super.key});
 
   @override
-  State<AdminRightPanel> createState() => _AdminRightPanelState();
-}
-
-class _AdminRightPanelState extends State<AdminRightPanel> {
-  DateTime? selectedDate;
-
-  @override
   Widget build(BuildContext context) {
-    // =======================================
+    // ===============================
     // 📌 DAFTAR KEGIATAN SEKOLAH
-    // =======================================
+    // ===============================
     final events = [
       CalendarEvent(date: DateTime(2025, 1, 10), title: "Rapat Guru"),
       CalendarEvent(date: DateTime(2025, 1, 10), title: "Supervisi Kelas 9"),
@@ -30,17 +23,6 @@ class _AdminRightPanelState extends State<AdminRightPanel> {
         title: "Workshop Kurikulum Merdeka",
       ),
     ];
-
-    final todaysEvents = selectedDate == null
-        ? []
-        : events
-              .where(
-                (e) =>
-                    e.date.year == selectedDate!.year &&
-                    e.date.month == selectedDate!.month &&
-                    e.date.day == selectedDate!.day,
-              )
-              .toList();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(8, 0, 4, 40),
@@ -87,7 +69,7 @@ class _AdminRightPanelState extends State<AdminRightPanel> {
           const SizedBox(height: 28),
 
           // =======================================
-          // ⭐ Kalender Sekolah (Dengan Event)
+          // ⭐ Kalender Sekolah (MiniCalendar Baru)
           // =======================================
           const Text(
             "Kalender Sekolah",
@@ -99,77 +81,12 @@ class _AdminRightPanelState extends State<AdminRightPanel> {
           ),
           const SizedBox(height: 12),
 
-          MiniCalendar(
-            events: events,
-            onDateSelected: (date) {
-              setState(() {
-                selectedDate = date;
-              });
-            },
-          ),
+          // ✔ MiniCalendar sudah otomatis handle event + highlight + daftar kegiatan
+          MiniCalendar(events: events),
 
           const SizedBox(height: 20),
-
-          // =======================================
-          // ⭐ List Kegiatan Tanggal Terpilih
-          // =======================================
-          if (todaysEvents.isNotEmpty) ...[
-            Text(
-              "Kegiatan ${selectedDate!.day} "
-              "${months[selectedDate!.month - 1]} ${selectedDate!.year}",
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textDark,
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            ...todaysEvents.map(
-              (e) => Container(
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.only(bottom: 8),
-                decoration: BoxDecoration(
-                  color: AppColors.cardLight,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(
-                      Icons.circle,
-                      size: 10,
-                      color: AppColors.primary,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        e.title,
-                        style: const TextStyle(fontSize: 13),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
         ],
       ),
     );
   }
 }
-
-final months = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "Mei",
-  "Jun",
-  "Jul",
-  "Agu",
-  "Sep",
-  "Okt",
-  "Nov",
-  "Des",
-];
