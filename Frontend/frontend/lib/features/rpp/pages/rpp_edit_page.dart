@@ -266,6 +266,11 @@ class _RppEditPageState extends State<RppEditPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Perubahan disimpan!")),
             );
+
+            // ⏱️ beri jeda singkat agar snackbar terlihat
+            Future.delayed(const Duration(milliseconds: 500), () {
+              Navigator.pushReplacementNamed(context, "/rpp");
+            });
           },
           child: const Text("Simpan Perubahan"),
         ),
@@ -280,6 +285,11 @@ class _RppEditPageState extends State<RppEditPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("RPP dikirim untuk review!")),
             );
+
+            // ⏱️ beri jeda singkat agar snackbar terlihat
+            Future.delayed(const Duration(milliseconds: 500), () {
+              Navigator.pushReplacementNamed(context, "/rpp");
+            });
           },
           child: const Text("Kirim untuk Review"),
         ),

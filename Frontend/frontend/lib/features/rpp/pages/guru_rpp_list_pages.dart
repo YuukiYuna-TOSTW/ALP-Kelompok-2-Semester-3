@@ -191,20 +191,38 @@ class _RppListPageState extends State<RppListPage> {
 
         const SizedBox(width: 16),
 
-        DropdownButton<String>(
-          value: statusFilter,
-          underline: const SizedBox(),
-          items: [
-            "Semua",
-            "Draft",
-            "Menunggu Review",
-            "Revisi",
-            "Disetujui",
-          ].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
-          onChanged: (v) {
-            statusFilter = v!;
-            _applyFilters();
-          },
+        SizedBox(
+          width: 220, // ⬅️ kasih ruang aman
+          child: DropdownButtonFormField<String>(
+            value: statusFilter,
+            isExpanded: true, // ⬅️ WAJIB
+            decoration: InputDecoration(
+              hintText: "Status RPP",
+              prefixIcon: const Icon(Icons.filter_list),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 14,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            icon: const Icon(Icons.keyboard_arrow_down_rounded),
+            items: const [
+              DropdownMenuItem(value: "Semua", child: Text("Semua")),
+              DropdownMenuItem(value: "Draft", child: Text("Draft")),
+              DropdownMenuItem(
+                value: "Menunggu Review",
+                child: Text("Menunggu Review"),
+              ),
+              DropdownMenuItem(value: "Revisi", child: Text("Revisi")),
+              DropdownMenuItem(value: "Disetujui", child: Text("Disetujui")),
+            ],
+            onChanged: (v) {
+              statusFilter = v!;
+              _applyFilters();
+            },
+          ),
         ),
 
         const SizedBox(width: 16),

@@ -33,6 +33,28 @@ class ChatInput extends StatelessWidget {
         ),
         child: Row(
           children: [
+            // ✅ BACK TO EDIT RPP
+            GestureDetector(
+              onTap: () {
+                Navigator.pushReplacementNamed(context, "/rpp/edit");
+              },
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF6F8FA),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.arrow_back,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+              ),
+            ),
+
+            const SizedBox(width: 10),
+
+            // ================= TEXT INPUT =================
             Expanded(
               child: TextField(
                 controller: controller,
@@ -60,7 +82,10 @@ class ChatInput extends StatelessWidget {
                 ),
               ),
             ),
+
             const SizedBox(width: 10),
+
+            // ================= SEND BUTTON =================
             GestureDetector(
               onTap: isLoading ? null : onSend,
               child: AnimatedContainer(

@@ -8,7 +8,7 @@ class WeeklyRosterAdminPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const WeeklyRosterRppPage(
       role: "admin",
-      title: "Manajemen Jadwal Sekolah",
+      title: "Jadwal Pelajaran Sekolah",
     );
   }
 }
