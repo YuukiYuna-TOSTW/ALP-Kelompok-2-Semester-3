@@ -6,7 +6,6 @@ import 'config/theme/app_theme.dart';
 import 'config/routes/app_routes.dart';
 import 'firebase_options.dart';
 
-//
 // =======================================================
 // 🟣 ROLE CONTROLLER (Testing role saat belum ada login backend)
 // =======================================================

@@ -48,7 +48,8 @@ class _RppReviewPageState extends State<RppReviewPage> {
       child: Column(
         children: [
           _header(context),
-          Expanded(
+          SizedBox(
+            height: MediaQuery.of(context).size.height - 260,
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               child: Column(

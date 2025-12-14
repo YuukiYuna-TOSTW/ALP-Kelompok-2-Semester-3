@@ -71,11 +71,6 @@ class KepsekRightPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-
-          /// ✔ MiniCalendar otomatis:
-          /// - menampilkan highlight hari ini & tanggal dipilih
-          /// - menampilkan kegiatan di bawah kalender
-          /// Tidak perlu lagi onDateSelected.
           MiniCalendar(events: events),
 
           const SizedBox(height: 20),
