@@ -18,23 +18,15 @@ class WeeklyRosterRppPage extends StatefulWidget {
 
 class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
   int selectedDay = 0;
-  late DateTime weekStart;
-
-  @override
-  void initState() {
-    super.initState();
-    final now = DateTime.now();
-    weekStart = now.subtract(Duration(days: now.weekday - 1));
-  }
 
   final List<String> dayNames = const [
-    "Sen",
-    "Sel",
-    "Rab",
-    "Kam",
-    "Jum",
-    "Sab",
-    "Min",
+    "Senin",
+    "Selasa",
+    "Rabu",
+    "Kamis",
+    "Jumat",
+    "Sabtu",
+    "Minggu",
   ];
 
   final Map<int, List<Map<String, String>>> weeklySchedule = {
@@ -67,9 +59,6 @@ class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
     ],
   };
 
-  List<int> get dayDate =>
-      List.generate(7, (i) => weekStart.add(Duration(days: i)).day);
-
   List<Map<String, String>> get todaySchedule =>
       weeklySchedule[selectedDay] ?? [];
 
@@ -78,31 +67,52 @@ class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
     return RppLayout(
       role: widget.role,
       selectedRoute: "/schedule",
-      content: _content(),
-    );
-  }
-
-  Widget _content() {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _header(),
-          const SizedBox(height: 16),
-          _daySelector(),
-          const SizedBox(height: 20),
-          Expanded(child: _scheduleList()),
-        ],
+      content: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1000),
+            child: _bigScheduleCard(),
+          ),
+        ),
       ),
     );
   }
 
+  // ======================================================
+  // CARD BESAR (HEADER + DAY + CONTENT)
+  // ======================================================
+  Widget _bigScheduleCard() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _header(),
+            const SizedBox(height: 16),
+            _daySelector(),
+            const SizedBox(height: 20),
+            _scheduleList(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ======================================================
+  // HEADER
+  // ======================================================
   Widget _header() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
       decoration: BoxDecoration(
-        color: AppColors.primary,
+        gradient: LinearGradient(
+          colors: [AppColors.primary, AppColors.primary.withOpacity(.75)],
+        ),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -114,7 +124,7 @@ class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
             style: const TextStyle(
               color: Colors.white,
               fontSize: 16,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],
@@ -122,20 +132,23 @@ class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
     );
   }
 
+  // ======================================================
+  // DAY SELECTOR (HARI SAJA)
+  // ======================================================
   Widget _daySelector() {
     return SizedBox(
-      height: 72,
+      height: 56,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: 7,
+        itemCount: dayNames.length,
         itemBuilder: (context, i) {
           final active = i == selectedDay;
 
           return GestureDetector(
             onTap: () => setState(() => selectedDay = i),
             child: Container(
-              width: 72,
-              margin: const EdgeInsets.only(right: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              margin: const EdgeInsets.only(right: 10),
               decoration: BoxDecoration(
                 color: active ? AppColors.primary : Colors.white,
                 borderRadius: BorderRadius.circular(12),
@@ -145,27 +158,13 @@ class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
                       : Colors.grey.withOpacity(.3),
                 ),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    dayNames[i],
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: active ? Colors.white : Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    dayDate[i].toString(),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: active ? Colors.white : Colors.black87,
-                    ),
-                  ),
-                ],
+              alignment: Alignment.center,
+              child: Text(
+                dayNames[i],
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: active ? Colors.white : Colors.black87,
+                ),
               ),
             ),
           );
@@ -174,37 +173,41 @@ class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
     );
   }
 
+  // ======================================================
+  // LIST JADWAL
+  // ======================================================
   Widget _scheduleList() {
     if (todaySchedule.isEmpty) {
-      return const Center(
-        child: Text(
-          "Tidak ada jadwal hari ini",
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.black54,
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 30),
+        child: Center(
+          child: Text(
+            "Tidak ada jadwal hari ini",
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.black54,
+            ),
           ),
         ),
       );
     }
 
-    return ListView(children: todaySchedule.map(_scheduleCard).toList());
+    return Column(children: todaySchedule.map(_scheduleItemCard).toList());
   }
 
-  Widget _scheduleCard(Map<String, String> item) {
+  // ======================================================
+  // CARD ITEM JADWAL (ROLE BASED)
+  // ======================================================
+  Widget _scheduleItemCard(Map<String, String> item) {
     return Container(
+      width: double.infinity,
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(.05),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: Colors.grey.withOpacity(.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -217,10 +220,10 @@ class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
               color: AppColors.primary,
             ),
           ),
-          const SizedBox(height: 8),
-          Text("Waktu: ${item['start']} - ${item['end']}"),
-          if (widget.role != "guru") Text("Guru: ${item['teacher']}"),
-          Text("Kelas: ${item['kelas']}"),
+          const SizedBox(height: 6),
+          Text("Waktu : ${item['start']} - ${item['end']}"),
+          if (widget.role != "guru") Text("Guru  : ${item['teacher']}"),
+          Text("Kelas : ${item['kelas']}"),
         ],
       ),
     );

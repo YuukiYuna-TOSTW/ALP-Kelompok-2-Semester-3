@@ -256,6 +256,11 @@ class _RppFormPageState extends State<RppFormPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Draft RPP berhasil disimpan!")),
             );
+
+            // ⏱️ beri jeda agar snackbar terlihat
+            Future.delayed(const Duration(milliseconds: 500), () {
+              Navigator.pushReplacementNamed(context, "/rpp");
+            });
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
@@ -273,6 +278,11 @@ class _RppFormPageState extends State<RppFormPage> {
                 content: Text("RPP berhasil dikirim untuk review!"),
               ),
             );
+
+            // ⏱️ beri jeda agar snackbar terlihat
+            Future.delayed(const Duration(milliseconds: 500), () {
+              Navigator.pushReplacementNamed(context, "/rpp");
+            });
           },
           style: OutlinedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
