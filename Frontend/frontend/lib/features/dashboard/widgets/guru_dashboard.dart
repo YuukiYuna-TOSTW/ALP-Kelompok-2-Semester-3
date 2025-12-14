@@ -137,21 +137,7 @@ class GuruDashboardContent extends StatelessWidget {
                   icon: Icons.file_download_rounded,
                   label: "Export Jadwal",
                   onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: const Text("Export Jadwal"),
-                        content: const Text(
-                          "Fitur export jadwal belum tersedia.",
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(ctx),
-                            child: const Text("OK"),
-                          ),
-                        ],
-                      ),
-                    );
+                    Navigator.pushNamed(context, "/schedule/export");
                   },
                 ),
               ),

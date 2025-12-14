@@ -77,7 +77,7 @@ class _RppAllListPageState extends State<RppAllListPage> {
   }
 
   // =====================================================
-  // UI START (Menggunakan RppLayout)
+  // UI START
   // =====================================================
   @override
   Widget build(BuildContext context) {
@@ -89,62 +89,67 @@ class _RppAllListPageState extends State<RppAllListPage> {
   }
 
   // =====================================================
-  // MAIN CONTENT (❌ TANPA Expanded)
+  // MAIN CONTENT → SATU CARD BESAR
   // =====================================================
   Widget _buildContent() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _pageHeader(),
-          const SizedBox(height: 20),
-          _searchAndExportBar(),
-          const SizedBox(height: 16),
-          _buildFilters(),
-          const SizedBox(height: 20),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _cardHeader(),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _searchAndExportBar(),
+                  const SizedBox(height: 16),
+                  _buildFilters(),
+                  const SizedBox(height: 20),
 
-          // ================= TABLE CONTAINER =================
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: _buildTable(),
+                  ),
+                ],
+              ),
             ),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: _buildTable(),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   // =====================================================
-  // HEADER
+  // CARD HEADER
   // =====================================================
-  Widget _pageHeader() {
-    return const Text(
-      "Semua RPP Guru",
-      style: TextStyle(
-        fontSize: 22,
-        fontWeight: FontWeight.bold,
-        color: AppColors.textDark,
+  Widget _cardHeader() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.primary, AppColors.primary.withOpacity(.75)],
+        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      child: const Text(
+        "Semua RPP Guru",
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+        ),
       ),
     );
   }
 
   // =====================================================
-  // SEARCH BAR + EXPORT BUTTON
+  // SEARCH + EXPORT
   // =====================================================
   Widget _searchAndExportBar() {
     return Row(
@@ -155,7 +160,7 @@ class _RppAllListPageState extends State<RppAllListPage> {
               hintText: "Cari guru, mapel, atau kelas...",
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
             onChanged: (v) {
@@ -171,7 +176,7 @@ class _RppAllListPageState extends State<RppAllListPage> {
           label: const Text("Export"),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
           ),
         ),
       ],
@@ -257,37 +262,37 @@ class _RppAllListPageState extends State<RppAllListPage> {
   }
 
   // =====================================================
-  // TABLE
+  // TABLE (LEBAR KOLOM TERKONTROL)
   // =====================================================
   Widget _buildTable() {
     return DataTable(
-      columnSpacing: 28,
-      headingRowHeight: 48,
-      dataRowHeight: 56,
+      columnSpacing: 24,
+      headingRowHeight: 50,
+      dataRowHeight: 58,
       headingRowColor: WidgetStateProperty.all(AppColors.primary),
       headingTextStyle: const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.bold,
       ),
       columns: const [
-        DataColumn(label: Text("Guru")),
-        DataColumn(label: Text("Mapel")),
-        DataColumn(label: Text("Kelas")),
-        DataColumn(label: Text("Semester")),
-        DataColumn(label: Text("Tanggal")),
-        DataColumn(label: Text("Status")),
-        DataColumn(label: Text("Aksi")),
+        DataColumn(label: SizedBox(width: 140, child: Text("Guru"))),
+        DataColumn(label: SizedBox(width: 160, child: Text("Mapel"))),
+        DataColumn(label: SizedBox(width: 90, child: Text("Kelas"))),
+        DataColumn(label: SizedBox(width: 110, child: Text("Semester"))),
+        DataColumn(label: SizedBox(width: 130, child: Text("Tanggal"))),
+        DataColumn(label: SizedBox(width: 160, child: Text("Status"))),
+        DataColumn(label: SizedBox(width: 110, child: Text("Aksi"))),
       ],
       rows: _filtered.map((item) {
         return DataRow(
           cells: [
-            DataCell(Text(item["guru"])),
-            DataCell(Text(item["mapel"])),
-            DataCell(Text(item["kelas"])),
-            DataCell(Text(item["semester"])),
-            DataCell(Text(item["tanggal"])),
-            DataCell(_statusChip(item["status"])),
-            DataCell(_actionButtons(item)),
+            DataCell(SizedBox(width: 140, child: Text(item["guru"]))),
+            DataCell(SizedBox(width: 160, child: Text(item["mapel"]))),
+            DataCell(SizedBox(width: 90, child: Text(item["kelas"]))),
+            DataCell(SizedBox(width: 110, child: Text(item["semester"]))),
+            DataCell(SizedBox(width: 130, child: Text(item["tanggal"]))),
+            DataCell(SizedBox(width: 160, child: _statusChip(item["status"]))),
+            DataCell(SizedBox(width: 110, child: _actionButtons(item))),
           ],
         );
       }).toList(),
@@ -314,10 +319,10 @@ class _RppAllListPageState extends State<RppAllListPage> {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: color.withOpacity(.15),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
         status,

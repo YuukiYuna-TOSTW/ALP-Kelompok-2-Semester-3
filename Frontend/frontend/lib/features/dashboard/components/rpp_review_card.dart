@@ -6,6 +6,7 @@ class RppReviewCard extends StatelessWidget {
   final String className;
   final String teacher;
   final String time;
+  final VoidCallback onReview;
 
   const RppReviewCard({
     super.key,
@@ -13,6 +14,7 @@ class RppReviewCard extends StatelessWidget {
     required this.className,
     required this.teacher,
     required this.time,
+    required this.onReview,
   });
 
   @override
@@ -30,7 +32,6 @@ class RppReviewCard extends StatelessWidget {
           ),
         ],
       ),
-
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -54,7 +55,7 @@ class RppReviewCard extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: onReview, // ✅ INI INTINYA
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,

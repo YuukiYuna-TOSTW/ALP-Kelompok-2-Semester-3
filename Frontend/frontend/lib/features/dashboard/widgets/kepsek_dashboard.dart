@@ -27,27 +27,46 @@ class KepsekDashboardContent extends StatelessWidget {
         ),
         const SizedBox(height: 14),
 
-        const Column(
+        Column(
           children: [
             RppReviewCard(
               subject: "Matematika",
               className: "8A",
               teacher: "Bpk. Rahman",
               time: "10 menit lalu",
+              onReview: () {
+                Navigator.pushNamed(
+                  context,
+                  "/kepsek/rpp/review",
+                  arguments: {
+                    "mapel": "Matematika",
+                    "kelas": "8A",
+                    "guru": "Bpk. Rahman",
+                  },
+                );
+              },
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
+
             RppReviewCard(
               subject: "PJOK",
               className: "9C",
               teacher: "Bu Tika",
               time: "32 menit lalu",
+              onReview: () {
+                Navigator.pushNamed(context, "/kepsek/rpp/review");
+              },
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
+
             RppReviewCard(
               subject: "Bahasa Indonesia",
               className: "7B",
               teacher: "Bu Nisa",
               time: "1 jam lalu",
+              onReview: () {
+                Navigator.pushNamed(context, "/kepsek/rpp/review");
+              },
             ),
           ],
         ),
@@ -115,9 +134,9 @@ class KepsekDashboardContent extends StatelessWidget {
             Expanded(
               child: QuickActionButton(
                 icon: Icons.event_available_rounded,
-                label: "Buat Kegiatan Baru",
+                label: "Buat Kegiatan",
                 onTap: () {
-                  Navigator.pushNamed(context, "/kegiatan/create");
+                  Navigator.pushNamed(context, "/calendar");
                 },
               ),
             ),

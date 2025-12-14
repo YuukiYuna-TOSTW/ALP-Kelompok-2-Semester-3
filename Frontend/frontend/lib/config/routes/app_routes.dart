@@ -37,6 +37,8 @@ import '../../features/profile/pages/change_password_page.dart';
 
 // KALENDER
 import '../../features/calendar/table_calender.dart';
+import '../../features/calendar/tambah_kegiatan.dart';
+import '../../features/calendar/detail_kegiatan.dart';
 
 // NOTIFICATIONS
 import '../../features/notifications/notification_page.dart';
@@ -46,6 +48,7 @@ import '../../features/notifications/notification_detail_page.dart';
 import '../../features/roster/pages/weekly_roster_guru_page.dart';
 import '../../features/roster/pages/weekly_roster_admin_page.dart';
 import '../../features/roster/pages/weekly_roster_kepsek_page.dart';
+import '../../features/roster/pages/weekly_roster_export_page.dart';
 
 // CHATBOT
 import '../../features/chatbot/pages/chatbot_page.dart';
@@ -171,14 +174,37 @@ class AppRoutes {
       },
 
       // ============================================================
+      // 📅 EXPORT JADWAL (ADMIN & KEPSEK)
+      // ============================================================
+      "/schedule/export": (context) {
+        final role = context.read<RoleController>().role;
+
+        // Validasi: hanya admin & kepsek
+        if (role == "admin" || role == "kepsek" || role == "wakasek") {
+          return WeeklyRosterExportPage(role: role);
+        }
+
+        // fallback kalau role tidak sesuai
+        return const Scaffold(
+          body: Center(child: Text("Akses tidak diizinkan")),
+        );
+      },
+
+      // ============================================================
       // CHATBOT
       // ============================================================
       "/assistant": (_) => const ChatbotPage(),
 
       // ============================================================
-      // MISC
+      // Kalender Sekolah
       // ============================================================
-      "/calendar": (_) => const CalendarPage(),
+      "/calendar": (_) => const CalendarSchoolPage(),
+      "/kegiatan/create": (_) => const EventFormCard(),
+      "/calendar/event/detail": (_) => const EventDetailPage(),
+
+      // ============================================================
+      // Tambahan
+      // ============================================================
       "/about": (_) => const AboutScreen(),
       "/": (_) => const Scaffold(body: Center(child: Text("Welcome"))),
     };
