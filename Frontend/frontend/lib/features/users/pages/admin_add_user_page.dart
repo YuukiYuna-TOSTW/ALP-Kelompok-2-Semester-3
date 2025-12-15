@@ -13,67 +13,204 @@ class AdminAddUserPage extends StatefulWidget {
 class _AdminAddUserPageState extends State<AdminAddUserPage> {
   String role = "Guru";
 
+  final nameCtrl = TextEditingController();
+  final nipCtrl = TextEditingController();
+  final emailCtrl = TextEditingController();
+  final phoneCtrl = TextEditingController();
+  final passwordCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    nameCtrl.dispose();
+    nipCtrl.dispose();
+    emailCtrl.dispose();
+    phoneCtrl.dispose();
+    passwordCtrl.dispose();
+    super.dispose();
+  }
+
+  InputDecoration _input(String label) {
+    return InputDecoration(
+      labelText: label,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text("Tambah Pengguna")),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            UserFormSection(
-              title: "Informasi Pribadi",
-              children: const [
-                TextField(decoration: InputDecoration(labelText: "Nama")),
-                TextField(decoration: InputDecoration(labelText: "NIP")),
-                TextField(decoration: InputDecoration(labelText: "Email")),
-                TextField(decoration: InputDecoration(labelText: "No HP")),
-              ],
-            ),
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 900),
+            child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                children: [
+                  // ================= HEADER =================
+                  _cardHeader(context),
 
-            UserFormSection(
-              title: "Role Pengguna",
-              children: [
-                DropdownButtonFormField(
-                  value: role,
-                  items: ["Guru", "Kepsek", "Wakasek", "Admin"]
-                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                      .toList(),
-                  onChanged: (v) => setState(() => role = v!),
-                  decoration: const InputDecoration(labelText: "Role"),
-                ),
-                RoleDynamicFields(role: role),
-              ],
-            ),
+                  // ================= SCROLLABLE CONTENT =================
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(22),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // ================= INFORMASI PRIBADI =================
+                          UserFormSection(
+                            title: "Informasi Pribadi",
+                            children: [
+                              TextField(
+                                controller: nameCtrl,
+                                decoration: _input("Nama Lengkap"),
+                              ),
+                              TextField(
+                                controller: nipCtrl,
+                                decoration: _input("NIP"),
+                                keyboardType: TextInputType.number,
+                              ),
+                              TextField(
+                                controller: emailCtrl,
+                                decoration: _input("Email"),
+                                keyboardType: TextInputType.emailAddress,
+                              ),
+                              TextField(
+                                controller: phoneCtrl,
+                                decoration: _input("No. HP"),
+                                keyboardType: TextInputType.phone,
+                              ),
+                            ],
+                          ),
 
-            UserFormSection(
-              title: "Login Data",
-              children: const [
-                TextField(
-                  enabled: false,
-                  decoration: InputDecoration(labelText: "Username (Auto)"),
-                ),
-                TextField(
-                  decoration: InputDecoration(labelText: "Password Awal"),
-                ),
-              ],
-            ),
+                          // ================= ROLE PENGGUNA =================
+                          UserFormSection(
+                            title: "Role Pengguna",
+                            children: [
+                              DropdownButtonFormField<String>(
+                                value: role,
+                                decoration: _input("Role"),
+                                items:
+                                    const ["Guru", "Kepsek", "Wakasek", "Admin"]
+                                        .map(
+                                          (e) => DropdownMenuItem(
+                                            value: e,
+                                            child: Text(e),
+                                          ),
+                                        )
+                                        .toList(),
+                                onChanged: (v) => setState(() => role = v!),
+                              ),
+                              RoleDynamicFields(role: role),
+                            ],
+                          ),
 
-            const SizedBox(height: 16),
+                          // ================= DATA LOGIN =================
+                          UserFormSection(
+                            title: "Data Login",
+                            children: [
+                              TextField(
+                                enabled: false,
+                                decoration: _input("Username (Otomatis)"),
+                              ),
+                              TextField(
+                                controller: passwordCtrl,
+                                decoration: _input("Password Awal"),
+                                obscureText: true,
+                              ),
+                            ],
+                          ),
 
-            Row(
-              children: [
-                ElevatedButton(onPressed: () {}, child: const Text("Simpan")),
-                const SizedBox(width: 12),
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text("Batal"),
-                ),
-              ],
+                          const SizedBox(height: 28),
+
+                          // ================= ACTION BUTTON =================
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    // TODO: simpan user baru
+                                  },
+                                  child: const Text(
+                                    "Simpan Pengguna",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text("Batal"),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  // ================= HEADER CARD =================
+  Widget _cardHeader(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.primary, AppColors.primary.withOpacity(.8)],
+        ),
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+          ),
+          const SizedBox(width: 6),
+          const Text(
+            "Tambah Pengguna",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }
