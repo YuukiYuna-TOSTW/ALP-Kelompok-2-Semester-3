@@ -51,6 +51,7 @@ class AdminDashboardContent extends StatelessWidget {
             ),
           ],
         ),
+
         const SizedBox(height: 14),
 
         Row(
@@ -78,7 +79,7 @@ class AdminDashboardContent extends StatelessWidget {
         const SizedBox(height: 32),
 
         // =====================================================
-        // ⭐ AKSI CEPAT
+        // ⭐ AKSI CEPAT (SAMA DENGAN KEPSEK)
         // =====================================================
         const Text(
           "Aksi Cepat",
@@ -91,52 +92,36 @@ class AdminDashboardContent extends StatelessWidget {
         const SizedBox(height: 14),
 
         Row(
-          children: const [
+          children: [
             Expanded(
               child: QuickActionButton(
-                icon: Icons.calendar_month_rounded,
-                label: "Kelola Jadwal",
+                icon: Icons.event_available_rounded,
+                label: "Buat Kegiatan",
+                onTap: () {
+                  Navigator.pushNamed(context, "/calendar");
+                },
               ),
             ),
-            SizedBox(width: 14),
-            Expanded(
-              child: QuickActionButton(
-                icon: Icons.sync_rounded,
-                label: "Generate Jadwal",
-              ),
-            ),
-            SizedBox(width: 14),
-            Expanded(
-              child: QuickActionButton(
-                icon: Icons.people_alt_rounded,
-                label: "Data Guru & Kelas",
-              ),
-            ),
-          ],
-        ),
+            const SizedBox(width: 14),
 
-        const SizedBox(height: 14),
-
-        Row(
-          children: const [
             Expanded(
               child: QuickActionButton(
-                icon: Icons.menu_book_rounded,
-                label: "Template RPP",
-              ),
-            ),
-            SizedBox(width: 14),
-            Expanded(
-              child: QuickActionButton(
-                icon: Icons.file_upload_rounded,
-                label: "Export RPP",
-              ),
-            ),
-            SizedBox(width: 14),
-            Expanded(
-              child: QuickActionButton(
-                icon: Icons.file_download_done_rounded,
+                icon: Icons.calendar_today_rounded,
                 label: "Export Jadwal",
+                onTap: () {
+                  Navigator.pushNamed(context, "/schedule/export");
+                },
+              ),
+            ),
+            const SizedBox(width: 14),
+
+            Expanded(
+              child: QuickActionButton(
+                icon: Icons.campaign_rounded,
+                label: "Buat Pengumuman",
+                onTap: () {
+                  Navigator.pushNamed(context, "/announcement/create");
+                },
               ),
             ),
           ],

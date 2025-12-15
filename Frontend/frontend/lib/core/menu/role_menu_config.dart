@@ -26,11 +26,15 @@ class RoleMenuConfig {
   static final List<MenuItemModel> adminMenu = [
     MenuItemModel("Dashboard", Icons.dashboard_rounded, "/dashboard"),
 
+    // 👥 MANAJEMEN PENGGUNA (BARU)
+    MenuItemModel(
+      "Manajemen Data",
+      Icons.manage_accounts_rounded,
+      "/admin/users",
+    ),
+
     // 📅 Jadwal Sekolah
     MenuItemModel("Jadwal Sekolah", Icons.calendar_month_rounded, "/schedule"),
-
-    // 👥 Manajemen Guru & Kelas
-    MenuItemModel("Data Guru & Kelas", Icons.people_alt_rounded, "/management"),
 
     // 📘 RPP Guru
     MenuItemModel("RPP Guru", Icons.menu_book_rounded, "/admin/rpp"),
@@ -54,6 +58,13 @@ class RoleMenuConfig {
     // 🔔 Notifikasi
     MenuItemModel("Notifikasi", Icons.notifications_rounded, "/notifications"),
   ];
+
+  // ============================================================
+  // 🔐 PERMISSION — ADMIN USERS
+  // ============================================================
+  static final Map<String, List<String>> userPermissions = {
+    "admin": ["/admin/users", "/admin/users/add", "/admin/users/edit"],
+  };
 
   // ============================================================
   // ⭐ GURU MENU
