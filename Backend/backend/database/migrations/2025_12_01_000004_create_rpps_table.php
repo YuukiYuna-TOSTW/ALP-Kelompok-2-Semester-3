@@ -25,7 +25,7 @@ return new class extends Migration
             $table->text('Kegiatan_Inti');
             $table->text('Penutup');
             $table->text('Catatan_Tambahan');
-            $table->enum('Status', ['Menunggu Review', 'Minta Revisi', 'Disetujui'])->default('Menunggu Review');
+            $table->enum('Status', ['Menunggu Review', 'Minta Revisi', 'Revisi', 'Disetujui'])->default('Menunggu Review');
             $table->timestamps();
         });
     }

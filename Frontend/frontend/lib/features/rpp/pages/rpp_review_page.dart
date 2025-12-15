@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../../config/theme/colors.dart';
+import '../../../core/services/kepsek_rpp_review_service.dart';
 import '../layout/rpp_layout.dart';
 
 class RppReviewPage extends StatefulWidget {
   final Map<String, dynamic>? data;
+  final int? rppId; // ✅ optional rppId untuk fetch
 
-  const RppReviewPage({super.key, this.data});
+  const RppReviewPage({super.key, this.data, this.rppId});
 
   @override
   State<RppReviewPage> createState() => _RppReviewPageState();
@@ -22,19 +24,44 @@ class _RppReviewPageState extends State<RppReviewPage> {
     "Catatan Umum": TextEditingController(),
   };
 
+  late Future<Map<String, dynamic>> _rppFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    final localData = widget.data ?? {};
+    final id = widget.rppId ?? localData['rpp_id'] ?? localData['id'];
+    if (id != null) {
+      // Ambil dari service
+      _rppFuture = KepsekRppReviewService.getRppInfo(id);
+    } else {
+      // Pakai data yang sudah dibawa
+      _rppFuture = Future.value({'success': true, 'data': localData});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final rpp = widget.data ?? {};
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _rppFuture,
+      builder: (context, snapshot) {
+        final loading = snapshot.connectionState == ConnectionState.waiting;
+        final success = snapshot.data?['success'] == true;
+        final rpp = success ? (snapshot.data?['data'] ?? {}) : (widget.data ?? {});
 
-    return RppLayout(
-      selectedRoute: "/kepsek/rpp",
-      role: "kepsek",
-      content: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 950),
-          child: _buildCard(context, rpp),
-        ),
-      ),
+        return RppLayout(
+          selectedRoute: "/kepsek/rpp",
+          role: "kepsek",
+          content: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 950),
+              child: loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _buildCard(context, rpp),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -61,7 +88,7 @@ class _RppReviewPageState extends State<RppReviewPage> {
                   _section("Pendahuluan", "Pendahuluan", rpp["pendahuluan"]),
                   _section("Inti", "Kegiatan Inti", rpp["inti"]),
                   _section("Penutup", "Penutup", rpp["penutup"]),
-                  _section("Catatan Umum", "Catatan Tambahan", ""),
+                  _section("Catatan Umum", "Catatan Tambahan", rpp["catatan"]),
                   const SizedBox(height: 20),
                 ],
               ),

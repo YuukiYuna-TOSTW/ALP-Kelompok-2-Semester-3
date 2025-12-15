@@ -28,7 +28,7 @@ class RppFactory extends Factory
             'Kegiatan_Inti' => fake()->paragraph(),
             'Penutup' => fake()->paragraph(),
             'Catatan_Tambahan' => fake()->paragraph(),
-            'Status' => fake()->randomElement(['Menunggu Review','Minta Revisi','Disetujui']),
+            'Status' => fake()->randomElement(['Menunggu Review','Disetujui']),
         ];
     }
 }
