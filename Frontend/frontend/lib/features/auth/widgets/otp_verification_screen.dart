@@ -3,9 +3,17 @@ import '../../../config/theme/colors.dart';
 import '../../homepage/widgets/otp_background.dart';
 import 'package:frontend/config/controller/otp_controller.dart';
 import '../../homepage/widgets/otp_input_fields.dart';
+import 'otp_code_dialog.dart';
 
 class OtpVerificationPage extends StatefulWidget {
-  const OtpVerificationPage({super.key});
+  final String email;
+  final String otpCode; // Kode OTP dari backend untuk ditampilkan
+
+  const OtpVerificationPage({
+    super.key,
+    required this.email,
+    required this.otpCode,
+  });
 
   @override
   State<OtpVerificationPage> createState() => _OtpVerificationPageState();
@@ -18,10 +26,17 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
   @override
   void initState() {
     super.initState();
-    otp = OtpController(onUpdate: () => setState(() {}));
+    otp = OtpController(onUpdate: () => setState(() {}), email: widget.email);
     otp.initAnimation(this);
     otp.startTimer();
     otp.setupFocusListeners();
+
+    // Tampilkan pop-up kode OTP setelah widget dibangun
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && widget.otpCode.isNotEmpty) {
+        showOtpCodeDialog(context, widget.otpCode, widget.email);
+      }
+    });
   }
 
   @override
@@ -107,7 +122,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
                   const SizedBox(height: 20),
 
                   Text(
-                    "${otp.remainingTime} detik",
+                    otp.formattedTime,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -148,15 +163,21 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
 
                   const SizedBox(height: 20),
                   TextButton(
-                    onPressed: () {
-                      otp.resendOtp();
-                    },
+                    onPressed: otp.canResend
+                        ? () {
+                            otp.resendOtp(context);
+                          }
+                        : null,
                     child: Text(
-                      "Tidak menerima kode? Kirim Ulang",
+                      otp.canResend
+                          ? "Tidak menerima kode? Kirim Ulang"
+                          : "Tunggu ${otp.formattedTime} untuk kirim ulang",
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.secondary,
+                        color: otp.canResend
+                            ? AppColors.secondary
+                            : Colors.grey,
                       ),
                     ),
                   ),
