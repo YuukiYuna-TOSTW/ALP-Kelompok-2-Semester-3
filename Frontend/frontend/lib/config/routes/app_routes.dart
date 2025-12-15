@@ -53,6 +53,11 @@ import '../../features/roster/pages/weekly_roster_export_page.dart';
 // CHATBOT
 import '../../features/chatbot/pages/chatbot_page.dart';
 
+// ADMIN — USERS MANAGEMENT
+import '../../features/users/pages/admin_user_list_page.dart';
+import '../../features/users/pages/admin_add_user_page.dart';
+import '../../features/users/pages/admin_edit_user_page.dart';
+
 class AppRoutes {
   static Map<String, WidgetBuilder> allRoutes(BuildContext context) {
     return {
@@ -201,6 +206,47 @@ class AppRoutes {
       "/calendar": (_) => const CalendarSchoolPage(),
       "/kegiatan/create": (_) => const EventFormCard(),
       "/calendar/event/detail": (_) => const EventDetailPage(),
+
+      // ============================================================
+      // ADMIN — PENGELOLAAN PENGGUNA
+      // ============================================================
+      "/admin/users": (_) {
+        final role = context.read<RoleController>().role;
+
+        if (role == "admin") {
+          return const AdminUserListPage();
+        }
+
+        return const Scaffold(
+          body: Center(child: Text("Akses tidak diizinkan")),
+        );
+      },
+
+      "/admin/users/add": (_) {
+        final role = context.read<RoleController>().role;
+
+        if (role == "admin") {
+          return const AdminAddUserPage();
+        }
+
+        return const Scaffold(
+          body: Center(child: Text("Akses tidak diizinkan")),
+        );
+      },
+
+      "/admin/users/edit": (ctx) {
+        final role = context.read<RoleController>().role;
+
+        if (role == "admin") {
+          return AdminEditUserPage(
+            data: _safeArgs(ModalRoute.of(ctx)!.settings.arguments),
+          );
+        }
+
+        return const Scaffold(
+          body: Center(child: Text("Akses tidak diizinkan")),
+        );
+      },
 
       // ============================================================
       // Tambahan

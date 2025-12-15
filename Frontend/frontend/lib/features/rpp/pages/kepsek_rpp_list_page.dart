@@ -89,7 +89,7 @@ class _RppAllListPageState extends State<RppAllListPage> {
   }
 
   // =====================================================
-  // MAIN CONTENT → SATU CARD BESAR
+  // MAIN CONTENT
   // =====================================================
   Widget _buildContent() {
     return SingleChildScrollView(
@@ -104,17 +104,12 @@ class _RppAllListPageState extends State<RppAllListPage> {
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _searchAndExportBar(),
                   const SizedBox(height: 16),
                   _buildFilters(),
                   const SizedBox(height: 20),
-
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: _buildTable(),
-                  ),
+                  _buildTable(), // ❌ NO horizontal scroll
                 ],
               ),
             ),
@@ -133,7 +128,7 @@ class _RppAllListPageState extends State<RppAllListPage> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.primary.withOpacity(.75)],
+          colors: [AppColors.primary, AppColors.primary.withOpacity(.8)],
         ),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -189,47 +184,41 @@ class _RppAllListPageState extends State<RppAllListPage> {
   Widget _buildFilters() {
     return Row(
       children: [
-        _dropdownFilter(
-          title: "Guru",
-          value: fGuru,
-          items: ["Semua", ..._allRpp.map((e) => e["guru"]).toSet()],
-          onChanged: (v) {
+        _dropdown(
+          "Guru",
+          fGuru,
+          ["Semua", ..._allRpp.map((e) => e["guru"]).toSet()],
+          (v) {
             fGuru = v!;
             _applyFilters();
           },
         ),
         const SizedBox(width: 16),
-        _dropdownFilter(
-          title: "Mapel",
-          value: fMapel,
-          items: ["Semua", ..._allRpp.map((e) => e["mapel"]).toSet()],
-          onChanged: (v) {
+        _dropdown(
+          "Mapel",
+          fMapel,
+          ["Semua", ..._allRpp.map((e) => e["mapel"]).toSet()],
+          (v) {
             fMapel = v!;
             _applyFilters();
           },
         ),
         const SizedBox(width: 16),
-        _dropdownFilter(
-          title: "Kelas",
-          value: fKelas,
-          items: ["Semua", ..._allRpp.map((e) => e["kelas"]).toSet()],
-          onChanged: (v) {
+        _dropdown(
+          "Kelas",
+          fKelas,
+          ["Semua", ..._allRpp.map((e) => e["kelas"]).toSet()],
+          (v) {
             fKelas = v!;
             _applyFilters();
           },
         ),
         const SizedBox(width: 16),
-        _dropdownFilter(
-          title: "Status",
-          value: fStatus,
-          items: const [
-            "Semua",
-            "Draft",
-            "Menunggu Review",
-            "Revisi",
-            "Disetujui",
-          ],
-          onChanged: (v) {
+        _dropdown(
+          "Status",
+          fStatus,
+          const ["Semua", "Draft", "Menunggu Review", "Revisi", "Disetujui"],
+          (v) {
             fStatus = v!;
             _applyFilters();
           },
@@ -238,23 +227,18 @@ class _RppAllListPageState extends State<RppAllListPage> {
     );
   }
 
-  Widget _dropdownFilter({
-    required String title,
-    required String value,
-    required List items,
-    required Function(String?) onChanged,
-  }) {
+  Widget _dropdown(
+    String title,
+    String value,
+    List<String> items,
+    Function(String?) onChanged,
+  ) {
     return Expanded(
       child: DropdownButtonFormField<String>(
         value: value,
         decoration: InputDecoration(labelText: title),
         items: items
-            .map(
-              (e) => DropdownMenuItem(
-                value: e.toString(),
-                child: Text(e.toString()),
-              ),
-            )
+            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
             .toList(),
         onChanged: onChanged,
       ),
@@ -262,37 +246,37 @@ class _RppAllListPageState extends State<RppAllListPage> {
   }
 
   // =====================================================
-  // TABLE (LEBAR KOLOM TERKONTROL)
+  // TABLE
   // =====================================================
   Widget _buildTable() {
     return DataTable(
-      columnSpacing: 24,
-      headingRowHeight: 50,
-      dataRowHeight: 58,
+      columnSpacing: 20,
+      headingRowHeight: 48,
+      dataRowHeight: 56,
       headingRowColor: WidgetStateProperty.all(AppColors.primary),
       headingTextStyle: const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.bold,
       ),
       columns: const [
-        DataColumn(label: SizedBox(width: 140, child: Text("Guru"))),
-        DataColumn(label: SizedBox(width: 160, child: Text("Mapel"))),
-        DataColumn(label: SizedBox(width: 90, child: Text("Kelas"))),
-        DataColumn(label: SizedBox(width: 110, child: Text("Semester"))),
-        DataColumn(label: SizedBox(width: 130, child: Text("Tanggal"))),
-        DataColumn(label: SizedBox(width: 160, child: Text("Status"))),
-        DataColumn(label: SizedBox(width: 110, child: Text("Aksi"))),
+        DataColumn(label: Text("Guru")),
+        DataColumn(label: Text("Mapel")),
+        DataColumn(label: Text("Kelas")),
+        DataColumn(label: Text("Semester")),
+        DataColumn(label: Text("Tanggal")),
+        DataColumn(label: Text("Status")),
+        DataColumn(label: Center(child: Text("Aksi"))),
       ],
       rows: _filtered.map((item) {
         return DataRow(
           cells: [
-            DataCell(SizedBox(width: 140, child: Text(item["guru"]))),
-            DataCell(SizedBox(width: 160, child: Text(item["mapel"]))),
-            DataCell(SizedBox(width: 90, child: Text(item["kelas"]))),
-            DataCell(SizedBox(width: 110, child: Text(item["semester"]))),
-            DataCell(SizedBox(width: 130, child: Text(item["tanggal"]))),
-            DataCell(SizedBox(width: 160, child: _statusChip(item["status"]))),
-            DataCell(SizedBox(width: 110, child: _actionButtons(item))),
+            DataCell(Text(item["guru"])),
+            DataCell(Text(item["mapel"])),
+            DataCell(Text(item["kelas"])),
+            DataCell(Text(item["semester"])),
+            DataCell(Text(item["tanggal"])),
+            DataCell(_statusChip(item["status"])),
+            DataCell(_actionMenu(item)),
           ],
         );
       }).toList(),
@@ -300,58 +284,89 @@ class _RppAllListPageState extends State<RppAllListPage> {
   }
 
   // =====================================================
-  // STATUS CHIP
+  // STATUS CHIP (FIXED)
   // =====================================================
   Widget _statusChip(String status) {
-    Color color;
+    late Color bg;
+    late Color text;
+
     switch (status) {
       case "Menunggu Review":
-        color = Colors.blue;
+        bg = Colors.blue.withOpacity(.15);
+        text = Colors.blue;
         break;
       case "Revisi":
-        color = Colors.orange;
+        bg = Colors.orange.withOpacity(.15);
+        text = Colors.orange;
         break;
       case "Disetujui":
-        color = Colors.green;
+        bg = Colors.green.withOpacity(.15);
+        text = Colors.green;
         break;
       default:
-        color = Colors.grey;
+        bg = Colors.grey.withOpacity(.15);
+        text = Colors.grey;
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(.15),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        status,
-        style: TextStyle(color: color, fontWeight: FontWeight.w600),
+    return Center(
+      child: IntrinsicWidth(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            status,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: text,
+            ),
+          ),
+        ),
       ),
     );
   }
 
   // =====================================================
-  // ACTION BUTTONS
+  // ACTION MENU
   // =====================================================
-  Widget _actionButtons(Map<String, dynamic> item) {
-    return Row(
-      children: [
-        IconButton(
-          tooltip: "Lihat RPP",
-          icon: const Icon(Icons.visibility, color: AppColors.primary),
-          onPressed: () {
+  Widget _actionMenu(Map<String, dynamic> item) {
+    return Center(
+      child: PopupMenuButton<String>(
+        icon: const Icon(Icons.more_vert),
+        onSelected: (v) {
+          if (v == 'view') {
             Navigator.pushNamed(context, "/rpp/preview", arguments: item);
-          },
-        ),
-        IconButton(
-          tooltip: "Review RPP",
-          icon: const Icon(Icons.edit_note, color: Colors.orange),
-          onPressed: () {
+          } else if (v == 'review') {
             Navigator.pushNamed(context, "/kepsek/rpp/review", arguments: item);
-          },
-        ),
-      ],
+          }
+        },
+        itemBuilder: (_) => const [
+          PopupMenuItem(
+            value: 'view',
+            child: Row(
+              children: [
+                Icon(Icons.visibility, size: 18),
+                SizedBox(width: 8),
+                Text("Lihat RPP"),
+              ],
+            ),
+          ),
+          PopupMenuItem(
+            value: 'review',
+            child: Row(
+              children: [
+                Icon(Icons.edit_note, size: 18),
+                SizedBox(width: 8),
+                Text("Review"),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

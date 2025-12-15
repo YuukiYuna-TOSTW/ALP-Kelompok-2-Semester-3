@@ -40,12 +40,38 @@ class GuruProfilePage extends StatelessWidget {
           borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            CircleAvatar(
-              radius: 35,
-              backgroundImage: NetworkImage(data["foto"] ?? ""),
+            // FOTO PROFIL
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(4),
+              child: ClipOval(
+                child:
+                    data["foto"] != null && data["foto"].toString().isNotEmpty
+                    ? Image.network(
+                        data["foto"],
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _defaultAvatar(),
+                      )
+                    : _defaultAvatar(),
+              ),
             ),
-            const SizedBox(width: 16),
+
+            // ⭐ JARAK TAMBAHAN ANTARA FOTO & TEKS
+            const SizedBox(width: 20),
 
             // INFO
             Expanded(
@@ -53,7 +79,9 @@ class GuruProfilePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(data["nama"] ?? "-", style: _headerName),
+                  const SizedBox(height: 4),
                   Text("NIP: ${data["nip"] ?? "-"}", style: _headerSub),
+                  const SizedBox(height: 2),
                   Text("Guru ${data["mapel"] ?? "-"}", style: _headerSub),
                 ],
               ),
@@ -96,10 +124,8 @@ class GuruProfilePage extends StatelessWidget {
 
     return _cardSection("Informasi Akademik", [
       _row("Mata Pelajaran", data["mapel"]),
-
       const SizedBox(height: 10),
 
-      // ⭐ Label tidak bold lagi
       const Text(
         "Kelas Diampu:",
         style: TextStyle(
@@ -108,8 +134,7 @@ class GuruProfilePage extends StatelessWidget {
           color: AppColors.textDark,
         ),
       ),
-
-      const SizedBox(height: 10), // ⭐ Tambah spacing lebih besar
+      const SizedBox(height: 10),
 
       Wrap(
         spacing: 8,
@@ -124,7 +149,6 @@ class GuruProfilePage extends StatelessWidget {
       ),
 
       const SizedBox(height: 10),
-
       _row("Total RPP Dibuat", data["rpp"]),
       _row("Total Jam Mengajar", data["jam"]),
     ]);
@@ -139,29 +163,27 @@ class GuruProfilePage extends StatelessWidget {
         child: TextButton(
           onPressed: () => Navigator.pushNamed(context, "/profile/password"),
           style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+            padding: const EdgeInsets.symmetric(vertical: 10),
             alignment: Alignment.centerLeft,
           ),
           child: const Text(
             "Ubah Kata Sandi",
             style: TextStyle(
-              color: AppColors.primary,
+              color: AppColors.textDark,
               fontSize: 15,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
       ),
-
       const SizedBox(height: 4),
-
       Container(
         width: double.infinity,
         alignment: Alignment.centerLeft,
         child: TextButton(
           onPressed: () {},
           style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+            padding: const EdgeInsets.symmetric(vertical: 10),
             alignment: Alignment.centerLeft,
           ),
           child: const Text(
@@ -177,7 +199,7 @@ class GuruProfilePage extends StatelessWidget {
     ]);
   }
 
-  // =============== TEMPLATE CARD ===============
+  // ================= TEMPLATE CARD =================
   Widget _cardSection(String title, List<Widget> children) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -192,6 +214,13 @@ class GuruProfilePage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _defaultAvatar() {
+    return Container(
+      color: AppColors.primary.withOpacity(.1),
+      child: const Icon(Icons.person, size: 40, color: AppColors.primary),
     );
   }
 
@@ -212,7 +241,7 @@ class GuruProfilePage extends StatelessWidget {
     );
   }
 
-  // TEXT STYLE
+  // ================= TEXT STYLES =================
   TextStyle get _headerName => const TextStyle(
     color: Colors.white,
     fontSize: 20,

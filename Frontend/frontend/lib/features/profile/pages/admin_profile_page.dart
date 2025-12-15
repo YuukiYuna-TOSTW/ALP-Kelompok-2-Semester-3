@@ -30,6 +30,7 @@ class AdminProfilePage extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         padding: const EdgeInsets.all(18),
+        width: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [AppColors.primary, AppColors.primary.withOpacity(.7)],
@@ -37,23 +38,61 @@ class AdminProfilePage extends StatelessWidget {
           borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            CircleAvatar(
-              radius: 35,
-              backgroundImage: NetworkImage(data["foto"] ?? ""),
+            // FOTO PROFIL (SAMA DENGAN GURU & KEPSEK)
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(4),
+              child: ClipOval(
+                child:
+                    data["foto"] != null && data["foto"].toString().isNotEmpty
+                    ? Image.network(
+                        data["foto"],
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _defaultAvatar(),
+                      )
+                    : _defaultAvatar(),
+              ),
             ),
-            const SizedBox(width: 18),
+
+            // JARAK FOTO & TEKS
+            const SizedBox(width: 20),
+
+            // INFO
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(data["nama"] ?? "-", style: _headerName),
-                  const Text("Admin", style: TextStyle(color: Colors.white70)),
+                  const SizedBox(height: 4),
+                  const Text(
+                    "Admin",
+                    style: TextStyle(color: Colors.white70, fontSize: 13),
+                  ),
                 ],
               ),
             ),
+
+            // TOMBOL EDIT PROFIL
             ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, "/profile/edit"),
+              onPressed: () => Navigator.pushNamed(
+                context,
+                "/profile/edit",
+                arguments: data,
+              ),
               style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
               child: const Text(
                 "Edit Profil",
@@ -84,29 +123,27 @@ class AdminProfilePage extends StatelessWidget {
         child: TextButton(
           onPressed: () => Navigator.pushNamed(context, "/profile/password"),
           style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+            padding: const EdgeInsets.symmetric(vertical: 10),
             alignment: Alignment.centerLeft,
           ),
           child: const Text(
             "Ubah Kata Sandi",
             style: TextStyle(
-              color: AppColors.primary,
+              color: AppColors.textDark,
               fontSize: 15,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
       ),
-
       const SizedBox(height: 4),
-
       Container(
         width: double.infinity,
         alignment: Alignment.centerLeft,
         child: TextButton(
           onPressed: () {},
           style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+            padding: const EdgeInsets.symmetric(vertical: 10),
             alignment: Alignment.centerLeft,
           ),
           child: const Text(
@@ -122,7 +159,7 @@ class AdminProfilePage extends StatelessWidget {
     ]);
   }
 
-  // =============== CARD TEMPLATE ===============
+  // ================= TEMPLATE CARD =================
   Widget _cardSection(String title, List<Widget> children) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -137,6 +174,13 @@ class AdminProfilePage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _defaultAvatar() {
+    return Container(
+      color: AppColors.primary.withOpacity(.1),
+      child: const Icon(Icons.person, size: 40, color: AppColors.primary),
     );
   }
 
@@ -157,7 +201,7 @@ class AdminProfilePage extends StatelessWidget {
     );
   }
 
-  // TEXT STYLES
+  // ================= TEXT STYLES =================
   TextStyle get _headerName => const TextStyle(
     color: Colors.white,
     fontSize: 20,
