@@ -3,7 +3,6 @@ import '../../../config/theme/colors.dart';
 import '../../homepage/widgets/otp_background.dart';
 import 'package:frontend/config/controller/otp_controller.dart';
 import '../../homepage/widgets/otp_input_fields.dart';
-import 'otp_code_dialog.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String email;
@@ -31,12 +30,12 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
     otp.startTimer();
     otp.setupFocusListeners();
 
-    // Tampilkan pop-up kode OTP setelah widget dibangun
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && widget.otpCode.isNotEmpty) {
-        showOtpCodeDialog(context, widget.otpCode, widget.email);
-      }
-    });
+    // Pop-up kode OTP dihilangkan karena menggunakan dummy code 123456 untuk semua email
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if (mounted && widget.otpCode.isNotEmpty) {
+    //     showOtpCodeDialog(context, widget.otpCode, widget.email);
+    //   }
+    // });
   }
 
   @override

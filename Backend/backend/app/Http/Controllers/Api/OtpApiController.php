@@ -10,6 +10,12 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Carbon\Carbon;
 
+/**
+ * OTP API Controller
+ * 
+ * NOTE: Untuk keperluan testing, semua email menggunakan kode OTP dummy yang sama: 123456
+ * Jika ingin menggunakan random OTP, ubah logic di method generate()
+ */
 class OtpApiController extends Controller
 {
     /**
@@ -45,8 +51,8 @@ class OtpApiController extends Controller
             ], 404);
         }
 
-        // Generate random 6-digit OTP
-        $otpCode = str_pad((string) rand(0, 999999), 6, '0', STR_PAD_LEFT);
+        // Use fixed dummy OTP code for all emails (for testing purposes)
+        $otpCode = '123456';
 
         // Delete existing OTP for this email
         OtpCode::where('Email', $request->email)->delete();
