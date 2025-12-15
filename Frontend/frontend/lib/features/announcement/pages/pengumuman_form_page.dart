@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import '../../../config/theme/colors.dart';
 import '../../rpp/layout/rpp_layout.dart';
 
 class PengumumanFormPage extends StatefulWidget {
-  final Map<String, dynamic>? data; // <-- menerima data untuk edit
+  final Map<String, dynamic>? data;
 
   const PengumumanFormPage({super.key, this.data});
 
@@ -17,9 +18,9 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
   final scheduledDateCtrl = TextEditingController();
 
   List<String> selectedAudience = [];
-  String priority = "Normal";
+  String priority = "Sedang";
   bool schedule = false;
-  List<String> attachments = [];
+  List<PlatformFile> attachments = [];
 
   final List<String> guruList = ["Bu Sinta", "Pak Amir", "Bu Ayu", "Bu Lina"];
 
@@ -27,29 +28,16 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
   void initState() {
     super.initState();
 
-    // ===============================
-    // PREFILL DATA SAAT MODE EDIT
-    // ===============================
     if (widget.data != null) {
       final d = widget.data!;
-
       titleCtrl.text = d["judul"] ?? "";
       bodyCtrl.text = d["isi"] ?? "";
+      priority = d["prioritas"] ?? "Sedang";
 
-      // Audience
       if (d["target"] is List) {
         selectedAudience = List<String>.from(d["target"]);
       }
 
-      // Prioritas
-      priority = d["prioritas"] ?? "Normal";
-
-      // Lampiran
-      if (d["lampiran"] is List) {
-        attachments = List<String>.from(d["lampiran"]);
-      }
-
-      // Jadwal Publikasi
       if (d["jadwal"] != null && d["jadwal"] != "") {
         schedule = true;
         scheduledDateCtrl.text = d["jadwal"];
@@ -74,7 +62,7 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
   }
 
   // ============================================================
-  // CARD UTAMA
+  // CARD
   // ============================================================
   Widget _buildCard(bool isEdit) {
     return Card(
@@ -83,49 +71,30 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
       child: Column(
         children: [
           _header(isEdit),
-
           Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(28),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _label("Judul Pengumuman"),
-                TextField(
-                  controller: titleCtrl,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: "Masukkan judul",
-                  ),
-                ),
+                _section("Judul Pengumuman"),
+                _field(titleCtrl, "Masukkan judul"),
 
-                const SizedBox(height: 20),
-                _label("Isi Pengumuman"),
-                TextField(
-                  controller: bodyCtrl,
-                  maxLines: 6,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: "Tulis isi pengumuman...",
-                  ),
-                ),
+                _section("Isi Pengumuman"),
+                _field(bodyCtrl, "Tulis isi pengumuman...", maxLines: 6),
 
-                const SizedBox(height: 20),
-                _label("Tujuan Pengumuman"),
+                _section("Tujuan Pengumuman"),
                 _audienceSelector(),
 
-                const SizedBox(height: 20),
-                _label("Prioritas"),
+                _section("Prioritas"),
                 _prioritySelector(),
 
-                const SizedBox(height: 20),
-                _label("Lampiran"),
+                _section("Lampiran"),
                 _attachmentUploader(),
 
-                const SizedBox(height: 20),
-                _label("Tanggal Publikasi"),
+                _section("Tanggal Publikasi"),
                 _scheduleSelector(),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 36),
                 _buttons(isEdit),
               ],
             ),
@@ -136,7 +105,7 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
   }
 
   // ============================================================
-  // HEADER CARD
+  // HEADER
   // ============================================================
   Widget _header(bool isEdit) {
     return Container(
@@ -169,51 +138,64 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
   }
 
   // ============================================================
-  // LABEL
+  // SECTION LABEL
   // ============================================================
-  Widget _label(String text) {
-    return Text(
-      text,
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: 15,
-        color: AppColors.primary,
+  Widget _section(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10, top: 26),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+          color: AppColors.primary,
+        ),
       ),
     );
   }
 
   // ============================================================
-  // AUDIENCE CHECKBOX
+  // TEXT FIELD
+  // ============================================================
+  Widget _field(TextEditingController ctrl, String hint, {int maxLines = 1}) {
+    return TextField(
+      controller: ctrl,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        hintText: hint,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // AUDIENCE
   // ============================================================
   Widget _audienceSelector() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CheckboxListTile(
           value: selectedAudience.contains("Semua Guru"),
           onChanged: (v) {
             setState(() {
-              if (v == true) {
-                selectedAudience = ["Semua Guru"];
-              } else {
-                selectedAudience.remove("Semua Guru");
-              }
+              selectedAudience = v == true ? ["Semua Guru"] : <String>[];
             });
           },
-          title: const Text("Pilih Semua Guru"),
+          title: const Text("Semua Guru"),
         ),
-
         ...guruList.map(
           (g) => CheckboxListTile(
             value: selectedAudience.contains(g),
             onChanged: (v) {
               setState(() {
-                if (v == true) {
-                  selectedAudience.add(g);
-                  selectedAudience.remove("Semua Guru");
-                } else {
-                  selectedAudience.remove(g);
-                }
+                v == true
+                    ? selectedAudience.add(g)
+                    : selectedAudience.remove(g);
+                selectedAudience.remove("Semua Guru");
               });
             },
             title: Text(g),
@@ -224,24 +206,27 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
   }
 
   // ============================================================
-  // PRIORITY SELECTOR
+  // PRIORITY
   // ============================================================
   Widget _prioritySelector() {
     return DropdownButtonFormField<String>(
       value: priority,
-      decoration: const InputDecoration(border: OutlineInputBorder()),
-      items: [
-        "Rendah",
-        "Normal",
-        "Tinggi",
-        "Penting",
-      ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+      decoration: const InputDecoration(
+        border: OutlineInputBorder(),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      ),
+      items: const [
+        DropdownMenuItem(value: "Rendah", child: Text("Rendah")),
+        DropdownMenuItem(value: "Sedang", child: Text("Sedang")),
+        DropdownMenuItem(value: "Tinggi", child: Text("Tinggi")),
+        DropdownMenuItem(value: "Penting", child: Text("Penting")),
+      ],
       onChanged: (v) => setState(() => priority = v!),
     );
   }
 
   // ============================================================
-  // ATTACHMENT UPLOAD (Dummy)
+  // ATTACHMENT (REAL UPLOAD)
   // ============================================================
   Widget _attachmentUploader() {
     return Column(
@@ -252,22 +237,26 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
           children: attachments
               .map(
                 (f) => Chip(
-                  label: Text(f),
+                  label: Text(f.name),
                   deleteIcon: const Icon(Icons.close),
                   onDeleted: () => setState(() => attachments.remove(f)),
                 ),
               )
               .toList(),
         ),
-        const SizedBox(height: 10),
-
+        const SizedBox(height: 12),
         ElevatedButton.icon(
-          onPressed: () {
-            setState(() {
-              attachments.add("file_${attachments.length + 1}.pdf");
-            });
+          onPressed: () async {
+            final result = await FilePicker.platform.pickFiles(
+              allowMultiple: true,
+            );
+            if (result != null) {
+              setState(() {
+                attachments.addAll(result.files);
+              });
+            }
           },
-          icon: const Icon(Icons.upload),
+          icon: const Icon(Icons.upload_file),
           label: const Text("Upload Lampiran"),
         ),
       ],
@@ -275,7 +264,7 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
   }
 
   // ============================================================
-  // SCHEDULE SELECTOR
+  // SCHEDULE
   // ============================================================
   Widget _scheduleSelector() {
     return Column(
@@ -285,7 +274,6 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
           value: schedule,
           onChanged: (v) => setState(() => schedule = v),
         ),
-
         if (schedule)
           TextField(
             controller: scheduledDateCtrl,
@@ -295,14 +283,14 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
               hintText: "Pilih tanggal publikasi",
             ),
             onTap: () async {
-              final selected = await showDatePicker(
+              final picked = await showDatePicker(
                 context: context,
                 firstDate: DateTime.now(),
                 lastDate: DateTime(2030),
                 initialDate: DateTime.now(),
               );
-              if (selected != null) {
-                scheduledDateCtrl.text = selected.toString().split(" ").first;
+              if (picked != null) {
+                scheduledDateCtrl.text = picked.toString().split(" ").first;
               }
             },
           ),
@@ -323,18 +311,13 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
             child: Text(isEdit ? "Simpan Perubahan" : "Publikasikan"),
           ),
         ),
-        const SizedBox(width: 12),
-
+        const SizedBox(width: 16),
         Expanded(
           child: OutlinedButton(
-            onPressed: () {},
-            child: const Text("Simpan Draft"),
-          ),
-        ),
-        const SizedBox(width: 12),
-
-        Expanded(
-          child: TextButton(
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: Colors.red),
+              foregroundColor: Colors.red,
+            ),
             onPressed: () => Navigator.pop(context),
             child: const Text("Batal"),
           ),

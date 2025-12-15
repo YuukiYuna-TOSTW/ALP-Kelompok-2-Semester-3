@@ -38,7 +38,9 @@ class _NotificationPageState extends State<NotificationPage> {
 
   @override
   Widget build(BuildContext context) {
-    int unreadCount = notifications.where((n) => n["isRead"] == false).length;
+    final int unreadCount = notifications
+        .where((n) => n["isRead"] == false)
+        .length;
 
     return RppLayout(
       role: widget.role,
@@ -46,56 +48,66 @@ class _NotificationPageState extends State<NotificationPage> {
       content: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 900),
-          child: _mainCard(unreadCount),
+          child: _mainCard(context, unreadCount),
         ),
       ),
     );
   }
 
   // ============================================================
-  // MAIN CARD
+  // MAIN CARD (HEADER MENTOK + CONTENT)
   // ============================================================
-  Widget _mainCard(int unreadCount) {
+  Widget _mainCard(BuildContext context, int unreadCount) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _header(unreadCount),
-            const SizedBox(height: 20),
-            _historyLabel(),
-            const SizedBox(height: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _cardHeader(context, unreadCount),
 
-            ...notifications
-                .asMap()
-                .entries
-                .map((e) => _notifCard(e.key, e.value))
-                .toList(),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _historyLabel(),
+                const SizedBox(height: 14),
 
-            const SizedBox(height: 20),
-          ],
-        ),
+                ...notifications
+                    .asMap()
+                    .entries
+                    .map((e) => _notifCard(e.key, e.value))
+                    .toList(),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
   // ============================================================
-  // HEADER
+  // HEADER (STYLE RPP + BACK BUTTON)
   // ============================================================
-  Widget _header(int unread) {
+  Widget _cardHeader(BuildContext context, int unread) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [AppColors.primary, AppColors.primary.withOpacity(.75)],
         ),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
       ),
       child: Row(
         children: [
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            tooltip: "Kembali",
+          ),
+          const SizedBox(width: 6),
           const Icon(Icons.notifications_active, color: Colors.white, size: 22),
           const SizedBox(width: 10),
           const Text(
@@ -156,9 +168,7 @@ class _NotificationPageState extends State<NotificationPage> {
           notifications[index]["isRead"] = true;
         });
 
-        // ===============================
         // 🔔 JIKA PENGUMUMAN
-        // ===============================
         if (title.contains("pengumuman")) {
           Navigator.pushNamed(
             context,
@@ -172,12 +182,9 @@ class _NotificationPageState extends State<NotificationPage> {
           return;
         }
 
-        // ===============================
         // 🔔 DEFAULT → DETAIL NOTIFIKASI
-        // ===============================
         Navigator.pushNamed(context, "/notifications/detail", arguments: n);
       },
-
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         margin: const EdgeInsets.symmetric(vertical: 10),
@@ -200,7 +207,6 @@ class _NotificationPageState extends State<NotificationPage> {
                   ),
                 ],
         ),
-
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -243,7 +249,6 @@ class _NotificationPageState extends State<NotificationPage> {
                     ),
                   ),
                   const SizedBox(height: 4),
-
                   Text(
                     n["description"] ?? "",
                     style: const TextStyle(
@@ -251,9 +256,7 @@ class _NotificationPageState extends State<NotificationPage> {
                       height: 1.4,
                     ),
                   ),
-
                   const SizedBox(height: 6),
-
                   Row(
                     children: [
                       const Icon(

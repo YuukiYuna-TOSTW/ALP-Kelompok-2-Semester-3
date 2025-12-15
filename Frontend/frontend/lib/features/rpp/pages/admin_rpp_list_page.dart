@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../config/theme/colors.dart';
 import '../layout/rpp_layout.dart';
-import '../utils/rpp_exporter.dart';
 
 class AdminRppListPage extends StatefulWidget {
   const AdminRppListPage({super.key});
@@ -97,22 +96,24 @@ class _AdminRppListPageState extends State<AdminRppListPage> {
   Widget _buildContent() {
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1100),
+        constraints: const BoxConstraints(maxWidth: 1200),
         child: Card(
           elevation: 4,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _cardHeader(),
               Padding(
                 padding: const EdgeInsets.all(22),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _filterBar(),
-                    const SizedBox(height: 20),
-                    _buildTable(),
+                    const SizedBox(height: 16),
+                    _buildTable(), // ⬅️ TABEL LANGSUNG SEJAJAR
                   ],
                 ),
               ),
@@ -134,28 +135,13 @@ class _AdminRppListPageState extends State<AdminRppListPage> {
         ),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            "Manajemen RPP Guru",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
-          ),
-          ElevatedButton.icon(
-            onPressed: () => exportRppToPdf({"all": filtered}),
-            icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
-            label: const Text("Export Semua"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white.withOpacity(.15),
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            ),
-          ),
-        ],
+      child: const Text(
+        "Manajemen RPP Guru",
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+        ),
       ),
     );
   }
@@ -233,7 +219,7 @@ class _AdminRppListPageState extends State<AdminRppListPage> {
   // ================= TABLE =================
   Widget _buildTable() {
     return DataTable(
-      columnSpacing: 20,
+      columnSpacing: 22,
       headingRowHeight: 48,
       dataRowHeight: 56,
       headingRowColor: MaterialStateProperty.all(AppColors.primary),
@@ -294,20 +280,18 @@ class _AdminRppListPageState extends State<AdminRppListPage> {
     }
 
     return Center(
-      child: IntrinsicWidth(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            status,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: text,
-            ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          status,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: text,
           ),
         ),
       ),
