@@ -11,18 +11,21 @@ class Rpp extends Model
 
     protected $table = 'rpps';
     protected $primaryKey = 'id';
+    public $timestamps = true;
 
     protected $fillable = [
         'User_ID',
-        'Nama_RPP',
+        'Nama_Mata_Pelajaran',
         'Kelas',
-        'KD',
-        'KI',
-        'Tujuan',
+        'Bab/Materi',
+        'Semester',
+        'Kompetensi_Dasar',
+        'Kompetensi_Inti',
+        'Tujuan_Pembelajaran',
         'Pendahuluan',
-        'Inti',
+        'Kegiatan_Inti',
         'Penutup',
-        'Catatan',
+        'Catatan_Tambahan',
         'Status',
     ];
 
@@ -32,9 +35,4 @@ class Rpp extends Model
         return $this->belongsTo(User::class, 'User_ID');
     }
 
-    // ✅ Relasi ke RppReview
-    public function reviews()
-    {
-        return $this->hasMany(RppReview::class, 'RPP_ID');
-    }
 }

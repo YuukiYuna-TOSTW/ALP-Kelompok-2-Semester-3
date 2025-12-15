@@ -52,8 +52,6 @@ Route::prefix('dashboard')->group(function () {
     Route::get('/kepsekkalender', [KepsekKalenderApiController::class, 'index']);
 });
 
-// RPP Reviews
-Route::get('/rpps', [RppApiController::class, 'index']);
-Route::get('/rpps/{rpp}', [RppApiController::class, 'show']);
-
+// RPP info untuk frontend (tanpa catatan reviewer)
+Route::get('rppreview/{rppId}', [\App\Http\Controllers\Api\KepsekRppReviewApiController::class, 'show']);
 
