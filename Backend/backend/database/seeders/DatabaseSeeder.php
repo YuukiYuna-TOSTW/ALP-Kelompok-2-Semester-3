@@ -6,54 +6,50 @@ use App\Models\User;
 use App\Models\Schedule;
 use App\Models\HistorySchedule;
 use App\Models\Rpp;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // ✅ Buat 1 admin khusus menggunakan factory
+        // Buat users
         $admin = User::factory()->admin()->create();
-
-        // ✅ Buat 1 guru khusus menggunakan factory
         $guru = User::factory()->guru()->create();
-
-        // ✅ Buat 1 kepala sekolah khusus menggunakan factory
         $kepalaSekolah = User::factory()->kepalaSekolah()->create();
-
-        // ✅ Buat 7 user random dengan role acak
         $randomUsers = User::factory()->count(7)->create();
 
-        // Gabungkan semua users
         $users = collect([$admin, $guru, $kepalaSekolah])->merge($randomUsers);
+        $guruUsers = $users->where('Role', 'Guru');
 
-        // ✅ Create schedules dengan User_ID (bukan Penyelenggara_Schedule)
-        $schedules = Schedule::factory()->count(20)->create()->each(function ($schedule) use ($users) {
-            $schedule->Penyelenggara_ID = $users->where('Role','Guru')->random()->User_ID ?? $users->random()->User_ID;
-            $schedule->save();
-        });
+        // ✅ Create schedules dengan Penyelenggara_ID (gunakan ->id, bukan ->User_ID)
+        $schedules = Schedule::factory()->count(20)->create([
+            'Penyelenggara_ID' => fn() => $users->random()->id, // ✅ ubah dari User_ID menjadi id
+        ]);
 
         // Create history schedules
         HistorySchedule::factory(15)->create([
-            'Schedule_ID' => $schedules->random()->Schedule_ID,
+            'Schedule_ID' => fn() => $schedules->random()->Schedule_ID,
         ]);
 
-        // Create pivot table entries (Jumlah Jam Kegiatan User)
+        // Attach users ke schedules (many-to-many)
         foreach ($users->take(5) as $user) {
             $user->schedules()->attach(
                 $schedules->random(3)->pluck('Schedule_ID')->toArray()
             );
         }
 
-        // Create RPPs
-        $rpp = Rpp::factory(15)->create();
+        // Create RPPs untuk guru
+        foreach ($guruUsers as $guru) {
+            Rpp::factory()->count(rand(2, 4))->create([
+                'User_ID' => $guru->id, // ✅ gunakan ->id (sudah benar)
+            ]);
+        }
 
+        if ($guruUsers->isEmpty()) {
+            Rpp::factory(15)->create([
+                'User_ID' => fn() => $users->random()->id,
+            ]);
+        }
     }
 }
 

@@ -40,3 +40,4 @@ Route::delete('schedule-user/{user_id}/{schedule_id}', [ScheduleUserApiControlle
 
 // Auth Routes
 Route::post('/login', [UserApiController::class, 'login']);
+Route::post('/register', [UserApiController::class, 'register']); // endpoint yang dipanggil dari frontend

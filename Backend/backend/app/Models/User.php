@@ -11,7 +11,8 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    protected $primaryKey = 'User_ID';
+    protected $table = 'users';
+    protected $primaryKey = 'id'; // ✅ primary key adalah 'id'
 
     /**
      * The attributes that are mass assignable.
@@ -32,6 +33,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'Password',
+        'remember_token',
     ];
 
     /**
@@ -42,31 +44,26 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'email_verified_at' => 'datetime',
             'Password' => 'hashed',
         ];
     }
 
-    /**
-     * Get the schedules created by this user.
-     */
-    public function createdSchedules()
+    // ✅ Relasi: User sebagai penyelenggara (one-to-many)
+    public function schedulesAsOrganizer()
     {
-        return $this->hasMany(Schedule::class, 'User_ID', 'User_ID');
+        return $this->hasMany(Schedule::class, 'Penyelenggara_ID', 'id');
     }
 
-    /**
-     * Get the schedules this user is associated with (pivot table).
-     */
+    // ✅ Relasi: User sebagai peserta (many-to-many)
     public function schedules()
     {
         return $this->belongsToMany(Schedule::class, 'schedule_user', 'User_ID', 'Schedule_ID');
     }
 
-    /**
-     * Get the OTP code for this user.
-     */
-    public function otpCode()
+    // ✅ Relasi ke RPP
+    public function rpps()
     {
-        return $this->hasOne(OtpCode::class, 'Email', 'Email');
+        return $this->hasMany(Rpp::class, 'User_ID', 'id');
     }
 }
