@@ -4,26 +4,19 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Rpp;
+use App\Http\Resources\Rpp as RppResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Resources\Rpp as RppResource;
-use App\Http\Resources\KepsekRPPDashboard; // ✅ perbaiki import
 
 class RppApiController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $status = $request->query('status');
-        $query = Rpp::with('user')->latest();
-        if ($status) {
-            $query->where('Status', $status);
-        }
-
-        $rpps = $query->get();
+        $rpps = Rpp::with('user')->latest()->get();
 
         return response()->json([
             'success' => true,
-            'data' => KepsekRPPDashboard::collection($rpps), // ✅ gunakan kelas yang benar
+            'data' => RppResource::collection($rpps),
             'message' => 'OK',
         ]);
     }
@@ -39,6 +32,7 @@ class RppApiController extends Controller
             'Kompetensi_Inti' => 'required|string',
             'Tujuan_Pembelajaran' => 'required|string',
             'Status' => 'required|string',
+            'User_ID' => 'required|exists:users,id',
         ]);
 
         $model = Rpp::create($data);
@@ -53,14 +47,14 @@ class RppApiController extends Controller
     public function update(Request $request, Rpp $rpp): JsonResponse
     {
         $data = $request->validate([
-            'Nama_Mata_Pelajaran' => 'required|string|max:255',
-            'Kelas' => 'required|string|max:50',
-            'Semester' => 'required|string|max:50',
-            'Bab/Materi' => 'required|string|max:255',
-            'Kompetensi_Dasar' => 'required|string',
-            'Kompetensi_Inti' => 'required|string',
-            'Tujuan_Pembelajaran' => 'required|string',
-            'Status' => 'required|string',
+            'Nama_Mata_Pelajaran' => 'nullable|string|max:255',
+            'Kelas' => 'nullable|string|max:50',
+            'Semester' => 'nullable|string|max:50',
+            'Bab/Materi' => 'nullable|string|max:255',
+            'Kompetensi_Dasar' => 'nullable|string',
+            'Kompetensi_Inti' => 'nullable|string',
+            'Tujuan_Pembelajaran' => 'nullable|string',
+            'Status' => 'nullable|string',
         ]);
 
         $rpp->update($data);
@@ -70,6 +64,6 @@ class RppApiController extends Controller
     public function destroy(Rpp $rpp): JsonResponse
     {
         $rpp->delete();
-        return response()->json(['message' => 'Deleted']);
+        return response()->json(['message' => 'Deleted', 'success' => true]);
     }
 }

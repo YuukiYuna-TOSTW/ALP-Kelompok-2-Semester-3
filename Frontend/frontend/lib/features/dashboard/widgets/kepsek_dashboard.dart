@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/services/kepsek_statistiksekolah_dashboard_service.dart';
 import 'package:frontend/core/services/kepsek_rpp_dashboard_service.dart';
 import '../../../config/theme/colors.dart';
 import '../components/stat_card.dart';
@@ -14,11 +15,13 @@ class KepsekDashboardContent extends StatefulWidget {
 
 class _KepsekDashboardContentState extends State<KepsekDashboardContent> {
   late Future<Map<String, dynamic>> rppDataFuture;
+  late Future<Map<String, dynamic>> statisticsFuture;
 
   @override
   void initState() {
     super.initState();
     rppDataFuture = KepsekRppDashboardService.getRppPendingReview();
+    statisticsFuture = KepsekStatistikSekolahDashboardService.getStatistics();
   }
 
   @override
@@ -115,32 +118,49 @@ class _KepsekDashboardContentState extends State<KepsekDashboardContent> {
         ),
         const SizedBox(height: 14),
 
-        const Row(
-          children: [
-            Expanded(
-              child: StatCard(
-                icon: Icons.person_rounded,
-                value: "48",
-                title: "Total Guru",
-              ),
-            ),
-            SizedBox(width: 14),
-            Expanded(
-              child: StatCard(
-                icon: Icons.menu_book_rounded,
-                value: "12",
-                title: "RPP Pending",
-              ),
-            ),
-            SizedBox(width: 14),
-            Expanded(
-              child: StatCard(
-                icon: Icons.school_rounded,
-                value: "24",
-                title: "Total Kelas",
-              ),
-            ),
-          ],
+        FutureBuilder<Map<String, dynamic>>(
+          future: statisticsFuture,
+          builder: (context, snapshot) {
+            String totalGuru = "0";
+            String rppPending = "0";
+            String totalKelas = "0";
+
+            if (snapshot.connectionState == ConnectionState.done &&
+                (snapshot.data?['success'] ?? false)) {
+              final data = snapshot.data?['data'] ?? {};
+              totalGuru = (data['total_guru'] ?? 0).toString();
+              rppPending = (data['rpp_pending'] ?? 0).toString();
+              totalKelas = (data['total_kelas'] ?? 0).toString();
+            }
+
+            return Row(
+              children: [
+                Expanded(
+                  child: StatCard(
+                    icon: Icons.person_rounded,
+                    value: totalGuru,
+                    title: "Total Guru",
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: StatCard(
+                    icon: Icons.menu_book_rounded,
+                    value: rppPending,
+                    title: "RPP Pending",
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: StatCard(
+                    icon: Icons.school_rounded,
+                    value: totalKelas,
+                    title: "Total Kelas",
+                  ),
+                ),
+              ],
+            );
+          },
         ),
 
         const SizedBox(height: 28),
