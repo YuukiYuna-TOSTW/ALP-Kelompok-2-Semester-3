@@ -4,66 +4,97 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Rpp;
-use App\Http\Resources\Rpp as RppResource;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 
 class RppApiController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    // ✅ Get single RPP with all details
+    public function show($rppId)
     {
-        $rpps = Rpp::with('user')->latest()->get();
+        try {
+            $rpp = Rpp::with(['user'])->find($rppId);
 
-        return response()->json([
-            'success' => true,
-            'data' => RppResource::collection($rpps),
-            'message' => 'OK',
-        ]);
+            if (!$rpp) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'RPP tidak ditemukan',
+                    'data' => [],
+                ], 404);
+            }
+
+            // ✅ Format response sesuai kebutuhan frontend
+            $data = [
+                'id' => $rpp->id,
+                'rpp_id' => $rpp->id,
+                'Nama_RPP' => $rpp->Nama_RPP ?? '',
+                'mapel' => $rpp->Nama_RPP ?? '',
+                'kelas' => $rpp->Kelas ?? '-',
+                'KD' => $rpp->KD ?? '-',
+                'kd' => $rpp->KD ?? '-',
+                'KI' => $rpp->KI ?? '-',
+                'ki' => $rpp->KI ?? '-',
+                'Tujuan' => $rpp->Tujuan ?? '-',
+                'tujuan' => $rpp->Tujuan ?? '-',
+                'Pendahuluan' => $rpp->Pendahuluan ?? '-',
+                'pendahuluan' => $rpp->Pendahuluan ?? '-',
+                'Inti' => $rpp->Inti ?? '-',
+                'inti' => $rpp->Inti ?? '-',
+                'Penutup' => $rpp->Penutup ?? '-',
+                'penutup' => $rpp->Penutup ?? '-',
+                'Catatan' => $rpp->Catatan ?? '-',
+                'catatan' => $rpp->Catatan ?? '-',
+                'Status' => $rpp->Status ?? 'Pending',
+                'User_ID' => $rpp->User_ID,
+                'guru' => $rpp->user ? [
+                    'id' => $rpp->user->id,
+                    'Nama_User' => $rpp->user->Nama_User ?? '',
+                    'Email' => $rpp->user->Email ?? '',
+                ] : null,
+            ];
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data RPP berhasil dimuat',
+                'data' => $data,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+                'data' => [],
+            ], 500);
+        }
     }
 
-    public function store(Request $request): JsonResponse
+    // ✅ Get all RPP (untuk list)
+    public function index()
     {
-        $data = $request->validate([
-            'Nama_Mata_Pelajaran' => 'required|string|max:255',
-            'Kelas' => 'required|string|max:50',
-            'Semester' => 'required|string|max:50',
-            'Bab/Materi' => 'required|string|max:255',
-            'Kompetensi_Dasar' => 'required|string',
-            'Kompetensi_Inti' => 'required|string',
-            'Tujuan_Pembelajaran' => 'required|string',
-            'Status' => 'required|string',
-            'User_ID' => 'required|exists:users,id',
-        ]);
+        try {
+            $rpps = Rpp::with(['user'])->get();
 
-        $model = Rpp::create($data);
-        return response()->json(new RppResource($model), 201);
-    }
+            $data = $rpps->map(fn($rpp) => [
+                'id' => $rpp->id,
+                'rpp_id' => $rpp->id,
+                'Nama_RPP' => $rpp->Nama_RPP ?? '',
+                'mapel' => $rpp->Nama_RPP ?? '',
+                'kelas' => $rpp->Kelas ?? '-',
+                'Status' => $rpp->Status ?? 'Pending',
+                'guru' => $rpp->user?->Nama_User ?? '-',
+            ])->toArray();
 
-    public function show(Rpp $rpp): JsonResponse
-    {
-        return response()->json(new RppResource($rpp));
-    }
+            return response()->json([
+                'success' => true,
+                'message' => 'Data RPP berhasil dimuat',
+                'data' => $data,
+            ], 200);
 
-    public function update(Request $request, Rpp $rpp): JsonResponse
-    {
-        $data = $request->validate([
-            'Nama_Mata_Pelajaran' => 'nullable|string|max:255',
-            'Kelas' => 'nullable|string|max:50',
-            'Semester' => 'nullable|string|max:50',
-            'Bab/Materi' => 'nullable|string|max:255',
-            'Kompetensi_Dasar' => 'nullable|string',
-            'Kompetensi_Inti' => 'nullable|string',
-            'Tujuan_Pembelajaran' => 'nullable|string',
-            'Status' => 'nullable|string',
-        ]);
-
-        $rpp->update($data);
-        return response()->json(new RppResource($rpp));
-    }
-
-    public function destroy(Rpp $rpp): JsonResponse
-    {
-        $rpp->delete();
-        return response()->json(['message' => 'Deleted', 'success' => true]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage(),
+                'data' => [],
+            ], 500);
+        }
     }
 }

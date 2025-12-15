@@ -54,4 +54,5 @@ class UserFactory extends Factory
             'Role' => 'Kepala_Sekolah',
         ]);
     }
+
 }

@@ -24,7 +24,11 @@ class RppFactory extends Factory
             'Kompetensi_Dasar' => fake()->paragraph(),
             'Kompetensi_Inti' => fake()->paragraph(),
             'Tujuan_Pembelajaran' => fake()->paragraph(),
-            'Status' => fake()->randomElement(['Menunggu Review','Minta Revisi','Ditolak']), // ✅ selaraskan dengan enum migrasi
+            'Pendahuluan' => fake()->paragraph(),
+            'Kegiatan_Inti' => fake()->paragraph(),
+            'Penutup' => fake()->paragraph(),
+            'Catatan_Tambahan' => fake()->paragraph(),
+            'Status' => fake()->randomElement(['Menunggu Review','Minta Revisi','Disetujui']),
         ];
     }
 }
