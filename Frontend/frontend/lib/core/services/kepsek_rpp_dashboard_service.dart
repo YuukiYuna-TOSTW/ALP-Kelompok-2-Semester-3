@@ -15,51 +15,33 @@ class KepsekRppDashboardService {
     return 'http://10.0.2.2:8000/api';
   }
 
-  static final Map<String, String> _headers = {
+  static const _headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   };
 
   static Future<Map<String, dynamic>> getRppPendingReview() async {
+    final url = Uri.parse('$baseUrl/dashboard/rpps/pending');
     try {
-      final response = await http
-          .get(
-            Uri.parse('$baseUrl/rpps?status=Menunggu%20Review'),
-            headers: _headers,
-          )
-          .timeout(const Duration(seconds: 12));
-
-      if (response.statusCode == 200) {
-        final body = jsonDecode(response.body) as Map<String, dynamic>;
-        return {
-          'success': true,
-          'data': body['data'] ?? [],
-          'message': 'Data berhasil dimuat',
-        };
+      final res = await http.get(url, headers: _headers).timeout(const Duration(seconds: 12));
+      if (res.statusCode != 200) {
+        return {'success': false, 'data': [], 'message': 'HTTP ${res.statusCode}'};
       }
+      final body = jsonDecode(res.body) as Map<String, dynamic>;
+      // Unwrap jika server mengirim {"data": {"data": [...]}}
+      final rawData = body['data'];
+      final list = rawData is List ? rawData : (rawData is Map ? (rawData['data'] ?? []) : []);
       return {
-        'success': false,
-        'data': [],
-        'message': 'Gagal memuat data (${response.statusCode})',
+        'success': body['success'] ?? true,
+        'data': list is List ? list : [],
+        'message': body['message'] ?? 'OK',
       };
     } on SocketException {
-      return {
-        'success': false,
-        'data': [],
-        'message': 'Gagal terhubung ke server',
-      };
+      return {'success': false, 'data': [], 'message': 'Gagal terhubung ke server'};
     } on TimeoutException {
-      return {
-        'success': false,
-        'data': [],
-        'message': 'Permintaan waktu habis',
-      };
+      return {'success': false, 'data': [], 'message': 'Permintaan waktu habis'};
     } catch (e) {
-      return {
-        'success': false,
-        'data': [],
-        'message': 'Terjadi kesalahan',
-      };
+      return {'success': false, 'data': [], 'message': 'Terjadi kesalahan: $e'};
     }
   }
 }
