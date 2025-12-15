@@ -1,12 +1,16 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:frontend/features/homepage/widgets/otp_success_dialog.dart';
+import 'package:frontend/core/services/otp_service.dart';
+import 'package:frontend/features/auth/widgets/otp_code_dialog.dart';
 
 class OtpController {
   final VoidCallback onUpdate;
-  OtpController({required this.onUpdate});
+  final String email; // Email user untuk verify OTP
 
-  int remainingTime = 60;
+  OtpController({required this.onUpdate, required this.email});
+
+  int remainingTime = 300; // 5 menit (300 detik) sesuai backend
   bool canResend = false;
   bool isVerifying = false;
 
@@ -40,7 +44,7 @@ class OtpController {
 
   void startTimer() {
     _timer?.cancel();
-    remainingTime = 60;
+    remainingTime = 300; // 5 menit
     canResend = false;
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -55,15 +59,59 @@ class OtpController {
     });
   }
 
-  void resendOtp() {
+  /// Format waktu menjadi MM:SS
+  String get formattedTime {
+    final minutes = remainingTime ~/ 60;
+    final seconds = remainingTime % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> resendOtp(BuildContext context) async {
     for (var c in controllers) {
       c.clear();
     }
-    startTimer();
+
+    isVerifying = true;
     onUpdate();
+
+    try {
+      final result = await OtpService.resendOtp(email: email);
+
+      if (result['success'] == true) {
+        final otpCode = result['otp_code'] ?? '';
+
+        // Tampilkan pop-up dengan kode OTP baru
+        if (context.mounted) {
+          showOtpCodeDialog(context, otpCode, email);
+        }
+
+        startTimer();
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Kode OTP baru telah dikirim!')),
+          );
+        }
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result['message'] ?? 'Gagal mengirim OTP')),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Terjadi kesalahan')));
+      }
+    } finally {
+      isVerifying = false;
+      onUpdate();
+    }
   }
 
-  void verifyOtp(BuildContext context) {
+  Future<void> verifyOtp(BuildContext context) async {
     String otp = controllers.map((c) => c.text).join();
 
     if (otp.length != 6) {
@@ -76,17 +124,43 @@ class OtpController {
     isVerifying = true;
     onUpdate();
 
-    Future.delayed(const Duration(seconds: 2), () {
+    try {
+      final result = await OtpService.verifyOtp(email: email, kodeOtp: otp);
+
+      if (result['success'] == true) {
+        // OTP berhasil diverifikasi
+        if (context.mounted) {
+          showOtpSuccessDialog(context);
+        }
+      } else {
+        // OTP gagal
+        final msg = result['message'] ?? 'Kode OTP tidak valid';
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(msg)));
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Terjadi kesalahan verifikasi')),
+        );
+      }
+    } finally {
       isVerifying = false;
       onUpdate();
-      showOtpSuccessDialog(context);
-    });
+    }
   }
 
   void dispose() {
     _timer?.cancel();
     animationController.dispose();
-    for (var c in controllers) c.dispose();
-    for (var f in focusNodes) f.dispose();
+    for (var c in controllers) {
+      c.dispose();
+    }
+    for (var f in focusNodes) {
+      f.dispose();
+    }
   }
 }

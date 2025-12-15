@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../core/services/login_register_service.dart'; // ✅ import service
+import '../../../core/services/login_register_service.dart';
+import '../../../core/services/otp_service.dart';
+import '../widgets/otp_verification_screen.dart';
 
 const Color primary = Color(0xFF75CFFF);
 const Color secondary = Color(0xFF4DAFF5);
@@ -58,7 +60,7 @@ class _LoginRegisterFlipState extends State<LoginRegisterFlip>
             return Transform(
               alignment: Alignment.center,
               transform: Matrix4.identity()
-                ..setEntry(3, 2, 0.0015)        // ✨ smooth perspective
+                ..setEntry(3, 2, 0.0015) // ✨ smooth perspective
                 ..rotateY(angle),
               child: Container(
                 width: 900,
@@ -67,10 +69,7 @@ class _LoginRegisterFlipState extends State<LoginRegisterFlip>
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: const [
-                    BoxShadow(
-                      blurRadius: 40,
-                      color: Colors.black12,
-                    ),
+                    BoxShadow(blurRadius: 40, color: Colors.black12),
                   ],
                 ),
                 child: isBack
@@ -117,30 +116,70 @@ class _LoginCardState extends State<LoginCard> {
 
     setState(() => isLoading = true);
     try {
-      final result = await LoginRegisterService.login(
+      // Step 1: Login
+      final loginResult = await LoginRegisterService.login(
         email: emailC.text,
         password: passC.text,
       );
 
-      if (result['success'] == true) {
-        snack("Login berhasil");
+      if (loginResult['success'] == true) {
+        // Step 2: Generate OTP setelah login berhasil
+        final otpResult = await OtpService.generateOtp(email: emailC.text);
+
+        // Debug: Print response
+        print('OTP Result: $otpResult');
+
+        if (otpResult['success'] == true) {
+          final otpCode = otpResult['otp_code'] ?? '';
+
+          // Debug: Print OTP code
+          print('OTP Code: $otpCode');
+
+          // Step 3: Navigate ke OTP Verification dengan kode OTP
+          if (mounted) {
+            // Jika otpCode kosong, tampilkan snackbar warning
+            if (otpCode.isEmpty) {
+              snack(
+                "OTP berhasil dikirim tapi kode tidak ditemukan dalam response",
+              );
+            }
+
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) =>
+                    OtpVerificationPage(email: emailC.text, otpCode: otpCode),
+              ),
+            );
+          }
+        } else {
+          snack("Gagal mengirim OTP: ${otpResult['message']}");
+        }
       } else {
-        final raw = (result['message'] ?? '').toString();
+        final raw = (loginResult['message'] ?? '').toString();
         final msg = raw.toLowerCase();
-        if (msg.contains("invalid") || msg.contains("salah") || msg.contains("unauthorized")) {
+        if (msg.contains("invalid") ||
+            msg.contains("salah") ||
+            msg.contains("unauthorized")) {
           snack("Email atau password salah");
-        } else if (msg.contains("timeout") || msg.contains("koneksi") || msg.contains("failed host")) {
+        } else if (msg.contains("timeout") ||
+            msg.contains("koneksi") ||
+            msg.contains("failed host")) {
           snack("Gagal terhubung ke server");
-        } else if (msg.contains("server") || msg.contains("internal") || msg.contains("bad gateway") || msg.contains("unavailable")) {
+        } else if (msg.contains("server") ||
+            msg.contains("internal") ||
+            msg.contains("bad gateway") ||
+            msg.contains("unavailable")) {
           snack("Terjadi kesalahan pada server, coba lagi nanti");
         } else {
           snack("Login gagal: ${raw.isEmpty ? 'Terjadi kesalahan' : raw}");
         }
       }
-    } catch (_) {
-      snack("Terjadi kesalahan koneksi");
+    } catch (e) {
+      snack("Terjadi kesalahan koneksi: $e");
     } finally {
-      setState(() => isLoading = false);
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
   }
 
@@ -159,9 +198,10 @@ class _LoginCardState extends State<LoginCard> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Login",
-                    style:
-                        TextStyle(fontSize: 34, fontWeight: FontWeight.bold)),
+                const Text(
+                  "Login",
+                  style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 28),
                 TextField(
                   controller: emailC,
@@ -176,7 +216,8 @@ class _LoginCardState extends State<LoginCard> {
                     labelText: "Password",
                     suffixIcon: IconButton(
                       icon: Icon(
-                          hide ? Icons.visibility_off : Icons.visibility),
+                        hide ? Icons.visibility_off : Icons.visibility,
+                      ),
                       onPressed: () => setState(() => hide = !hide),
                     ),
                   ),
@@ -191,15 +232,14 @@ class _LoginCardState extends State<LoginCard> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: secondary,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30)),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
                     ),
                     child: isLoading
                         ? const SizedBox(
                             height: 20,
                             width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                            ),
+                            child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Text("Login"),
                   ),
@@ -210,9 +250,11 @@ class _LoginCardState extends State<LoginCard> {
                   child: const Text(
                     "Admin? Register akun",
                     style: TextStyle(
-                        color: secondary, fontWeight: FontWeight.w600),
+                      color: secondary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -222,13 +264,11 @@ class _LoginCardState extends State<LoginCard> {
         Expanded(
           child: Container(
             decoration: const BoxDecoration(
-              borderRadius:
-                  BorderRadius.horizontal(right: Radius.circular(24)),
+              borderRadius: BorderRadius.horizontal(right: Radius.circular(24)),
               gradient: LinearGradient(colors: [primary, secondary]),
             ),
             child: const Center(
-              child: Icon(Icons.lock_outline,
-                  color: Colors.white, size: 150),
+              child: Icon(Icons.lock_outline, color: Colors.white, size: 150),
             ),
           ),
         ),
@@ -294,18 +334,29 @@ class _RegisterCardState extends State<RegisterCard> {
 
         if (msg.contains("Email".toLowerCase()) && msg.contains("sudah")) {
           snack("Email sudah digunakan");
-        } else if ((msg.contains("Nama_User".toLowerCase()) || msg.contains("nama")) && msg.contains("sudah")) {
+        } else if ((msg.contains("Nama_User".toLowerCase()) ||
+                msg.contains("nama")) &&
+            msg.contains("sudah")) {
           snack("Nama lengkap sudah digunakan");
-        } else if (msg.contains("Email".toLowerCase()) && (msg.contains("invalid") || msg.contains("format"))) {
+        } else if (msg.contains("Email".toLowerCase()) &&
+            (msg.contains("invalid") || msg.contains("format"))) {
           snack("Email tidak valid");
-        } else if (msg.contains("Password".toLowerCase()) && (msg.contains("minimal") || msg.contains("min"))) {
+        } else if (msg.contains("Password".toLowerCase()) &&
+            (msg.contains("minimal") || msg.contains("min"))) {
           snack("Password minimal 6 karakter");
-        } else if (msg.contains("timeout") || msg.contains("koneksi") || msg.contains("failed host")) {
+        } else if (msg.contains("timeout") ||
+            msg.contains("koneksi") ||
+            msg.contains("failed host")) {
           snack("Gagal terhubung ke server");
-        } else if (msg.contains("server") || msg.contains("internal") || msg.contains("bad gateway") || msg.contains("unavailable")) {
+        } else if (msg.contains("server") ||
+            msg.contains("internal") ||
+            msg.contains("bad gateway") ||
+            msg.contains("unavailable")) {
           snack("Terjadi kesalahan pada server, coba lagi nanti");
         } else {
-          snack("Akun gagal dibuat: ${raw.isEmpty ? 'Terjadi kesalahan' : raw}");
+          snack(
+            "Akun gagal dibuat: ${raw.isEmpty ? 'Terjadi kesalahan' : raw}",
+          );
         }
       }
     } catch (_) {
@@ -326,13 +377,15 @@ class _RegisterCardState extends State<RegisterCard> {
         Expanded(
           child: Container(
             decoration: const BoxDecoration(
-              borderRadius:
-                  BorderRadius.horizontal(left: Radius.circular(24)),
+              borderRadius: BorderRadius.horizontal(left: Radius.circular(24)),
               gradient: LinearGradient(colors: [secondary, primary]),
             ),
             child: const Center(
-              child: Icon(Icons.admin_panel_settings,
-                  color: Colors.white, size: 140),
+              child: Icon(
+                Icons.admin_panel_settings,
+                color: Colors.white,
+                size: 140,
+              ),
             ),
           ),
         ),
@@ -345,33 +398,36 @@ class _RegisterCardState extends State<RegisterCard> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Admin Register",
-                    style:
-                        TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                const Text(
+                  "Admin Register",
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 30),
                 TextField(
-                    controller: namaC,
-                    decoration: const InputDecoration(labelText: "Nama Lengkap"),
-                    enabled: !isLoading),
+                  controller: namaC,
+                  decoration: const InputDecoration(labelText: "Nama Lengkap"),
+                  enabled: !isLoading,
+                ),
                 const SizedBox(height: 16),
                 TextField(
-                    controller: emailC,
-                    decoration: const InputDecoration(labelText: "Email"),
-                    enabled: !isLoading),
+                  controller: emailC,
+                  decoration: const InputDecoration(labelText: "Email"),
+                  enabled: !isLoading,
+                ),
                 const SizedBox(height: 16),
                 TextField(
-                    controller: passC,
-                    decoration: const InputDecoration(labelText: "Password Awal"),
-                    enabled: !isLoading),
+                  controller: passC,
+                  decoration: const InputDecoration(labelText: "Password Awal"),
+                  enabled: !isLoading,
+                ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: selectedRole,
                   decoration: const InputDecoration(labelText: "Role"),
                   items: roles
-                      .map((r) => DropdownMenuItem(
-                            value: r.$2,
-                            child: Text(r.$1),
-                          ))
+                      .map(
+                        (r) => DropdownMenuItem(value: r.$2, child: Text(r.$1)),
+                      )
                       .toList(),
                   onChanged: isLoading
                       ? null
@@ -391,15 +447,14 @@ class _RegisterCardState extends State<RegisterCard> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: secondary,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30)),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
                     ),
                     child: isLoading
                         ? const SizedBox(
                             height: 20,
                             width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                            ),
+                            child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Text("Buat Akun"),
                   ),
@@ -410,9 +465,11 @@ class _RegisterCardState extends State<RegisterCard> {
                   child: const Text(
                     "Sudah punya akun? Login",
                     style: TextStyle(
-                        color: secondary, fontWeight: FontWeight.w600),
+                      color: secondary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -448,8 +505,7 @@ Future<void> showChangePassword(BuildContext context) async {
               decoration: InputDecoration(
                 labelText: "Password Lama",
                 suffixIcon: IconButton(
-                  icon: Icon(
-                      h1 ? Icons.visibility_off : Icons.visibility),
+                  icon: Icon(h1 ? Icons.visibility_off : Icons.visibility),
                   onPressed: () => set(() => h1 = !h1),
                 ),
               ),
@@ -461,8 +517,7 @@ Future<void> showChangePassword(BuildContext context) async {
               decoration: InputDecoration(
                 labelText: "Password Baru",
                 suffixIcon: IconButton(
-                  icon:
-                      Icon(h2 ? Icons.visibility_off : Icons.visibility),
+                  icon: Icon(h2 ? Icons.visibility_off : Icons.visibility),
                   onPressed: () => set(() => h2 = !h2),
                 ),
               ),
@@ -474,7 +529,8 @@ Future<void> showChangePassword(BuildContext context) async {
             onPressed: () async {
               if (oldC.text != saved) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Password lama salah")));
+                  const SnackBar(content: Text("Password lama salah")),
+                );
                 return;
               }
 
