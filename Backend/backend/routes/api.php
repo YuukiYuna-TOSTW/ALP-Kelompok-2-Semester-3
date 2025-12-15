@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\RppApiController;
 use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\Api\ScheduleUserApiController;
 use App\Http\Controllers\Api\OtpApiController;
+use App\Http\Controllers\Api\AuthApiController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -36,3 +37,6 @@ Route::post('schedule-user', [ScheduleUserApiController::class, 'store']);
 Route::get('schedule-user/{user_id}/{schedule_id}', [ScheduleUserApiController::class, 'show']);
 Route::put('schedule-user/{user_id}/{schedule_id}', [ScheduleUserApiController::class, 'update']);
 Route::delete('schedule-user/{user_id}/{schedule_id}', [ScheduleUserApiController::class, 'destroy']);
+
+// Auth Routes
+Route::post('/login', [UserApiController::class, 'login']);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/services/login_register_service.dart'; // ✅ import service
 
 const Color primary = Color(0xFF75CFFF);
 const Color secondary = Color(0xFF4DAFF5);
@@ -106,30 +107,45 @@ class _LoginCardState extends State<LoginCard> {
   final emailC = TextEditingController();
   final passC = TextEditingController();
   bool hide = true;
+  bool isLoading = false;
 
   Future<void> login() async {
-    final prefs = await SharedPreferences.getInstance();
-    final email = prefs.getString('email');
-    final password = prefs.getString('password');
-    final first = prefs.getBool('first_login') ?? true;
-
-    if (emailC.text != email || passC.text != password) {
-      snack("Email atau password salah");
+    if (emailC.text.isEmpty || passC.text.isEmpty) {
+      snack("Email dan password tidak boleh kosong");
       return;
     }
 
-    if (first) {
-      showChangePassword(context);
-    } else {
-      // TODO: Teman akan hubungkan ke halaman selanjutnya
-      snack("Login berhasil");
+    setState(() => isLoading = true);
+    try {
+      final result = await LoginRegisterService.login(
+        email: emailC.text,
+        password: passC.text,
+      );
+
+      if (result['success'] == true) {
+        snack("Login berhasil");
+      } else {
+        final raw = (result['message'] ?? '').toString();
+        final msg = raw.toLowerCase();
+        if (msg.contains("invalid") || msg.contains("salah") || msg.contains("unauthorized")) {
+          snack("Email atau password salah");
+        } else if (msg.contains("timeout") || msg.contains("koneksi") || msg.contains("failed host")) {
+          snack("Gagal terhubung ke server");
+        } else if (msg.contains("server") || msg.contains("internal") || msg.contains("bad gateway") || msg.contains("unavailable")) {
+          snack("Terjadi kesalahan pada server, coba lagi nanti");
+        } else {
+          snack("Login gagal: ${raw.isEmpty ? 'Terjadi kesalahan' : raw}");
+        }
+      }
+    } catch (_) {
+      snack("Terjadi kesalahan koneksi");
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
-  void snack(String msg) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
-  }
+  void snack(String msg) =>
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
 
   @override
   Widget build(BuildContext context) {
@@ -150,6 +166,7 @@ class _LoginCardState extends State<LoginCard> {
                 TextField(
                   controller: emailC,
                   decoration: const InputDecoration(labelText: "Email"),
+                  enabled: !isLoading,
                 ),
                 const SizedBox(height: 18),
                 TextField(
@@ -163,19 +180,28 @@ class _LoginCardState extends State<LoginCard> {
                       onPressed: () => setState(() => hide = !hide),
                     ),
                   ),
+                  enabled: !isLoading,
                 ),
                 const SizedBox(height: 32),
                 SizedBox(
                   width: 200,
                   height: 46,
                   child: ElevatedButton(
-                    onPressed: login,
+                    onPressed: isLoading ? null : login,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: secondary,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30)),
                     ),
-                    child: const Text("Login"),
+                    child: isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text("Login"),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -224,89 +250,73 @@ class RegisterCard extends StatefulWidget {
 }
 
 class _RegisterCardState extends State<RegisterCard> {
+  final namaC = TextEditingController();
   final emailC = TextEditingController();
   final passC = TextEditingController();
   final codeC = TextEditingController();
+  bool isLoading = false;
+
+  // ✅ opsi role
+  final roles = const [
+    ("Guru", "Guru"),
+    ("Kepala Sekolah", "Kepala_Sekolah"),
+    ("Admin", "Admin"),
+  ];
+  String? selectedRole;
 
   Future<void> register() async {
-    if (emailC.text.isEmpty ||
+    if (namaC.text.isEmpty ||
+        emailC.text.isEmpty ||
         passC.text.isEmpty ||
-        codeC.text.isEmpty) {
-      popup("Gagal", "Semua field wajib diisi");
+        selectedRole == null) {
+      snack("Semua field wajib diisi");
       return;
     }
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('email', emailC.text);
-    await prefs.setString('password', passC.text);
-    await prefs.setString('kode_akses', codeC.text);
-    await prefs.setBool('first_login', true);
+    codeC.text = selectedRole!;
+    setState(() => isLoading = true);
+    try {
+      final result = await LoginRegisterService.register(
+        namaUser: namaC.text,
+        email: emailC.text,
+        password: passC.text,
+      );
 
-    popup("Berhasil",
-        "Akun berhasil dibuat\nPassword bersifat sementara",
-        success: true);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('Role', selectedRole!);
+
+      if (result['success'] == true) {
+        snack("Akun berhasil dibuat");
+        widget.onFlip();
+      } else {
+        final raw = (result['message'] ?? '').toString();
+        final msg = raw.toLowerCase();
+
+        if (msg.contains("Email".toLowerCase()) && msg.contains("sudah")) {
+          snack("Email sudah digunakan");
+        } else if ((msg.contains("Nama_User".toLowerCase()) || msg.contains("nama")) && msg.contains("sudah")) {
+          snack("Nama lengkap sudah digunakan");
+        } else if (msg.contains("Email".toLowerCase()) && (msg.contains("invalid") || msg.contains("format"))) {
+          snack("Email tidak valid");
+        } else if (msg.contains("Password".toLowerCase()) && (msg.contains("minimal") || msg.contains("min"))) {
+          snack("Password minimal 6 karakter");
+        } else if (msg.contains("timeout") || msg.contains("koneksi") || msg.contains("failed host")) {
+          snack("Gagal terhubung ke server");
+        } else if (msg.contains("server") || msg.contains("internal") || msg.contains("bad gateway") || msg.contains("unavailable")) {
+          snack("Terjadi kesalahan pada server, coba lagi nanti");
+        } else {
+          snack("Akun gagal dibuat: ${raw.isEmpty ? 'Terjadi kesalahan' : raw}");
+        }
+      }
+    } catch (_) {
+      snack("Terjadi kesalahan koneksi");
+    } finally {
+      setState(() => isLoading = false);
+    }
   }
 
-  void popup(String title, String msg, {bool success = false}) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: false,
-      barrierColor: Colors.black45,
-      transitionDuration: const Duration(milliseconds: 300),
-      pageBuilder: (_, __, ___) => Center(
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            width: 380,
-            padding: const EdgeInsets.all(26),
-            decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(26),
-                boxShadow: const [
-                  BoxShadow(blurRadius: 35, color: Colors.black26)
-                ]),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  success ? Icons.check_circle : Icons.error,
-                  size: 64,
-                  color: success ? secondary : Colors.redAccent,
-                ),
-                const SizedBox(height: 18),
-                Text(title,
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
-                Text(msg,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.black54)),
-                const SizedBox(height: 22),
-                SizedBox(
-                  width: double.infinity,
-                  height: 44,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: secondary,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30)),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      if (success) widget.onFlip();
-                    },
-                    child: const Text("OK"),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-      transitionBuilder: (_, anim, __, child) =>
-          Transform.scale(scale: anim.value, child: child),
-    );
-  }
+  void snack(String msg) =>
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
 
   @override
   Widget build(BuildContext context) {
@@ -340,31 +350,61 @@ class _RegisterCardState extends State<RegisterCard> {
                         TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 30),
                 TextField(
+                    controller: namaC,
+                    decoration: const InputDecoration(labelText: "Nama Lengkap"),
+                    enabled: !isLoading),
+                const SizedBox(height: 16),
+                TextField(
                     controller: emailC,
-                    decoration: const InputDecoration(labelText: "Email")),
+                    decoration: const InputDecoration(labelText: "Email"),
+                    enabled: !isLoading),
                 const SizedBox(height: 16),
                 TextField(
                     controller: passC,
-                    decoration: const InputDecoration(labelText: "Password Awal")),
+                    decoration: const InputDecoration(labelText: "Password Awal"),
+                    enabled: !isLoading),
                 const SizedBox(height: 16),
-                TextField(
-                    controller: codeC,
-                    decoration: const InputDecoration(labelText: "Kode Akses")),
+                DropdownButtonFormField<String>(
+                  value: selectedRole,
+                  decoration: const InputDecoration(labelText: "Role"),
+                  items: roles
+                      .map((r) => DropdownMenuItem(
+                            value: r.$2,
+                            child: Text(r.$1),
+                          ))
+                      .toList(),
+                  onChanged: isLoading
+                      ? null
+                      : (val) {
+                          setState(() {
+                            selectedRole = val;
+                            codeC.text = val ?? '';
+                          });
+                        },
+                ),
                 const SizedBox(height: 34),
                 SizedBox(
                   width: 200,
                   height: 45,
                   child: ElevatedButton(
-                    onPressed: register,
+                    onPressed: isLoading ? null : register,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: secondary,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30)),
                     ),
-                    child: const Text("Buat Akun"),
+                    child: isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text("Buat Akun"),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
                 GestureDetector(
                   onTap: widget.onFlip,
                   child: const Text(
@@ -390,7 +430,7 @@ Future<void> showChangePassword(BuildContext context) async {
   final oldC = TextEditingController();
   final newC = TextEditingController();
   final prefs = await SharedPreferences.getInstance();
-  final saved = prefs.getString('password');
+  final saved = prefs.getString('Password');
   bool h1 = true, h2 = true;
 
   showDialog(
@@ -438,7 +478,7 @@ Future<void> showChangePassword(BuildContext context) async {
                 return;
               }
 
-              await prefs.setString('password', newC.text);
+              await prefs.setString('Password', newC.text);
               await prefs.setBool('first_login', false);
 
               Navigator.pop(context);
