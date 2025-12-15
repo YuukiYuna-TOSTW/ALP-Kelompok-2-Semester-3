@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
 import '../../../config/theme/colors.dart';
+import '../../../core/services/kepsek_kalender_dashboard_service.dart';
 import '../components/guru_activity_tile.dart';
 import '../components/mini_calendar.dart';
 
-class KepsekRightPanel extends StatelessWidget {
+class KepsekRightPanel extends StatefulWidget {
   const KepsekRightPanel({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // ===============================
-    // 📌 DAFTAR KEGIATAN SEKOLAH
-    // ===============================
-    final List<CalendarEvent> events = [
-      CalendarEvent(date: DateTime(2025, 1, 10), title: "Rapat Guru"),
-      CalendarEvent(date: DateTime(2025, 1, 10), title: "Supervisi Kelas"),
-      CalendarEvent(
-        date: DateTime(2025, 1, 14),
-        title: "Pemeriksaan RPP Tahunan",
-      ),
-      CalendarEvent(date: DateTime(2025, 1, 14), title: "Kegiatan OSIS"),
-    ];
+  State<KepsekRightPanel> createState() => _KepsekRightPanelState();
+}
 
+class _KepsekRightPanelState extends State<KepsekRightPanel> {
+  late Future<List<CalendarEvent>> _schedulesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _schedulesFuture = KepsekKalenderDashboardService.getSchedules();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(8, 0, 4, 40),
       child: Column(
@@ -71,7 +72,15 @@ class KepsekRightPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          MiniCalendar(events: events),
+
+          // ✅ FutureBuilder untuk load schedule dari Laravel
+          FutureBuilder<List<CalendarEvent>>(
+            future: _schedulesFuture,
+            builder: (context, snapshot) {
+              final events = snapshot.data ?? [];
+              return MiniCalendar(events: events);
+            },
+          ),
 
           const SizedBox(height: 20),
         ],

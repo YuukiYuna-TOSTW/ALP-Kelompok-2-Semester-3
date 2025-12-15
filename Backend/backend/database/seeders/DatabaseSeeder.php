@@ -7,23 +7,26 @@ use App\Models\Schedule;
 use App\Models\HistorySchedule;
 use App\Models\Rpp;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Buat users
+
+        // Buat users lainnya
         $admin = User::factory()->admin()->create();
         $guru = User::factory()->guru()->create();
         $kepalaSekolah = User::factory()->kepalaSekolah()->create();
         $randomUsers = User::factory()->count(7)->create();
 
+        // ✅ Gabungkan semua users termasuk reviewer
         $users = collect([$admin, $guru, $kepalaSekolah])->merge($randomUsers);
         $guruUsers = $users->where('Role', 'Guru');
 
-        // ✅ Create schedules dengan Penyelenggara_ID (gunakan ->id, bukan ->User_ID)
+        // Create schedules dengan Penyelenggara_ID
         $schedules = Schedule::factory()->count(20)->create([
-            'Penyelenggara_ID' => fn() => $users->random()->id, // ✅ ubah dari User_ID menjadi id
+            'Penyelenggara_ID' => fn() => $users->random()->id,
         ]);
 
         // Create history schedules
@@ -41,7 +44,7 @@ class DatabaseSeeder extends Seeder
         // Create RPPs untuk guru
         foreach ($guruUsers as $guru) {
             Rpp::factory()->count(rand(2, 4))->create([
-                'User_ID' => $guru->id, // ✅ gunakan ->id (sudah benar)
+                'User_ID' => $guru->id,
             ]);
         }
 
@@ -52,4 +55,8 @@ class DatabaseSeeder extends Seeder
         }
     }
 }
+
+
+
+
 
