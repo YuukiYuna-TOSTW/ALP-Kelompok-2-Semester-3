@@ -11,20 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('Schedules', function (Blueprint $table) {
+        Schema::create('schedules', function (Blueprint $table) {
             $table->id('Schedule_ID');
-            $table->string('Nama_Schedule');
-            $table->unsignedBigInteger('Penyelenggara_ID');
-            $table->date('Tanggal_Schedule_Dimulai');
-            $table->date('Tanggal_Schedule_Berakhir');
-            $table->time('Jam_Schedule_Dimulai');
-            $table->time('Jam_Schedule_Berakhir');
-            $table->text('Deskripsi_Schedule')->nullable();
-            $table->string('Dokumen')->nullable();
+            $table->string('Nama_Kegiatan', 150);
+            $table->text('Deskripsi')->nullable();
+            $table->date('Tanggal_Mulai');
+            $table->date('Tanggal_Selesai');
+            $table->time('Waktu_Mulai');
+            $table->time('Waktu_Selesai');
+            $table->string('Tempat', 100)->nullable();
+            $table->unsignedBigInteger('Penyelenggara_ID'); // ✅ kolom terlebih dahulu
+            $table->enum('Status', ['Terjadwal', 'Berlangsung', 'Selesai', 'Dibatalkan'])->default('Terjadwal');
             $table->timestamps();
 
+            // ✅ Constraint ditambahkan di akhir
             $table->foreign('Penyelenggara_ID')
-                ->references('User_ID')->on('Users')
+                ->references('id')
+                ->on('users')
                 ->onDelete('cascade');
         });
     }
@@ -34,6 +37,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('Schedules');
+        Schema::dropIfExists('schedules');
     }
 };

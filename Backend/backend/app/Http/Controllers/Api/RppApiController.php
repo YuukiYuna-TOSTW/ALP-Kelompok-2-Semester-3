@@ -7,13 +7,25 @@ use App\Models\Rpp;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\Rpp as RppResource;
+use App\Http\Resources\KepsekRPPDashboard; // ✅ perbaiki import
 
 class RppApiController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $rpps = Rpp::latest()->paginate(15);
-        return response()->json(RppResource::collection($rpps));
+        $status = $request->query('status');
+        $query = Rpp::with('user')->latest();
+        if ($status) {
+            $query->where('Status', $status);
+        }
+
+        $rpps = $query->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => KepsekRPPDashboard::collection($rpps), // ✅ gunakan kelas yang benar
+            'message' => 'OK',
+        ]);
     }
 
     public function store(Request $request): JsonResponse
@@ -26,6 +38,7 @@ class RppApiController extends Controller
             'Kompetensi_Dasar' => 'required|string',
             'Kompetensi_Inti' => 'required|string',
             'Tujuan_Pembelajaran' => 'required|string',
+            'Status' => 'required|string',
         ]);
 
         $model = Rpp::create($data);
@@ -47,6 +60,7 @@ class RppApiController extends Controller
             'Kompetensi_Dasar' => 'required|string',
             'Kompetensi_Inti' => 'required|string',
             'Tujuan_Pembelajaran' => 'required|string',
+            'Status' => 'required|string',
         ]);
 
         $rpp->update($data);

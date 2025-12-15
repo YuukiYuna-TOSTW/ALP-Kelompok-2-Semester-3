@@ -11,13 +11,30 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('Users', function (Blueprint $table) {
-            $table->id('User_ID');
-            $table->string('Nama_User')->unique();
-            $table->string('Email')->unique();
-            $table->string('Password');
-            $table->string('Role',50);
+        Schema::create('users', function (Blueprint $table) {
+            $table->id(); // ✅ ini menghasilkan BIGINT UNSIGNED AUTO_INCREMENT
+            $table->string('Nama_User', 100);
+            $table->string('Email', 100)->unique();
+            $table->string('Password', 255);
+            $table->enum('Role', ['Admin', 'Guru', 'Kepala_Sekolah'])->default('Guru'); // ✅ pastikan enum benar
+            $table->timestamp('email_verified_at')->nullable();
+            $table->rememberToken();
             $table->timestamps();
+        });
+
+        Schema::create('password_reset_tokens', function (Blueprint $table) {
+            $table->string('email')->primary();
+            $table->string('token');
+            $table->timestamp('created_at')->nullable();
+        });
+
+        Schema::create('sessions', function (Blueprint $table) {
+            $table->string('id')->primary();
+            $table->foreignId('user_id')->nullable()->index();
+            $table->string('ip_address', 45)->nullable();
+            $table->text('user_agent')->nullable();
+            $table->longText('payload');
+            $table->integer('last_activity')->index();
         });
     }
 
@@ -26,6 +43,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('Users');
+        Schema::dropIfExists('users');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('sessions');
     }
 };

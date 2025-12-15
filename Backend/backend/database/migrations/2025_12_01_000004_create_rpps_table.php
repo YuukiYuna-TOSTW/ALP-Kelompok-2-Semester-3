@@ -13,13 +13,19 @@ return new class extends Migration
     {
         Schema::create('rpps', function (Blueprint $table) {
             $table->id('RPP_ID');
-            $table->string('Nama_Mata_Pelajaran');
-            $table->string('Kelas');
-            $table->string('Bab/Materi');
-            $table->string('Semester');
-            $table->text('Kompetensi_Dasar')->nullable();
-            $table->text('Kompetensi_Inti')->nullable();
-            $table->text('Tujuan_Pembelajaran')->nullable();
+            $table->foreignId('User_ID')->constrained('users', 'id')->onDelete('cascade');
+            $table->string('Nama_Mata_Pelajaran', 100);
+            $table->string('Kelas', 10);
+            $table->text('Bab/Materi');
+            $table->string('Semester', 20);
+            $table->text('Kompetensi_Dasar');
+            $table->text('Kompetensi_Inti');
+            $table->text('Tujuan_Pembelajaran');
+            $table->text('Pendahuluan');
+            $table->text('Kegiatan_Inti');
+            $table->text('Penutup');
+            $table->text('Catatan_Tambahan');
+            $table->enum('Status', ['Menunggu Review', 'Minta Revisi', 'Disetujui'])->default('Menunggu Review');
             $table->timestamps();
         });
     }

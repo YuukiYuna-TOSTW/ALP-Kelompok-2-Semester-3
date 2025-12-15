@@ -1,11 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/services/kepsek_statistiksekolah_dashboard_service.dart';
+import 'package:frontend/core/services/kepsek_rpp_dashboard_service.dart';
 import '../../../config/theme/colors.dart';
 import '../components/stat_card.dart';
 import '../components/quick_action_button.dart';
 import '../components/rpp_review_card.dart';
 
-class KepsekDashboardContent extends StatelessWidget {
+class KepsekDashboardContent extends StatefulWidget {
   const KepsekDashboardContent({super.key});
+
+  @override
+  State<KepsekDashboardContent> createState() => _KepsekDashboardContentState();
+}
+
+class _KepsekDashboardContentState extends State<KepsekDashboardContent> {
+  late Future<Map<String, dynamic>> rppDataFuture;
+  late Future<Map<String, dynamic>> statisticsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    rppDataFuture = KepsekRppDashboardService.getRppPendingReview();
+    statisticsFuture = KepsekStatistikSekolahDashboardService.getStatistics();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,49 +46,64 @@ class KepsekDashboardContent extends StatelessWidget {
           ),
           const SizedBox(height: 14),
 
-          Column(
-            children: [
-              RppReviewCard(
-                subject: "Matematika",
-                className: "8A",
-                teacher: "Bpk. Rahman",
-                time: "10 menit lalu",
-                onReview: () {
-                  Navigator.pushNamed(
-                    context,
-                    "/kepsek/rpp/review",
-                    arguments: {
-                      "mapel": "Matematika",
-                      "kelas": "8A",
-                      "guru": "Bpk. Rahman",
+        FutureBuilder<Map<String, dynamic>>(
+          future: rppDataFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            if (snapshot.hasError || !(snapshot.data?['success'] ?? false)) {
+              return Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(
+                  snapshot.data?['message'] ?? 'Gagal memuat data',
+                  style: const TextStyle(color: Colors.red),
+                ),
+              );
+            }
+
+            final rppList = (snapshot.data?['data'] ?? []) as List;
+
+            if (rppList.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.all(20),
+                child: Text('Tidak ada RPP yang menunggu review'),
+              );
+            }
+
+            return Column(
+              children: [
+                for (int i = 0; i < rppList.length; i++) ...[
+                  RppReviewCard(
+                    subject: rppList[i]['Nama_Mata_Pelajaran'] ?? 'Mata Pelajaran',
+                    className: rppList[i]['Kelas'] ?? 'Kelas',
+                    teacher: rppList[i]['Guru_Nama'] ?? 'Guru',
+                    time: _getTimeAgo(rppList[i]['created_at']),
+                    onReview: () {
+                      Navigator.pushNamed(
+                        context,
+                        "/kepsek/rpp/review",
+                        arguments: {
+                          "mapel": rppList[i]['Nama_Mata_Pelajaran'] ?? '',
+                          "kelas": rppList[i]['Kelas'] ?? '',
+                          "guru": rppList[i]['Guru_Nama'] ?? '',
+                          "rpp_id": rppList[i]['RPP_ID'],
+                        },
+                      );
                     },
-                  );
-                },
-              ),
-              const SizedBox(height: 10),
-
-              RppReviewCard(
-                subject: "PJOK",
-                className: "9C",
-                teacher: "Bu Tika",
-                time: "32 menit lalu",
-                onReview: () {
-                  Navigator.pushNamed(context, "/kepsek/rpp/review");
-                },
-              ),
-              const SizedBox(height: 10),
-
-              RppReviewCard(
-                subject: "Bahasa Indonesia",
-                className: "7B",
-                teacher: "Bu Nisa",
-                time: "1 jam lalu",
-                onReview: () {
-                  Navigator.pushNamed(context, "/kepsek/rpp/review");
-                },
-              ),
-            ],
-          ),
+                  ),
+                  if (i < rppList.length - 1) const SizedBox(height: 10),
+                ]
+              ],
+            );
+          },
+        ),
 
           const SizedBox(height: 28),
 
@@ -88,33 +120,50 @@ class KepsekDashboardContent extends StatelessWidget {
           ),
           const SizedBox(height: 14),
 
-          const Row(
-            children: [
-              Expanded(
-                child: StatCard(
-                  icon: Icons.person_rounded,
-                  value: "48",
-                  title: "Total Guru",
+        FutureBuilder<Map<String, dynamic>>(
+          future: statisticsFuture,
+          builder: (context, snapshot) {
+            String totalGuru = "0";
+            String rppPending = "0";
+            String totalKelas = "0";
+
+            if (snapshot.connectionState == ConnectionState.done &&
+                (snapshot.data?['success'] ?? false)) {
+              final data = snapshot.data?['data'] ?? {};
+              totalGuru = (data['total_guru'] ?? 0).toString();
+              rppPending = (data['rpp_pending'] ?? 0).toString();
+              totalKelas = (data['total_kelas'] ?? 0).toString();
+            }
+
+            return Row(
+              children: [
+                Expanded(
+                  child: StatCard(
+                    icon: Icons.person_rounded,
+                    value: totalGuru,
+                    title: "Total Guru",
+                  ),
                 ),
-              ),
-              SizedBox(width: 14),
-              Expanded(
-                child: StatCard(
-                  icon: Icons.menu_book_rounded,
-                  value: "12",
-                  title: "RPP Pending",
+                const SizedBox(width: 14),
+                Expanded(
+                  child: StatCard(
+                    icon: Icons.menu_book_rounded,
+                    value: rppPending,
+                    title: "RPP Pending",
+                  ),
                 ),
-              ),
-              SizedBox(width: 14),
-              Expanded(
-                child: StatCard(
-                  icon: Icons.school_rounded,
-                  value: "24",
-                  title: "Total Kelas",
+                const SizedBox(width: 14),
+                Expanded(
+                  child: StatCard(
+                    icon: Icons.school_rounded,
+                    value: totalKelas,
+                    title: "Total Kelas",
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            );
+          },
+        ),
 
           const SizedBox(height: 28),
 
@@ -171,5 +220,22 @@ class KepsekDashboardContent extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _getTimeAgo(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return 'Baru saja';
+    try {
+      final date = DateTime.parse(dateString);
+      final now = DateTime.now();
+      final diff = now.difference(date);
+
+      if (diff.inMinutes < 1) return 'Baru saja';
+      if (diff.inMinutes < 60) return '${diff.inMinutes} menit lalu';
+      if (diff.inHours < 24) return '${diff.inHours} jam lalu';
+      if (diff.inDays < 7) return '${diff.inDays} hari lalu';
+      return dateString;
+    } catch (_) {
+      return dateString;
+    }
   }
 }

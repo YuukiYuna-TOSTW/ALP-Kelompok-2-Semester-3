@@ -9,7 +9,10 @@ use App\Http\Controllers\Api\RppApiController;
 use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\Api\ScheduleUserApiController;
 use App\Http\Controllers\Api\OtpApiController;
-use App\Http\Controllers\Api\AuthApiController;
+use App\Http\Controllers\Api\KepsekRPPApiController;
+use App\Http\Controllers\Api\KepsekStatistikSekolahApiController;
+use App\Http\Controllers\Api\KepsekKalenderApiController;
+use App\Http\Controllers\Api\KepsekRppReviewController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -40,3 +43,17 @@ Route::delete('schedule-user/{user_id}/{schedule_id}', [ScheduleUserApiControlle
 
 // Auth Routes
 Route::post('/login', [UserApiController::class, 'login']);
+Route::post('/register', [UserApiController::class, 'register']); // endpoint yang dipanggil dari frontend
+
+// ✅ Dashboard endpoints
+Route::prefix('dashboard')->group(function () {
+    Route::get('/rpps/pending', [KepsekRPPApiController::class, 'pending']);
+    Route::get('/kepsekstatistiksekolah', [KepsekStatistikSekolahApiController::class, 'index']);
+    Route::get('/kepsekkalender', [KepsekKalenderApiController::class, 'index']);
+});
+
+// RPP Reviews
+Route::get('/rpps', [RppApiController::class, 'index']);
+Route::get('/rpps/{rpp}', [RppApiController::class, 'show']);
+
+

@@ -10,28 +10,31 @@ class Rpp extends Model
     use HasFactory;
 
     protected $table = 'rpps';
-    protected $primaryKey = 'RPP_ID';
+    protected $primaryKey = 'id';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<string>
-     */
     protected $fillable = [
-        'Nama_Mata_Pelajaran',
+        'User_ID',
+        'Nama_RPP',
         'Kelas',
-        'Bab/Materi',
-        'Semester',
-        'Kompetensi_Dasar',
-        'Kompetensi_Inti',
-        'Tujuan_Pembelajaran',
+        'KD',
+        'KI',
+        'Tujuan',
+        'Pendahuluan',
+        'Inti',
+        'Penutup',
+        'Catatan',
+        'Status',
     ];
 
-    /**
-     * Get the chatbot suggestions for this RPP.
-     */
-    public function chatbotSuggestions()
+    // ✅ Relasi ke User
+    public function user()
     {
-        return $this->hasMany(ChatbotAi::class, 'RPP_ID', 'RPP_ID');
+        return $this->belongsTo(User::class, 'User_ID');
+    }
+
+    // ✅ Relasi ke RppReview
+    public function reviews()
+    {
+        return $this->hasMany(RppReview::class, 'RPP_ID');
     }
 }
