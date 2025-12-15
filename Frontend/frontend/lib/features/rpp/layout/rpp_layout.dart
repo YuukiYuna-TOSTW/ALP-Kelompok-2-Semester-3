@@ -22,7 +22,6 @@ class RppLayout extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xfff5f7fa),
-
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -32,34 +31,45 @@ class RppLayout extends StatelessWidget {
           DashboardSidebar(selectedRoute: selectedRoute, menuItems: menuItems),
 
           // =====================================================
-          // ⚪ AREA KONTEN (scrollable)
+          // ⚪ CONTENT + FOOTER (SCROLLABLE, STICKY BOTTOM)
           // =====================================================
           Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // -------------------------------
-                  // CONTENT DI BAGIAN TENGAH
-                  // -------------------------------
-                  Padding(padding: const EdgeInsets.all(24), child: content),
-
-                  const SizedBox(height: 40),
-
-                  // -------------------------------
-                  // FOOTER — seperti dashboard
-                  // -------------------------------
-                  Container(
-                    width: double.infinity,
-                    color: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 18,
-                      horizontal: 26,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
                     ),
-                    child: const DashboardFooter(),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // ================= CONTENT =================
+                          Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: content,
+                          ),
+
+                          // ================= SPACER =================
+                          const Spacer(),
+
+                          // ================= FOOTER =================
+                          Container(
+                            width: double.infinity,
+                            color: AppColors.primary,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 18,
+                              horizontal: 26,
+                            ),
+                            child: const DashboardFooter(),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ],

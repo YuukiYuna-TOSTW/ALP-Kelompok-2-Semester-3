@@ -11,7 +11,6 @@ class RppAllListPage extends StatefulWidget {
 }
 
 class _RppAllListPageState extends State<RppAllListPage> {
-  // ================= SAMPLE DATA =================
   final List<Map<String, dynamic>> _allRpp = [
     {
       "guru": "Bu Sinta",
@@ -53,9 +52,6 @@ class _RppAllListPageState extends State<RppAllListPage> {
     _filtered = List.from(_allRpp);
   }
 
-  // =====================================================
-  // FILTER FUNCTION
-  // =====================================================
   void _applyFilters() {
     final q = search.toLowerCase();
 
@@ -66,19 +62,15 @@ class _RppAllListPageState extends State<RppAllListPage> {
             item["mapel"].toLowerCase().contains(q) ||
             item["kelas"].toLowerCase().contains(q);
 
-        final g = fGuru == "Semua" || item["guru"] == fGuru;
-        final m = fMapel == "Semua" || item["mapel"] == fMapel;
-        final k = fKelas == "Semua" || item["kelas"] == fKelas;
-        final s = fStatus == "Semua" || item["status"] == fStatus;
-
-        return matchesSearch && g && m && k && s;
+        return matchesSearch &&
+            (fGuru == "Semua" || item["guru"] == fGuru) &&
+            (fMapel == "Semua" || item["mapel"] == fMapel) &&
+            (fKelas == "Semua" || item["kelas"] == fKelas) &&
+            (fStatus == "Semua" || item["status"] == fStatus);
       }).toList();
     });
   }
 
-  // =====================================================
-  // UI START
-  // =====================================================
   @override
   Widget build(BuildContext context) {
     return RppLayout(
@@ -88,47 +80,46 @@ class _RppAllListPageState extends State<RppAllListPage> {
     );
   }
 
-  // =====================================================
-  // MAIN CONTENT
-  // =====================================================
+  // ================= MAIN CARD =================
   Widget _buildContent() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _cardHeader(),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  _searchAndExportBar(),
-                  const SizedBox(height: 16),
-                  _buildFilters(),
-                  const SizedBox(height: 20),
-                  _buildTable(), // ❌ NO horizontal scroll
-                ],
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1100),
+        child: Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            children: [
+              _cardHeader(),
+              Padding(
+                padding: const EdgeInsets.all(22),
+                child: Column(
+                  children: [
+                    _searchAndExportBar(),
+                    const SizedBox(height: 16),
+                    _buildFilters(),
+                    const SizedBox(height: 20),
+                    _buildTable(),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // =====================================================
-  // CARD HEADER
-  // =====================================================
+  // ================= HEADER =================
   Widget _cardHeader() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 22),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.primary.withOpacity(.8)],
+          colors: [AppColors.primary, AppColors.primary.withOpacity(.75)],
         ),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -143,9 +134,7 @@ class _RppAllListPageState extends State<RppAllListPage> {
     );
   }
 
-  // =====================================================
-  // SEARCH + EXPORT
-  // =====================================================
+  // ================= SEARCH + EXPORT =================
   Widget _searchAndExportBar() {
     return Row(
       children: [
@@ -178,82 +167,73 @@ class _RppAllListPageState extends State<RppAllListPage> {
     );
   }
 
-  // =====================================================
-  // FILTERS
-  // =====================================================
+  // ================= FILTERS (FIX OVERFLOW) =================
   Widget _buildFilters() {
     return Row(
       children: [
-        _dropdown(
-          "Guru",
-          fGuru,
-          ["Semua", ..._allRpp.map((e) => e["guru"]).toSet()],
-          (v) {
-            fGuru = v!;
-            _applyFilters();
-          },
-        ),
-        const SizedBox(width: 16),
-        _dropdown(
-          "Mapel",
-          fMapel,
-          ["Semua", ..._allRpp.map((e) => e["mapel"]).toSet()],
-          (v) {
-            fMapel = v!;
-            _applyFilters();
-          },
-        ),
-        const SizedBox(width: 16),
-        _dropdown(
-          "Kelas",
-          fKelas,
-          ["Semua", ..._allRpp.map((e) => e["kelas"]).toSet()],
-          (v) {
-            fKelas = v!;
-            _applyFilters();
-          },
-        ),
-        const SizedBox(width: 16),
-        _dropdown(
-          "Status",
-          fStatus,
-          const ["Semua", "Draft", "Menunggu Review", "Revisi", "Disetujui"],
-          (v) {
-            fStatus = v!;
-            _applyFilters();
-          },
-        ),
+        _filterDropdown("Guru", fGuru, [
+          "Semua",
+          ..._allRpp.map((e) => e["guru"]).toSet(),
+        ]),
+        const SizedBox(width: 12),
+        _filterDropdown("Mapel", fMapel, [
+          "Semua",
+          ..._allRpp.map((e) => e["mapel"]).toSet(),
+        ]),
+        const SizedBox(width: 12),
+        _filterDropdown("Kelas", fKelas, [
+          "Semua",
+          ..._allRpp.map((e) => e["kelas"]).toSet(),
+        ]),
+        const SizedBox(width: 12),
+        _filterDropdown("Status", fStatus, const [
+          "Semua",
+          "Draft",
+          "Menunggu Review",
+          "Revisi",
+          "Disetujui",
+        ]),
       ],
     );
   }
 
-  Widget _dropdown(
-    String title,
-    String value,
-    List<String> items,
-    Function(String?) onChanged,
-  ) {
-    return Expanded(
+  Widget _filterDropdown(String label, String value, List<String> items) {
+    return SizedBox(
+      width: 220, // ⭐ FIXED WIDTH → no overflow
       child: DropdownButtonFormField<String>(
         value: value,
-        decoration: InputDecoration(labelText: title),
+        isExpanded: true,
+        decoration: InputDecoration(
+          labelText: label,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 14,
+          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        ),
         items: items
             .map((e) => DropdownMenuItem(value: e, child: Text(e)))
             .toList(),
-        onChanged: onChanged,
+        onChanged: (v) {
+          setState(() {
+            if (label == "Guru") fGuru = v!;
+            if (label == "Mapel") fMapel = v!;
+            if (label == "Kelas") fKelas = v!;
+            if (label == "Status") fStatus = v!;
+            _applyFilters();
+          });
+        },
       ),
     );
   }
 
-  // =====================================================
-  // TABLE
-  // =====================================================
+  // ================= TABLE (SAMA DENGAN GURU) =================
   Widget _buildTable() {
     return DataTable(
       columnSpacing: 20,
       headingRowHeight: 48,
       dataRowHeight: 56,
-      headingRowColor: WidgetStateProperty.all(AppColors.primary),
+      headingRowColor: MaterialStateProperty.all(AppColors.primary),
       headingTextStyle: const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.bold,
@@ -264,7 +244,7 @@ class _RppAllListPageState extends State<RppAllListPage> {
         DataColumn(label: Text("Kelas")),
         DataColumn(label: Text("Semester")),
         DataColumn(label: Text("Tanggal")),
-        DataColumn(label: Text("Status")),
+        DataColumn(label: Center(child: Text("Status"))),
         DataColumn(label: Center(child: Text("Aksi"))),
       ],
       rows: _filtered.map((item) {
@@ -283,9 +263,7 @@ class _RppAllListPageState extends State<RppAllListPage> {
     );
   }
 
-  // =====================================================
-  // STATUS CHIP (FIXED)
-  // =====================================================
+  // ================= STATUS CHIP =================
   Widget _statusChip(String status) {
     late Color bg;
     late Color text;
@@ -318,7 +296,6 @@ class _RppAllListPageState extends State<RppAllListPage> {
           ),
           child: Text(
             status,
-            textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -330,43 +307,39 @@ class _RppAllListPageState extends State<RppAllListPage> {
     );
   }
 
-  // =====================================================
-  // ACTION MENU
-  // =====================================================
+  // ================= ACTION MENU =================
   Widget _actionMenu(Map<String, dynamic> item) {
-    return Center(
-      child: PopupMenuButton<String>(
-        icon: const Icon(Icons.more_vert),
-        onSelected: (v) {
-          if (v == 'view') {
-            Navigator.pushNamed(context, "/rpp/preview", arguments: item);
-          } else if (v == 'review') {
-            Navigator.pushNamed(context, "/kepsek/rpp/review", arguments: item);
-          }
-        },
-        itemBuilder: (_) => const [
-          PopupMenuItem(
-            value: 'view',
-            child: Row(
-              children: [
-                Icon(Icons.visibility, size: 18),
-                SizedBox(width: 8),
-                Text("Lihat RPP"),
-              ],
-            ),
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert),
+      onSelected: (v) {
+        if (v == 'view') {
+          Navigator.pushNamed(context, "/rpp/preview", arguments: item);
+        } else if (v == 'review') {
+          Navigator.pushNamed(context, "/kepsek/rpp/review", arguments: item);
+        }
+      },
+      itemBuilder: (_) => const [
+        PopupMenuItem(
+          value: 'view',
+          child: Row(
+            children: [
+              Icon(Icons.visibility, size: 18),
+              SizedBox(width: 8),
+              Text("Lihat RPP"),
+            ],
           ),
-          PopupMenuItem(
-            value: 'review',
-            child: Row(
-              children: [
-                Icon(Icons.edit_note, size: 18),
-                SizedBox(width: 8),
-                Text("Review"),
-              ],
-            ),
+        ),
+        PopupMenuItem(
+          value: 'review',
+          child: Row(
+            children: [
+              Icon(Icons.edit_note, size: 18),
+              SizedBox(width: 8),
+              Text("Review"),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
