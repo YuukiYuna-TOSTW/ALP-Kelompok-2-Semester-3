@@ -32,6 +32,7 @@ class KepsekProfilePage extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         padding: const EdgeInsets.all(18),
+        width: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [AppColors.primary, AppColors.primary.withOpacity(.7)],
@@ -39,13 +40,38 @@ class KepsekProfilePage extends StatelessWidget {
           borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            CircleAvatar(
-              radius: 40,
-              backgroundImage: NetworkImage(data["foto"] ?? ""),
+            // FOTO PROFIL (SAMA SEPERTI GURU)
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(4),
+              child: ClipOval(
+                child:
+                    data["foto"] != null && data["foto"].toString().isNotEmpty
+                    ? Image.network(
+                        data["foto"],
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _defaultAvatar(),
+                      )
+                    : _defaultAvatar(),
+              ),
             ),
 
-            const SizedBox(width: 18),
+            // ⭐ JARAK FOTO & TEKS (KONSISTEN)
+            const SizedBox(width: 20),
 
             // INFO
             Expanded(
@@ -55,7 +81,9 @@ class KepsekProfilePage extends StatelessWidget {
                   Text(data["nama"] ?? "-", style: _headerName),
                   const SizedBox(height: 4),
                   Text("NIP: ${data["nip"] ?? "-"}", style: _headerSub),
+                  const SizedBox(height: 2),
                   Text(data["jabatan"] ?? "Kepala Sekolah", style: _headerSub),
+                  const SizedBox(height: 2),
                   Text(
                     "Menjabat sejak ${data["tahun_menjabat"] ?? "-"}",
                     style: _headerSub,
@@ -67,11 +95,7 @@ class KepsekProfilePage extends StatelessWidget {
             // TOMBOL EDIT PROFIL
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(
-                  context,
-                  "/profile/edit",
-                  arguments: data, // ✔ kirim data ke edit page
-                );
+                Navigator.pushNamed(context, "/profile/edit", arguments: data);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
@@ -88,7 +112,7 @@ class KepsekProfilePage extends StatelessWidget {
     );
   }
 
-  // ================= SECTION: JABATAN =================
+  // ================= INFORMASI JABATAN =================
   Widget _infoJabatan() {
     return _cardSection("Informasi Jabatan", [
       _row("Jabatan", data["jabatan"]),
@@ -96,7 +120,7 @@ class KepsekProfilePage extends StatelessWidget {
     ]);
   }
 
-  // ================= SECTION: PRIBADI =================
+  // ================= INFORMASI PRIBADI =================
   Widget _infoPribadi() {
     return _cardSection("Informasi Pribadi", [
       _row("Nama", data["nama"]),
@@ -116,29 +140,27 @@ class KepsekProfilePage extends StatelessWidget {
         child: TextButton(
           onPressed: () => Navigator.pushNamed(context, "/profile/password"),
           style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+            padding: const EdgeInsets.symmetric(vertical: 10),
             alignment: Alignment.centerLeft,
           ),
           child: const Text(
             "Ubah Kata Sandi",
             style: TextStyle(
-              color: AppColors.primary,
+              color: AppColors.textDark,
               fontSize: 15,
               fontWeight: FontWeight.w600,
             ),
           ),
         ),
       ),
-
       const SizedBox(height: 4),
-
       Container(
         width: double.infinity,
         alignment: Alignment.centerLeft,
         child: TextButton(
           onPressed: () {},
           style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+            padding: const EdgeInsets.symmetric(vertical: 10),
             alignment: Alignment.centerLeft,
           ),
           child: const Text(
@@ -154,7 +176,7 @@ class KepsekProfilePage extends StatelessWidget {
     ]);
   }
 
-  // ================= TEMPLATE =================
+  // ================= TEMPLATE CARD =================
   Widget _cardSection(String title, List<Widget> children) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -169,6 +191,13 @@ class KepsekProfilePage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _defaultAvatar() {
+    return Container(
+      color: AppColors.primary.withOpacity(.1),
+      child: const Icon(Icons.person, size: 40, color: AppColors.primary),
     );
   }
 
@@ -189,7 +218,7 @@ class KepsekProfilePage extends StatelessWidget {
     );
   }
 
-  // TEXT STYLES
+  // ================= TEXT STYLES =================
   TextStyle get _headerName => const TextStyle(
     color: Colors.white,
     fontSize: 20,

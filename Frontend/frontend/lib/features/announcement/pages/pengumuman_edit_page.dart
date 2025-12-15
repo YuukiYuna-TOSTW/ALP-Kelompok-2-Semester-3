@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import '../../../config/theme/colors.dart';
 import '../../rpp/layout/rpp_layout.dart';
 
@@ -12,116 +13,125 @@ class PengumumanFormPage extends StatefulWidget {
 }
 
 class _PengumumanFormPageState extends State<PengumumanFormPage> {
-  final _formKey = GlobalKey<FormState>();
+  final titleCtrl = TextEditingController();
+  final bodyCtrl = TextEditingController();
+  final scheduledDateCtrl = TextEditingController();
 
-  // ===========================
-  // FORM CONTROLLERS
-  // ===========================
-  final TextEditingController judulC = TextEditingController();
-  final TextEditingController isiC = TextEditingController();
+  List<String> selectedAudience = [];
+  String priority = "Normal";
+  bool schedule = false;
 
-  String prioritas = "Normal";
-  bool publishNow = true;
-  DateTime? publishDate;
+  List<PlatformFile> attachments = [];
 
-  List<String> targetGuru = [];
-  List<String> targetWali = [];
-
-  bool hasAttachment = false;
-
-  // Contoh list guru & wali kelas
-  final List<String> guruList = ["Bu Sinta", "Pak Amir", "Bu Ayu"];
-  final List<String> waliKelasList = ["7A", "7B", "8A", "9A"];
+  final List<String> guruList = ["Bu Sinta", "Pak Amir", "Bu Ayu", "Bu Lina"];
 
   @override
   void initState() {
     super.initState();
 
-    // jika EDIT mode → isi data default
     if (widget.data != null) {
       final d = widget.data!;
-      judulC.text = d["judul"] ?? "";
-      isiC.text = d["isi"] ?? "";
-      prioritas = d["prioritas"] ?? "Normal";
-      hasAttachment = d["lampiran"] ?? false;
+      titleCtrl.text = d["judul"] ?? "";
+      bodyCtrl.text = d["isi"] ?? "";
+      priority = d["prioritas"] ?? "Normal";
+
+      if (d["target"] is List) {
+        selectedAudience = List<String>.from(d["target"]);
+      }
+
+      if (d["jadwal"] != null && d["jadwal"] != "") {
+        schedule = true;
+        scheduledDateCtrl.text = d["jadwal"];
+      }
     }
   }
 
-  // ===========================
-  // SELECT DATE
-  // ===========================
-  Future<void> pickDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      firstDate: now,
-      lastDate: DateTime(now.year + 2),
-      initialDate: now,
-    );
-
-    if (picked != null) {
-      setState(() => publishDate = picked);
-    }
-  }
-
-  // ===========================
-  // MAIN UI
-  // ===========================
   @override
   Widget build(BuildContext context) {
-    final isEdit = widget.data != null;
+    final bool isEdit = widget.data != null;
 
     return RppLayout(
+      role: "kepsek",
       selectedRoute: "/announcement",
-      role: "admin",
       content: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 900),
-          child: Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              children: [
-                _header(isEdit),
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Form(
-                    key: _formKey,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _textField("Judul Pengumuman", judulC),
-                          const SizedBox(height: 20),
-                          _textareaField("Isi Pengumuman", isiC),
-                          const SizedBox(height: 20),
-                          _selectTargetAudience(),
-                          const SizedBox(height: 20),
-                          _selectPrioritas(),
-                          const SizedBox(height: 20),
-                          _lampiranPicker(),
-                          const SizedBox(height: 20),
-                          _jadwalPublikasi(),
-                          const SizedBox(height: 30),
-                          _actionButtons(isEdit),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          child: _buildCard(isEdit),
         ),
       ),
     );
   }
 
-  // ===========================
+  // ============================================================
+  // CARD
+  // ============================================================
+  Widget _buildCard(bool isEdit) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        children: [
+          _header(isEdit),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _label("Judul Pengumuman"),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: titleCtrl,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: "Masukkan judul",
+                  ),
+                ),
+
+                const SizedBox(height: 22),
+                _label("Isi Pengumuman"),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: bodyCtrl,
+                  maxLines: 6,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: "Tulis isi pengumuman...",
+                  ),
+                ),
+
+                const SizedBox(height: 22),
+                _label("Tujuan Pengumuman"),
+                const SizedBox(height: 6),
+                _audienceSelector(),
+
+                const SizedBox(height: 22),
+                _label("Prioritas"),
+                const SizedBox(height: 6),
+                _prioritySelector(),
+
+                const SizedBox(height: 22),
+                _label("Lampiran"),
+                const SizedBox(height: 6),
+                _attachmentUploader(),
+
+                const SizedBox(height: 22),
+                _label("Tanggal Publikasi"),
+                const SizedBox(height: 6),
+                _scheduleSelector(),
+
+                const SizedBox(height: 32),
+                _buttons(isEdit),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
   // HEADER
-  // ===========================
+  // ============================================================
   Widget _header(bool isEdit) {
     return Container(
       width: double.infinity,
@@ -135,14 +145,15 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
           ),
+          const SizedBox(width: 8),
           Text(
             isEdit ? "Edit Pengumuman" : "Buat Pengumuman",
             style: const TextStyle(
-              fontSize: 18,
               color: Colors.white,
+              fontSize: 18,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -151,192 +162,167 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
     );
   }
 
-  // ===========================
-  // TEXT FIELD
-  // ===========================
-  Widget _textField(String title, TextEditingController controller) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: title,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+  Widget _label(String text) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 15,
+        color: AppColors.primary,
       ),
-      validator: (v) => v!.isEmpty ? "Wajib diisi" : null,
     );
   }
 
-  // ===========================
-  // TEXTAREA
-  // ===========================
-  Widget _textareaField(String title, TextEditingController controller) {
-    return TextFormField(
-      controller: controller,
-      maxLines: 6,
-      decoration: InputDecoration(
-        labelText: title,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-      validator: (v) => v!.isEmpty ? "Wajib diisi" : null,
-    );
-  }
-
-  // ===========================
-  // TARGET AUDIENCE
-  // ===========================
-  Widget _selectTargetAudience() {
+  // ============================================================
+  // AUDIENCE
+  // ============================================================
+  Widget _audienceSelector() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Tujuan Pengumuman",
-          style: TextStyle(fontWeight: FontWeight.bold),
+        CheckboxListTile(
+          value: selectedAudience.contains("Semua Guru"),
+          title: const Text("Pilih Semua Guru"),
+          onChanged: (v) {
+            setState(() {
+              selectedAudience = v == true ? ["Semua Guru"] : [];
+            });
+          },
         ),
-        const SizedBox(height: 10),
-
-        _multiselect("Guru Mapel", guruList, targetGuru),
-        const SizedBox(height: 10),
-
-        _multiselect("Wali Kelas", waliKelasList, targetWali),
+        ...guruList.map(
+          (g) => CheckboxListTile(
+            value: selectedAudience.contains(g),
+            title: Text(g),
+            onChanged: (v) {
+              setState(() {
+                if (v == true) {
+                  selectedAudience.add(g);
+                  selectedAudience.remove("Semua Guru");
+                } else {
+                  selectedAudience.remove(g);
+                }
+              });
+            },
+          ),
+        ),
       ],
     );
   }
 
-  Widget _multiselect(
-    String label,
-    List<String> sourceList,
-    List<String> selectedList,
-  ) {
+  // ============================================================
+  // PRIORITY (RAPI & JELAS)
+  // ============================================================
+  Widget _prioritySelector() {
+    return Row(
+      children: ["Rendah", "Normal", "Tinggi"].map((p) {
+        return Expanded(
+          child: RadioListTile<String>(
+            title: Text(p),
+            value: p,
+            groupValue: priority,
+            onChanged: (v) => setState(() => priority = v!),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // ============================================================
+  // ATTACHMENT (REAL FILE)
+  // ============================================================
+  Widget _attachmentUploader() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label),
         Wrap(
           spacing: 10,
-          children: sourceList.map((item) {
-            final isSelected = selectedList.contains(item);
-            return FilterChip(
-              label: Text(item),
-              selected: isSelected,
-              onSelected: (v) {
-                setState(() {
-                  if (v) {
-                    selectedList.add(item);
-                  } else {
-                    selectedList.remove(item);
-                  }
-                });
-              },
+          children: attachments
+              .map(
+                (f) => Chip(
+                  label: Text(f.name),
+                  deleteIcon: const Icon(Icons.close),
+                  onDeleted: () => setState(() => attachments.remove(f)),
+                ),
+              )
+              .toList(),
+        ),
+        const SizedBox(height: 10),
+        OutlinedButton.icon(
+          icon: const Icon(Icons.upload_file),
+          label: const Text("Tambah Lampiran"),
+          onPressed: () async {
+            final result = await FilePicker.platform.pickFiles(
+              allowMultiple: true,
             );
-          }).toList(),
+            if (result != null) {
+              setState(() => attachments.addAll(result.files));
+            }
+          },
         ),
       ],
     );
   }
 
-  // ===========================
-  // PRIORITAS
-  // ===========================
-  Widget _selectPrioritas() {
-    return DropdownButtonFormField<String>(
-      value: prioritas,
-      items: [
-        "Rendah",
-        "Normal",
-        "Tinggi",
-        "Penting",
-      ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-      decoration: const InputDecoration(labelText: "Prioritas"),
-      onChanged: (v) => setState(() => prioritas = v!),
-    );
-  }
-
-  // ===========================
-  // LAMPIRAN
-  // ===========================
-  Widget _lampiranPicker() {
-    return Row(
-      children: [
-        Checkbox(
-          value: hasAttachment,
-          onChanged: (v) => setState(() => hasAttachment = v!),
-        ),
-        const Text("Tambahkan Lampiran (PDF/JPG/DOCX)"),
-      ],
-    );
-  }
-
-  // ===========================
-  // JADWAL PUBLIKASI
-  // ===========================
-  Widget _jadwalPublikasi() {
+  // ============================================================
+  // SCHEDULE
+  // ============================================================
+  Widget _scheduleSelector() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Waktu Publikasi",
-          style: TextStyle(fontWeight: FontWeight.bold),
+        SwitchListTile(
+          title: const Text("Jadwalkan Publikasi"),
+          value: schedule,
+          onChanged: (v) => setState(() => schedule = v),
         ),
-        RadioListTile(
-          value: true,
-          groupValue: publishNow,
-          title: const Text("Publikasikan sekarang"),
-          onChanged: (v) => setState(() => publishNow = true),
-        ),
-        RadioListTile(
-          value: false,
-          groupValue: publishNow,
-          title: const Text("Jadwalkan publikasi"),
-          onChanged: (v) => setState(() => publishNow = false),
-        ),
-        if (!publishNow)
-          ElevatedButton(
-            onPressed: pickDate,
-            child: Text(
-              publishDate == null
-                  ? "Pilih Tanggal"
-                  : publishDate.toString().split(" ")[0],
+        if (schedule)
+          TextField(
+            controller: scheduledDateCtrl,
+            readOnly: true,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: "Pilih tanggal",
             ),
+            onTap: () async {
+              final d = await showDatePicker(
+                context: context,
+                firstDate: DateTime.now(),
+                lastDate: DateTime(2030),
+                initialDate: DateTime.now(),
+              );
+              if (d != null) {
+                scheduledDateCtrl.text = d.toString().split(" ").first;
+              }
+            },
           ),
       ],
     );
   }
 
-  // ===========================
-  // ACTION BUTTONS
-  // ===========================
-  Widget _actionButtons(bool isEdit) {
+  // ============================================================
+  // BUTTONS (SIMPLE & JELAS)
+  // ============================================================
+  Widget _buttons(bool isEdit) {
     return Row(
       children: [
         Expanded(
           child: ElevatedButton(
-            onPressed: () {
-              if (!_formKey.currentState!.validate()) return;
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    isEdit
-                        ? "Pengumuman diperbarui!"
-                        : "Pengumuman diterbitkan!",
-                  ),
-                ),
-              );
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            child: Text(isEdit ? "Update & Terbitkan" : "Publikasikan"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
+            onPressed: () {},
+            child: Text(isEdit ? "Simpan Perubahan" : "Publikasikan"),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 14),
         Expanded(
           child: OutlinedButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Disimpan ke Draft")),
-              );
-              Navigator.pop(context);
-            },
-            child: const Text("Simpan Draft"),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.red,
+              side: const BorderSide(color: Colors.red),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal"),
           ),
         ),
       ],
