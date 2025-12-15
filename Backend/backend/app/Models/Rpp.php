@@ -18,6 +18,7 @@ class Rpp extends Model
      * @var array<string>
      */
     protected $fillable = [
+        'User_ID',
         'Nama_Mata_Pelajaran',
         'Kelas',
         'Bab/Materi',
@@ -25,7 +26,13 @@ class Rpp extends Model
         'Kompetensi_Dasar',
         'Kompetensi_Inti',
         'Tujuan_Pembelajaran',
+        'Status',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'User_ID', 'id');
+    }
 
     /**
      * Get the chatbot suggestions for this RPP.

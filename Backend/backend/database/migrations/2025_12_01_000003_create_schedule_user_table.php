@@ -11,14 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('Schedule_User', function (Blueprint $table) {
+        Schema::create('schedule_user', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('Schedule_ID'); // ✅ kolom terlebih dahulu
             $table->unsignedBigInteger('User_ID');
-            $table->unsignedBigInteger('Schedule_ID');
+            $table->integer('Jumlah_Jam_Kegiatan')->default(0);
             $table->timestamps();
 
-            $table->primary(['User_ID', 'Schedule_ID']);
-            $table->foreign('User_ID')->references('User_ID')->on('Users')->onDelete('cascade');
-            $table->foreign('Schedule_ID')->references('Schedule_ID')->on('Schedules')->onDelete('cascade');
+            // ✅ Constraints di akhir
+            $table->foreign('Schedule_ID')
+                ->references('Schedule_ID')
+                ->on('schedules')
+                ->onDelete('cascade');
+
+            $table->foreign('User_ID')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
+
+            $table->unique(['Schedule_ID', 'User_ID']);
         });
     }
 
@@ -27,6 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('Schedule_User');
+        Schema::dropIfExists('schedule_user');
     }
 };

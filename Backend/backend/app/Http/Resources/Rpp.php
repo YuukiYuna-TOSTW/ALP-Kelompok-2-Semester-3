@@ -22,6 +22,9 @@ class Rpp extends JsonResource
             'Kompetensi_Dasar' => $this->Kompetensi_Dasar,
             'Kompetensi_Inti' => $this->Kompetensi_Inti,
             'Tujuan_Pembelajaran' => $this->Tujuan_Pembelajaran,
+            'Guru_Nama' => $this->user?->Nama_User ?? 'Guru',
+            'Status' => $this->Status,
+            'created_at' => $this->created_at?->toISOTimeString(),
         ];
     }
 }
