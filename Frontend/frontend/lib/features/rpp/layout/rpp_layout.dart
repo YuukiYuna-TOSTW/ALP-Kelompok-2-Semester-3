@@ -22,57 +22,51 @@ class RppLayout extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xfff5f7fa),
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // =====================================================
-          // 🔵 SIDEBAR — FIXED
-          // =====================================================
-          DashboardSidebar(selectedRoute: selectedRoute, menuItems: menuItems),
+      body: SafeArea(
+        child: Row(
+          children: [
+            // ================= SIDEBAR =================
+            SizedBox(
+              width: 260,
+              child: DashboardSidebar(
+                selectedRoute: selectedRoute,
+                menuItems: menuItems,
+              ),
+            ),
 
-          // =====================================================
-          // ⚪ CONTENT + FOOTER (SCROLLABLE, STICKY BOTTOM)
-          // =====================================================
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight,
-                    ),
-                    child: IntrinsicHeight(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // ================= CONTENT =================
-                          Padding(
-                            padding: const EdgeInsets.all(24),
-                            child: content,
-                          ),
-
-                          // ================= SPACER =================
-                          const Spacer(),
-
-                          // ================= FOOTER =================
-                          Container(
-                            width: double.infinity,
-                            color: AppColors.primary,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 18,
-                              horizontal: 26,
-                            ),
-                            child: const DashboardFooter(),
-                          ),
-                        ],
+            // ================= CONTENT AREA =================
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    // ===== CONTENT (PAKAI PADDING & MAX WIDTH) =====
+                    Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 1400),
+                          child: content,
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
+
+                    // ===== FOOTER (FULL WIDTH, MENTOK) =====
+                    Container(
+                      width: double.infinity,
+                      color: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 18,
+                        horizontal: 26,
+                      ),
+                      child: const DashboardFooter(),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

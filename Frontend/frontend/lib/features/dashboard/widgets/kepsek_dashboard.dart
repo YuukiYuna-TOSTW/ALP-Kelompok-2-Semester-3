@@ -26,23 +26,25 @@ class _KepsekDashboardContentState extends State<KepsekDashboardContent> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 20),
+    return SingleChildScrollView(
+      // 🔥 WAJIB
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 20),
 
-        // ===============================
-        // ⭐ RPP PENDING REVIEW
-        // ===============================
-        const Text(
-          "RPP Pending Review",
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textDark,
+          // ===============================
+          // ⭐ RPP PENDING REVIEW
+          // ===============================
+          const Text(
+            "RPP Pending Review",
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textDark,
+            ),
           ),
-        ),
-        const SizedBox(height: 14),
+          const SizedBox(height: 14),
 
         FutureBuilder<Map<String, dynamic>>(
           future: rppDataFuture,
@@ -103,20 +105,20 @@ class _KepsekDashboardContentState extends State<KepsekDashboardContent> {
           },
         ),
 
-        const SizedBox(height: 28),
+          const SizedBox(height: 28),
 
-        // ===============================
-        // ⭐ STATISTIK SEKOLAH
-        // ===============================
-        const Text(
-          "Statistik Sekolah",
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textDark,
+          // ===============================
+          // ⭐ STATISTIK SEKOLAH
+          // ===============================
+          const Text(
+            "Statistik Sekolah",
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textDark,
+            ),
           ),
-        ),
-        const SizedBox(height: 14),
+          const SizedBox(height: 14),
 
         FutureBuilder<Map<String, dynamic>>(
           future: statisticsFuture,
@@ -163,59 +165,60 @@ class _KepsekDashboardContentState extends State<KepsekDashboardContent> {
           },
         ),
 
-        const SizedBox(height: 28),
+          const SizedBox(height: 28),
 
-        // ===============================
-        // ⭐ AKSI CEPAT
-        // ===============================
-        const Text(
-          "Aksi Cepat",
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textDark,
+          // ===============================
+          // ⭐ AKSI CEPAT
+          // ===============================
+          const Text(
+            "Aksi Cepat",
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textDark,
+            ),
           ),
-        ),
-        const SizedBox(height: 14),
+          const SizedBox(height: 14),
 
-        Row(
-          children: [
-            Expanded(
-              child: QuickActionButton(
-                icon: Icons.event_available_rounded,
-                label: "Buat Kegiatan",
-                onTap: () {
-                  Navigator.pushNamed(context, "/calendar");
-                },
+          Row(
+            children: [
+              Expanded(
+                child: QuickActionButton(
+                  icon: Icons.event_available_rounded,
+                  label: "Buat Kegiatan",
+                  onTap: () {
+                    Navigator.pushNamed(context, "/calendar");
+                  },
+                ),
               ),
-            ),
-            const SizedBox(width: 14),
+              const SizedBox(width: 14),
 
-            Expanded(
-              child: QuickActionButton(
-                icon: Icons.calendar_today_rounded,
-                label: "Export Jadwal",
-                onTap: () {
-                  Navigator.pushNamed(context, "/schedule/export");
-                },
+              Expanded(
+                child: QuickActionButton(
+                  icon: Icons.calendar_today_rounded,
+                  label: "Export Jadwal",
+                  onTap: () {
+                    Navigator.pushNamed(context, "/schedule/export");
+                  },
+                ),
               ),
-            ),
-            const SizedBox(width: 14),
+              const SizedBox(width: 14),
 
-            Expanded(
-              child: QuickActionButton(
-                icon: Icons.campaign_rounded,
-                label: "Buat Pengumuman",
-                onTap: () {
-                  Navigator.pushNamed(context, "/announcement/create");
-                },
+              Expanded(
+                child: QuickActionButton(
+                  icon: Icons.campaign_rounded,
+                  label: "Buat Pengumuman",
+                  onTap: () {
+                    Navigator.pushNamed(context, "/announcement/create");
+                  },
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
 
-        const SizedBox(height: 40),
-      ],
+          const SizedBox(height: 40),
+        ],
+      ),
     );
   }
 
