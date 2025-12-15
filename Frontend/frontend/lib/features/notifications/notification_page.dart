@@ -48,7 +48,7 @@ class _NotificationPageState extends State<NotificationPage> {
       content: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 900),
-          child: _mainCard(context, unreadCount),
+          child: _mainCard(unreadCount),
         ),
       ),
     );
@@ -57,14 +57,14 @@ class _NotificationPageState extends State<NotificationPage> {
   // ============================================================
   // MAIN CARD (HEADER MENTOK + CONTENT)
   // ============================================================
-  Widget _mainCard(BuildContext context, int unreadCount) {
+  Widget _mainCard(int unreadCount) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _cardHeader(context, unreadCount),
+          _cardHeader(unreadCount),
 
           Padding(
             padding: const EdgeInsets.all(24),
@@ -88,9 +88,9 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 
   // ============================================================
-  // HEADER (STYLE RPP + BACK BUTTON)
+  // HEADER (TANPA BACK BUTTON)
   // ============================================================
-  Widget _cardHeader(BuildContext context, int unread) {
+  Widget _cardHeader(int unread) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
@@ -102,12 +102,6 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
       child: Row(
         children: [
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            tooltip: "Kembali",
-          ),
-          const SizedBox(width: 6),
           const Icon(Icons.notifications_active, color: Colors.white, size: 22),
           const SizedBox(width: 10),
           const Text(

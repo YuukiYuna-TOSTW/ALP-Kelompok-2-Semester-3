@@ -10,7 +10,6 @@ class AdminRppListPage extends StatefulWidget {
 }
 
 class _AdminRppListPageState extends State<AdminRppListPage> {
-  // ================= SAMPLE DATA =================
   final List<Map<String, dynamic>> _allRpp = [
     {
       "guru": "Ari Pratama",
@@ -62,23 +61,15 @@ class _AdminRppListPageState extends State<AdminRppListPage> {
     filtered = [..._allRpp];
   }
 
-  // ================= FILTER =================
   void _applyFilters() {
     final q = search.toLowerCase();
-
     setState(() {
       filtered = _allRpp.where((item) {
-        final matchSearch =
-            item["mapel"].toLowerCase().contains(q) ||
-            item["kelas"].toLowerCase().contains(q) ||
-            item["bab"].toLowerCase().contains(q);
-
-        final matchStatus =
-            filterStatus == "Semua" || item["status"] == filterStatus;
-
-        final matchGuru = filterGuru == "Semua" || item["guru"] == filterGuru;
-
-        return matchSearch && matchStatus && matchGuru;
+        return (item["mapel"].toLowerCase().contains(q) ||
+                item["kelas"].toLowerCase().contains(q) ||
+                item["bab"].toLowerCase().contains(q)) &&
+            (filterStatus == "Semua" || item["status"] == filterStatus) &&
+            (filterGuru == "Semua" || item["guru"] == filterGuru);
       }).toList();
     });
   }
@@ -88,52 +79,44 @@ class _AdminRppListPageState extends State<AdminRppListPage> {
     return RppLayout(
       role: "admin",
       selectedRoute: "/admin/rpp",
-      content: _buildContent(),
-    );
-  }
-
-  // ================= MAIN CARD =================
-  Widget _buildContent() {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1200),
-        child: Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _cardHeader(),
-              Padding(
-                padding: const EdgeInsets.all(22),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _filterBar(),
-                    const SizedBox(height: 16),
-                    _buildTable(), // ⬅️ TABEL LANGSUNG SEJAJAR
-                  ],
-                ),
-              ),
-            ],
-          ),
+      content: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: _card(),
         ),
       ),
     );
   }
 
-  // ================= CARD HEADER =================
-  Widget _cardHeader() {
+  // ================= CARD =================
+  Widget _card() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          _header(),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [_filterBar(), const SizedBox(height: 20), _table()],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ================= HEADER =================
+  Widget _header() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 22),
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [AppColors.primary, AppColors.primary.withOpacity(.75)],
         ),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       ),
       child: const Text(
         "Manajemen RPP Guru",
@@ -148,7 +131,7 @@ class _AdminRppListPageState extends State<AdminRppListPage> {
 
   // ================= FILTER BAR =================
   Widget _filterBar() {
-    final List<String> guruList = [
+    final guruList = [
       "Semua",
       ..._allRpp.map((e) => e["guru"] as String).toSet(),
     ];
@@ -156,6 +139,7 @@ class _AdminRppListPageState extends State<AdminRppListPage> {
     return Row(
       children: [
         Expanded(
+          flex: 4,
           child: TextField(
             decoration: InputDecoration(
               hintText: "Cari mapel, kelas, atau bab...",
@@ -170,166 +154,147 @@ class _AdminRppListPageState extends State<AdminRppListPage> {
             },
           ),
         ),
-        const SizedBox(width: 14),
-        _dropdown("Guru", filterGuru, guruList, (v) {
-          filterGuru = v!;
-          _applyFilters();
-        }),
         const SizedBox(width: 12),
-        _dropdown(
-          "Status",
-          filterStatus,
-          const ["Semua", "Draft", "Menunggu Review", "Revisi", "Disetujui"],
-          (v) {
-            filterStatus = v!;
-            _applyFilters();
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _dropdown(
-    String label,
-    String value,
-    List<String> items,
-    Function(String?) onChanged,
-  ) {
-    return SizedBox(
-      width: 200,
-      child: DropdownButtonFormField<String>(
-        value: value,
-        isExpanded: true,
-        decoration: InputDecoration(
-          labelText: label,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 14,
-            vertical: 14,
+        Expanded(
+          flex: 2,
+          child: DropdownButtonFormField<String>(
+            value: filterGuru,
+            isExpanded: true,
+            decoration: InputDecoration(
+              labelText: "Guru",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            items: guruList
+                .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                .toList(),
+            onChanged: (v) {
+              filterGuru = v!;
+              _applyFilters();
+            },
           ),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
-        items: items
-            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-            .toList(),
-        onChanged: onChanged,
-      ),
+        const SizedBox(width: 12),
+        Expanded(
+          flex: 2,
+          child: DropdownButtonFormField<String>(
+            value: filterStatus,
+            isExpanded: true,
+            decoration: InputDecoration(
+              labelText: "Status",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            items: const [
+              "Semua",
+              "Draft",
+              "Menunggu Review",
+              "Revisi",
+              "Disetujui",
+            ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+            onChanged: (v) {
+              filterStatus = v!;
+              _applyFilters();
+            },
+          ),
+        ),
+      ],
     );
   }
 
-  // ================= TABLE =================
-  Widget _buildTable() {
-    return DataTable(
-      columnSpacing: 22,
-      headingRowHeight: 48,
-      dataRowHeight: 56,
-      headingRowColor: MaterialStateProperty.all(AppColors.primary),
-      headingTextStyle: const TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-      ),
-      columns: const [
-        DataColumn(label: Text("Guru")),
-        DataColumn(label: Text("Mapel")),
-        DataColumn(label: Text("Kelas")),
-        DataColumn(label: Text("Semester")),
-        DataColumn(label: Text("Tanggal")),
-        DataColumn(label: Center(child: Text("Status"))),
-        DataColumn(label: Center(child: Text("Aksi"))),
-      ],
-      rows: filtered.map((item) {
-        return DataRow(
-          cells: [
-            DataCell(Text(item["guru"])),
-            DataCell(Text(item["mapel"])),
-            DataCell(Text(item["kelas"])),
-            DataCell(Text(item["semester"])),
-            DataCell(Text(item["tanggal"])),
-            DataCell(_statusChip(item["status"])),
-            DataCell(_actionMenu(item)),
-          ],
+  // ================= TABLE (FIXED) =================
+  Widget _table() {
+    return LayoutBuilder(
+      builder: (context, c) {
+        return SizedBox(
+          width: c.maxWidth,
+          child: DataTable(
+            columnSpacing: 22,
+            headingRowHeight: 48,
+            dataRowHeight: 56,
+            headingRowColor: MaterialStateProperty.all(AppColors.primary),
+            headingTextStyle: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+            columns: const [
+              DataColumn(label: Text("Guru")),
+              DataColumn(label: Text("Mapel")),
+              DataColumn(label: Text("Kelas")),
+              DataColumn(label: Text("Semester")),
+              DataColumn(label: Text("Bab")),
+              DataColumn(label: Text("Tanggal")),
+              DataColumn(label: Center(child: Text("Status"))),
+              DataColumn(label: Center(child: Text("Aksi"))),
+            ],
+            rows: filtered.map((item) {
+              return DataRow(
+                cells: [
+                  DataCell(Text(item["guru"])),
+                  DataCell(Text(item["mapel"])),
+                  DataCell(Text(item["kelas"])),
+                  DataCell(Text(item["semester"])),
+                  DataCell(
+                    SizedBox(
+                      width: 220,
+                      child: Text(
+                        item["bab"],
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                  DataCell(Text(item["tanggal"])),
+                  DataCell(_statusChip(item["status"])),
+                  DataCell(_actionMenu(item)),
+                ],
+              );
+            }).toList(),
+          ),
         );
-      }).toList(),
+      },
     );
   }
 
-  // ================= STATUS CHIP =================
+  // ================= STATUS =================
   Widget _statusChip(String status) {
-    late Color bg;
-    late Color text;
+    final Map<String, Color> colorMap = {
+      "Draft": Colors.grey,
+      "Menunggu Review": Colors.blue,
+      "Revisi": Colors.orange,
+      "Disetujui": Colors.green,
+    };
 
-    switch (status) {
-      case "Draft":
-        bg = Colors.grey.withOpacity(.15);
-        text = Colors.grey;
-        break;
-      case "Menunggu Review":
-        bg = Colors.blue.withOpacity(.15);
-        text = Colors.blue;
-        break;
-      case "Revisi":
-        bg = Colors.orange.withOpacity(.15);
-        text = Colors.orange;
-        break;
-      case "Disetujui":
-        bg = Colors.green.withOpacity(.15);
-        text = Colors.green;
-        break;
-      default:
-        bg = Colors.grey.withOpacity(.15);
-        text = Colors.grey;
-    }
+    final c = colorMap[status] ?? Colors.grey;
 
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          status,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: text,
-          ),
-        ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      decoration: BoxDecoration(
+        color: c.withOpacity(.15),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        status,
+        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: c),
       ),
     );
   }
 
-  // ================= ACTION MENU =================
+  // ================= ACTION =================
   Widget _actionMenu(Map<String, dynamic> item) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert),
       onSelected: (v) {
         if (v == 'view') {
           Navigator.pushNamed(context, "/rpp/preview", arguments: item);
-        } else if (v == 'history') {
+        } else {
           Navigator.pushNamed(context, "/rpp/history", arguments: item);
         }
       },
       itemBuilder: (_) => const [
-        PopupMenuItem(
-          value: 'view',
-          child: Row(
-            children: [
-              Icon(Icons.visibility, size: 18),
-              SizedBox(width: 8),
-              Text("Lihat RPP"),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 'history',
-          child: Row(
-            children: [
-              Icon(Icons.history, size: 18),
-              SizedBox(width: 8),
-              Text("Riwayat"),
-            ],
-          ),
-        ),
+        PopupMenuItem(value: 'view', child: Text("Lihat RPP")),
+        PopupMenuItem(value: 'history', child: Text("Riwayat")),
       ],
     );
   }

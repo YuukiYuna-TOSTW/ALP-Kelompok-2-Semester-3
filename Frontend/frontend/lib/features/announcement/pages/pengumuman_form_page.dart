@@ -18,8 +18,9 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
   final scheduledDateCtrl = TextEditingController();
 
   List<String> selectedAudience = [];
-  String priority = "Sedang";
+  String priority = "Normal";
   bool schedule = false;
+
   List<PlatformFile> attachments = [];
 
   final List<String> guruList = ["Bu Sinta", "Pak Amir", "Bu Ayu", "Bu Lina"];
@@ -32,7 +33,7 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
       final d = widget.data!;
       titleCtrl.text = d["judul"] ?? "";
       bodyCtrl.text = d["isi"] ?? "";
-      priority = d["prioritas"] ?? "Sedang";
+      priority = d["prioritas"] ?? "Normal";
 
       if (d["target"] is List) {
         selectedAudience = List<String>.from(d["target"]);
@@ -72,29 +73,53 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
         children: [
           _header(isEdit),
           Padding(
-            padding: const EdgeInsets.all(28),
+            padding: const EdgeInsets.all(20), // ⬅️ lebih pas
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _section("Judul Pengumuman"),
-                _field(titleCtrl, "Masukkan judul"),
+                _label("Judul Pengumuman"),
+                const SizedBox(height: 4),
+                TextField(
+                  controller: titleCtrl,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: "Masukkan judul",
+                  ),
+                ),
 
-                _section("Isi Pengumuman"),
-                _field(bodyCtrl, "Tulis isi pengumuman...", maxLines: 6),
+                const SizedBox(height: 16),
+                _label("Isi Pengumuman"),
+                const SizedBox(height: 4),
+                TextField(
+                  controller: bodyCtrl,
+                  maxLines: 5,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: "Tulis isi pengumuman...",
+                  ),
+                ),
 
-                _section("Tujuan Pengumuman"),
+                const SizedBox(height: 16),
+                _label("Tujuan Pengumuman"),
+                const SizedBox(height: 4),
                 _audienceSelector(),
 
-                _section("Prioritas"),
+                const SizedBox(height: 16),
+                _label("Prioritas"),
+                const SizedBox(height: 4),
                 _prioritySelector(),
 
-                _section("Lampiran"),
+                const SizedBox(height: 16),
+                _label("Lampiran"),
+                const SizedBox(height: 4),
                 _attachmentUploader(),
 
-                _section("Tanggal Publikasi"),
+                const SizedBox(height: 16),
+                _label("Tanggal Publikasi"),
+                const SizedBox(height: 4),
                 _scheduleSelector(),
 
-                const SizedBox(height: 36),
+                const SizedBox(height: 24),
                 _buttons(isEdit),
               ],
             ),
@@ -110,7 +135,7 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
   Widget _header(bool isEdit) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 18),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [AppColors.primary, AppColors.primary.withOpacity(.7)],
@@ -123,12 +148,12 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
             onPressed: () => Navigator.pop(context),
             icon: const Icon(Icons.arrow_back, color: Colors.white),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
           Text(
             isEdit ? "Edit Pengumuman" : "Buat Pengumuman",
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 18,
+              fontSize: 17,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -137,68 +162,50 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
     );
   }
 
-  // ============================================================
-  // SECTION LABEL
-  // ============================================================
-  Widget _section(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10, top: 26),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
-          color: AppColors.primary,
-        ),
+  Widget _label(String text) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontWeight: FontWeight.w600,
+        fontSize: 14,
+        color: AppColors.primary,
       ),
     );
   }
 
   // ============================================================
-  // TEXT FIELD
-  // ============================================================
-  Widget _field(TextEditingController ctrl, String hint, {int maxLines = 1}) {
-    return TextField(
-      controller: ctrl,
-      maxLines: maxLines,
-      decoration: InputDecoration(
-        hintText: hint,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
-      ),
-    );
-  }
-
-  // ============================================================
-  // AUDIENCE
+  // AUDIENCE (COMPACT)
   // ============================================================
   Widget _audienceSelector() {
     return Column(
       children: [
         CheckboxListTile(
+          dense: true,
+          visualDensity: VisualDensity.compact,
           value: selectedAudience.contains("Semua Guru"),
+          title: const Text("Pilih Semua Guru"),
           onChanged: (v) {
             setState(() {
-              selectedAudience = v == true ? ["Semua Guru"] : <String>[];
+              selectedAudience = v == true ? ["Semua Guru"] : [];
             });
           },
-          title: const Text("Semua Guru"),
         ),
         ...guruList.map(
           (g) => CheckboxListTile(
+            dense: true,
+            visualDensity: VisualDensity.compact,
             value: selectedAudience.contains(g),
+            title: Text(g),
             onChanged: (v) {
               setState(() {
-                v == true
-                    ? selectedAudience.add(g)
-                    : selectedAudience.remove(g);
-                selectedAudience.remove("Semua Guru");
+                if (v == true) {
+                  selectedAudience.add(g);
+                  selectedAudience.remove("Semua Guru");
+                } else {
+                  selectedAudience.remove(g);
+                }
               });
             },
-            title: Text(g),
           ),
         ),
       ],
@@ -206,58 +213,58 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
   }
 
   // ============================================================
-  // PRIORITY
+  // PRIORITY (COMPACT RADIO)
   // ============================================================
   Widget _prioritySelector() {
-    return DropdownButtonFormField<String>(
-      value: priority,
-      decoration: const InputDecoration(
-        border: OutlineInputBorder(),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      ),
-      items: const [
-        DropdownMenuItem(value: "Rendah", child: Text("Rendah")),
-        DropdownMenuItem(value: "Sedang", child: Text("Sedang")),
-        DropdownMenuItem(value: "Tinggi", child: Text("Tinggi")),
-        DropdownMenuItem(value: "Penting", child: Text("Penting")),
-      ],
-      onChanged: (v) => setState(() => priority = v!),
+    return Row(
+      children: ["Rendah", "Normal", "Tinggi"].map((p) {
+        return Expanded(
+          child: RadioListTile<String>(
+            dense: true,
+            visualDensity: VisualDensity.compact,
+            title: Text(p),
+            value: p,
+            groupValue: priority,
+            onChanged: (v) => setState(() => priority = v!),
+          ),
+        );
+      }).toList(),
     );
   }
 
   // ============================================================
-  // ATTACHMENT (REAL UPLOAD)
+  // ATTACHMENT
   // ============================================================
   Widget _attachmentUploader() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Wrap(
-          spacing: 10,
-          children: attachments
-              .map(
-                (f) => Chip(
-                  label: Text(f.name),
-                  deleteIcon: const Icon(Icons.close),
-                  onDeleted: () => setState(() => attachments.remove(f)),
-                ),
-              )
-              .toList(),
-        ),
-        const SizedBox(height: 12),
-        ElevatedButton.icon(
+        if (attachments.isNotEmpty)
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: attachments
+                .map(
+                  (f) => Chip(
+                    label: Text(f.name),
+                    deleteIcon: const Icon(Icons.close, size: 18),
+                    onDeleted: () => setState(() => attachments.remove(f)),
+                  ),
+                )
+                .toList(),
+          ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          icon: const Icon(Icons.upload_file),
+          label: const Text("Tambah Lampiran"),
           onPressed: () async {
             final result = await FilePicker.platform.pickFiles(
               allowMultiple: true,
             );
             if (result != null) {
-              setState(() {
-                attachments.addAll(result.files);
-              });
+              setState(() => attachments.addAll(result.files));
             }
           },
-          icon: const Icon(Icons.upload_file),
-          label: const Text("Upload Lampiran"),
         ),
       ],
     );
@@ -270,6 +277,8 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
     return Column(
       children: [
         SwitchListTile(
+          dense: true,
+          visualDensity: VisualDensity.compact,
           title: const Text("Jadwalkan Publikasi"),
           value: schedule,
           onChanged: (v) => setState(() => schedule = v),
@@ -280,17 +289,17 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
             readOnly: true,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
-              hintText: "Pilih tanggal publikasi",
+              hintText: "Pilih tanggal",
             ),
             onTap: () async {
-              final picked = await showDatePicker(
+              final d = await showDatePicker(
                 context: context,
                 firstDate: DateTime.now(),
                 lastDate: DateTime(2030),
                 initialDate: DateTime.now(),
               );
-              if (picked != null) {
-                scheduledDateCtrl.text = picked.toString().split(" ").first;
+              if (d != null) {
+                scheduledDateCtrl.text = d.toString().split(" ").first;
               }
             },
           ),
@@ -306,17 +315,21 @@ class _PengumumanFormPageState extends State<PengumumanFormPage> {
       children: [
         Expanded(
           child: ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
             onPressed: () {},
             child: Text(isEdit ? "Simpan Perubahan" : "Publikasikan"),
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 12),
         Expanded(
           child: OutlinedButton(
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Colors.red),
               foregroundColor: Colors.red,
+              side: const BorderSide(color: Colors.red),
+              padding: const EdgeInsets.symmetric(vertical: 14),
             ),
             onPressed: () => Navigator.pop(context),
             child: const Text("Batal"),

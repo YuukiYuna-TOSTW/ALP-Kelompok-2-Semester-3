@@ -70,7 +70,7 @@ class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
       content: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1000),
-          child: _bigScheduleCard(context),
+          child: _bigScheduleCard(),
         ),
       ),
     );
@@ -79,14 +79,14 @@ class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
   // ======================================================
   // CARD BESAR (HEADER MENTOK + CONTENT)
   // ======================================================
-  Widget _bigScheduleCard(BuildContext context) {
+  Widget _bigScheduleCard() {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _cardHeader(context),
+          _cardHeader(),
           Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -104,9 +104,9 @@ class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
   }
 
   // ======================================================
-  // HEADER (STYLE SAMA DENGAN RPP + BACK BUTTON)
+  // HEADER (TANPA BACK BUTTON)
   // ======================================================
-  Widget _cardHeader(BuildContext context) {
+  Widget _cardHeader() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
@@ -118,12 +118,6 @@ class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
       ),
       child: Row(
         children: [
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            tooltip: "Kembali",
-          ),
-          const SizedBox(width: 6),
           const Icon(Icons.calendar_month, color: Colors.white),
           const SizedBox(width: 10),
           Text(

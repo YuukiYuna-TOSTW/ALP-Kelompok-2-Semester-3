@@ -38,7 +38,7 @@ class _RppAllListPageState extends State<RppAllListPage> {
     },
   ];
 
-  List<Map<String, dynamic>> _filtered = [];
+  List<Map<String, dynamic>> filtered = [];
 
   String search = "";
   String fGuru = "Semua";
@@ -49,24 +49,20 @@ class _RppAllListPageState extends State<RppAllListPage> {
   @override
   void initState() {
     super.initState();
-    _filtered = List.from(_allRpp);
+    filtered = [..._allRpp];
   }
 
   void _applyFilters() {
     final q = search.toLowerCase();
-
     setState(() {
-      _filtered = _allRpp.where((item) {
-        final matchesSearch =
-            item["guru"].toLowerCase().contains(q) ||
-            item["mapel"].toLowerCase().contains(q) ||
-            item["kelas"].toLowerCase().contains(q);
-
-        return matchesSearch &&
-            (fGuru == "Semua" || item["guru"] == fGuru) &&
-            (fMapel == "Semua" || item["mapel"] == fMapel) &&
-            (fKelas == "Semua" || item["kelas"] == fKelas) &&
-            (fStatus == "Semua" || item["status"] == fStatus);
+      filtered = _allRpp.where((e) {
+        return (e["guru"].toLowerCase().contains(q) ||
+                e["mapel"].toLowerCase().contains(q) ||
+                e["kelas"].toLowerCase().contains(q)) &&
+            (fGuru == "Semua" || e["guru"] == fGuru) &&
+            (fMapel == "Semua" || e["mapel"] == fMapel) &&
+            (fKelas == "Semua" || e["kelas"] == fKelas) &&
+            (fStatus == "Semua" || e["status"] == fStatus);
       }).toList();
     });
   }
@@ -76,52 +72,50 @@ class _RppAllListPageState extends State<RppAllListPage> {
     return RppLayout(
       role: "kepsek",
       selectedRoute: "/kepsek/rpp",
-      content: _buildContent(),
-    );
-  }
-
-  // ================= MAIN CARD =================
-  Widget _buildContent() {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1100),
-        child: Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              _cardHeader(),
-              Padding(
-                padding: const EdgeInsets.all(22),
-                child: Column(
-                  children: [
-                    _searchAndExportBar(),
-                    const SizedBox(height: 16),
-                    _buildFilters(),
-                    const SizedBox(height: 20),
-                    _buildTable(),
-                  ],
-                ),
-              ),
-            ],
-          ),
+      content: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: _card(),
         ),
       ),
     );
   }
 
+  // ================= CARD =================
+  Widget _card() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          _header(),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                _searchExport(),
+                const SizedBox(height: 14),
+                _filters(),
+                const SizedBox(height: 20),
+                _table(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ================= HEADER =================
-  Widget _cardHeader() {
+  Widget _header() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 22),
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.primary.withOpacity(.75)],
+          colors: [AppColors.primary, AppColors.primary.withOpacity(.8)],
         ),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       ),
       child: const Text(
         "Semua RPP Guru",
@@ -135,10 +129,11 @@ class _RppAllListPageState extends State<RppAllListPage> {
   }
 
   // ================= SEARCH + EXPORT =================
-  Widget _searchAndExportBar() {
+  Widget _searchExport() {
     return Row(
       children: [
         Expanded(
+          flex: 4,
           child: TextField(
             decoration: InputDecoration(
               hintText: "Cari guru, mapel, atau kelas...",
@@ -153,9 +148,9 @@ class _RppAllListPageState extends State<RppAllListPage> {
             },
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 12),
         ElevatedButton.icon(
-          onPressed: () => exportRppToPdf({"data": _filtered}),
+          onPressed: () => exportRppToPdf({"data": filtered}),
           icon: const Icon(Icons.picture_as_pdf),
           label: const Text("Export"),
           style: ElevatedButton.styleFrom(
@@ -167,26 +162,26 @@ class _RppAllListPageState extends State<RppAllListPage> {
     );
   }
 
-  // ================= FILTERS (FIX OVERFLOW) =================
-  Widget _buildFilters() {
+  // ================= FILTER =================
+  Widget _filters() {
     return Row(
       children: [
-        _filterDropdown("Guru", fGuru, [
+        _filter("Guru", fGuru, [
           "Semua",
           ..._allRpp.map((e) => e["guru"]).toSet(),
         ]),
         const SizedBox(width: 12),
-        _filterDropdown("Mapel", fMapel, [
+        _filter("Mapel", fMapel, [
           "Semua",
           ..._allRpp.map((e) => e["mapel"]).toSet(),
         ]),
         const SizedBox(width: 12),
-        _filterDropdown("Kelas", fKelas, [
+        _filter("Kelas", fKelas, [
           "Semua",
           ..._allRpp.map((e) => e["kelas"]).toSet(),
         ]),
         const SizedBox(width: 12),
-        _filterDropdown("Status", fStatus, const [
+        _filter("Status", fStatus, const [
           "Semua",
           "Draft",
           "Menunggu Review",
@@ -197,18 +192,13 @@ class _RppAllListPageState extends State<RppAllListPage> {
     );
   }
 
-  Widget _filterDropdown(String label, String value, List<String> items) {
-    return SizedBox(
-      width: 220, // ⭐ FIXED WIDTH → no overflow
+  Widget _filter(String label, String value, List<String> items) {
+    return Expanded(
       child: DropdownButtonFormField<String>(
         value: value,
         isExpanded: true,
         decoration: InputDecoration(
           labelText: label,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 14,
-            vertical: 14,
-          ),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
         items: items
@@ -228,118 +218,81 @@ class _RppAllListPageState extends State<RppAllListPage> {
   }
 
   // ================= TABLE (SAMA DENGAN GURU) =================
-  Widget _buildTable() {
-    return DataTable(
-      columnSpacing: 20,
-      headingRowHeight: 48,
-      dataRowHeight: 56,
-      headingRowColor: MaterialStateProperty.all(AppColors.primary),
-      headingTextStyle: const TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-      ),
-      columns: const [
-        DataColumn(label: Text("Guru")),
-        DataColumn(label: Text("Mapel")),
-        DataColumn(label: Text("Kelas")),
-        DataColumn(label: Text("Semester")),
-        DataColumn(label: Text("Tanggal")),
-        DataColumn(label: Center(child: Text("Status"))),
-        DataColumn(label: Center(child: Text("Aksi"))),
-      ],
-      rows: _filtered.map((item) {
-        return DataRow(
-          cells: [
-            DataCell(Text(item["guru"])),
-            DataCell(Text(item["mapel"])),
-            DataCell(Text(item["kelas"])),
-            DataCell(Text(item["semester"])),
-            DataCell(Text(item["tanggal"])),
-            DataCell(_statusChip(item["status"])),
-            DataCell(_actionMenu(item)),
-          ],
-        );
-      }).toList(),
-    );
-  }
-
-  // ================= STATUS CHIP =================
-  Widget _statusChip(String status) {
-    late Color bg;
-    late Color text;
-
-    switch (status) {
-      case "Menunggu Review":
-        bg = Colors.blue.withOpacity(.15);
-        text = Colors.blue;
-        break;
-      case "Revisi":
-        bg = Colors.orange.withOpacity(.15);
-        text = Colors.orange;
-        break;
-      case "Disetujui":
-        bg = Colors.green.withOpacity(.15);
-        text = Colors.green;
-        break;
-      default:
-        bg = Colors.grey.withOpacity(.15);
-        text = Colors.grey;
-    }
-
-    return Center(
-      child: IntrinsicWidth(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            status,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: text,
+  Widget _table() {
+    return LayoutBuilder(
+      builder: (context, c) {
+        return SizedBox(
+          width: c.maxWidth,
+          child: DataTable(
+            columnSpacing: 22,
+            headingRowColor: MaterialStateProperty.all(AppColors.primary),
+            headingTextStyle: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
+            columns: const [
+              DataColumn(label: Text("Guru")),
+              DataColumn(label: Text("Mapel")),
+              DataColumn(label: Text("Kelas")),
+              DataColumn(label: Text("Semester")),
+              DataColumn(label: Text("Tanggal")),
+              DataColumn(label: Text("Status")),
+              DataColumn(label: Text("Aksi")),
+            ],
+            rows: filtered.map((e) {
+              return DataRow(
+                cells: [
+                  DataCell(Text(e["guru"])),
+                  DataCell(Text(e["mapel"])),
+                  DataCell(Text(e["kelas"])),
+                  DataCell(Text(e["semester"])),
+                  DataCell(Text(e["tanggal"])),
+                  DataCell(_statusChip(e["status"])),
+                  DataCell(_action(e)),
+                ],
+              );
+            }).toList(),
           ),
-        ),
+        );
+      },
+    );
+  }
+
+  Widget _statusChip(String s) {
+    final c = s == "Disetujui"
+        ? Colors.green
+        : s == "Revisi"
+        ? Colors.orange
+        : s == "Menunggu Review"
+        ? Colors.blue
+        : Colors.grey;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: c.withOpacity(.15),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        s,
+        style: TextStyle(color: c, fontWeight: FontWeight.w600),
       ),
     );
   }
 
-  // ================= ACTION MENU =================
-  Widget _actionMenu(Map<String, dynamic> item) {
+  Widget _action(Map<String, dynamic> item) {
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert),
+      itemBuilder: (_) => const [
+        PopupMenuItem(value: "view", child: Text("Lihat RPP")),
+        PopupMenuItem(value: "review", child: Text("Review")),
+      ],
       onSelected: (v) {
-        if (v == 'view') {
+        if (v == "view") {
           Navigator.pushNamed(context, "/rpp/preview", arguments: item);
-        } else if (v == 'review') {
+        } else {
           Navigator.pushNamed(context, "/kepsek/rpp/review", arguments: item);
         }
       },
-      itemBuilder: (_) => const [
-        PopupMenuItem(
-          value: 'view',
-          child: Row(
-            children: [
-              Icon(Icons.visibility, size: 18),
-              SizedBox(width: 8),
-              Text("Lihat RPP"),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 'review',
-          child: Row(
-            children: [
-              Icon(Icons.edit_note, size: 18),
-              SizedBox(width: 8),
-              Text("Review"),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

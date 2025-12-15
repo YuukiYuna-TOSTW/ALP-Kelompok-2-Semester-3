@@ -50,9 +50,9 @@ class _RppListPageState extends State<RppListPage> {
     },
   ];
 
-  List<Map<String, dynamic>> _filteredRpp = [];
-  String searchQuery = "";
-  String statusFilter = "Semua";
+  List<Map<String, dynamic>> filtered = [];
+  String search = "";
+  String filterStatus = "Semua";
 
   String? sortColumn;
   bool sortAscending = true;
@@ -60,38 +60,29 @@ class _RppListPageState extends State<RppListPage> {
   @override
   void initState() {
     super.initState();
-    _filteredRpp = [..._allRpp];
+    filtered = [..._allRpp];
   }
 
-  // ================= FILTER =================
   void _applyFilters() {
-    final q = searchQuery.toLowerCase();
+    final q = search.toLowerCase();
 
     setState(() {
-      _filteredRpp = _allRpp.where((item) {
-        final matchSearch =
-            item["mapel"].toLowerCase().contains(q) ||
-            item["kelas"].toLowerCase().contains(q) ||
-            item["bab"].toLowerCase().contains(q);
-
-        final matchStatus =
-            statusFilter == "Semua" || item["status"] == statusFilter;
-
-        return matchSearch && matchStatus;
+      filtered = _allRpp.where((item) {
+        return (item["mapel"].toLowerCase().contains(q) ||
+                item["kelas"].toLowerCase().contains(q) ||
+                item["bab"].toLowerCase().contains(q)) &&
+            (filterStatus == "Semua" || item["status"] == filterStatus);
       }).toList();
-
       _applySorting();
     });
   }
 
-  // ================= SORT =================
   void _applySorting() {
     if (sortColumn == null) return;
 
-    _filteredRpp.sort((a, b) {
+    filtered.sort((a, b) {
       final A = a[sortColumn];
       final B = b[sortColumn];
-
       if (A is String) return sortAscending ? A.compareTo(B) : B.compareTo(A);
       if (A is DateTime) return sortAscending ? A.compareTo(B) : B.compareTo(A);
       return 0;
@@ -100,12 +91,8 @@ class _RppListPageState extends State<RppListPage> {
 
   void _onSort(String field) {
     setState(() {
-      if (sortColumn == field) {
-        sortAscending = !sortAscending;
-      } else {
-        sortColumn = field;
-        sortAscending = true;
-      }
+      sortAscending = sortColumn == field ? !sortAscending : true;
+      sortColumn = field;
       _applySorting();
     });
   }
@@ -118,27 +105,27 @@ class _RppListPageState extends State<RppListPage> {
       content: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),
-          child: _buildCard(),
+          child: _card(context),
         ),
       ),
     );
   }
 
-  // ================= CARD =================
-  Widget _buildCard() {
+  Widget _card(BuildContext context) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
           _header(),
           Padding(
-            padding: const EdgeInsets.all(22),
+            padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                _searchFilterRow(),
-                const SizedBox(height: 16),
-                _buildTable(), // ⬅️ FULL WIDTH
+                _filterBar(context),
+                const SizedBox(height: 20),
+                _table(),
               ],
             ),
           ),
@@ -147,16 +134,14 @@ class _RppListPageState extends State<RppListPage> {
     );
   }
 
-  // ================= HEADER =================
   Widget _header() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 22),
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.primary.withOpacity(.7)],
+          colors: [AppColors.primary, AppColors.primary.withOpacity(.8)],
         ),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       ),
       child: const Text(
         "Daftar RPP Saya",
@@ -169,8 +154,7 @@ class _RppListPageState extends State<RppListPage> {
     );
   }
 
-  // ================= SEARCH + FILTER =================
-  Widget _searchFilterRow() {
+  Widget _filterBar(BuildContext context) {
     return Row(
       children: [
         Expanded(
@@ -184,7 +168,7 @@ class _RppListPageState extends State<RppListPage> {
               ),
             ),
             onChanged: (v) {
-              searchQuery = v;
+              search = v;
               _applyFilters();
             },
           ),
@@ -193,9 +177,9 @@ class _RppListPageState extends State<RppListPage> {
         Expanded(
           flex: 2,
           child: DropdownButtonFormField<String>(
-            value: statusFilter,
+            value: filterStatus,
             decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.filter_list),
+              labelText: "Status",
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -211,57 +195,68 @@ class _RppListPageState extends State<RppListPage> {
               DropdownMenuItem(value: "Disetujui", child: Text("Disetujui")),
             ],
             onChanged: (v) {
-              statusFilter = v!;
+              filterStatus = v!;
               _applyFilters();
             },
           ),
         ),
         const SizedBox(width: 12),
-        Expanded(
-          flex: 2,
-          child: ElevatedButton.icon(
-            onPressed: () => Navigator.pushNamed(context, "/rpp/create"),
-            icon: const Icon(Icons.add),
-            label: const Text("Buat RPP"),
-          ),
+        ElevatedButton.icon(
+          onPressed: () => Navigator.pushNamed(context, "/rpp/create"),
+          icon: const Icon(Icons.add),
+          label: const Text("Buat RPP"),
         ),
       ],
     );
   }
 
-  // ================= TABLE (FULL WIDTH) =================
-  Widget _buildTable() {
-    return DataTable(
-      columnSpacing: 18,
-      headingRowColor: MaterialStateProperty.all(AppColors.primary),
-      headingTextStyle: const TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-      ),
-      sortAscending: sortAscending,
-      sortColumnIndex: sortColumn == null ? null : _columnIndex(sortColumn!),
-      columns: [
-        DataColumn(label: _sortable("Mapel", "mapel")),
-        DataColumn(label: _sortable("Kelas", "kelas")),
-        const DataColumn(label: Text("Bab")),
-        DataColumn(label: _sortable("Semester", "semester")),
-        DataColumn(label: _sortable("Tanggal", "tanggal")),
-        const DataColumn(label: Text("Status")),
-        const DataColumn(label: Text("Aksi")),
-      ],
-      rows: _filteredRpp.map((item) {
-        return DataRow(
-          cells: [
-            DataCell(Text(item["mapel"])),
-            DataCell(Text(item["kelas"])),
-            DataCell(Text(item["bab"], maxLines: 2)),
-            DataCell(Text(item["semester"])),
-            DataCell(Text(item["tanggalStr"])),
-            DataCell(_statusChip(item["status"])),
-            DataCell(_actionMenu(item)),
-          ],
+  Widget _table() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SizedBox(
+          width: constraints.maxWidth,
+          child: DataTable(
+            columnSpacing: 24,
+            headingRowColor: MaterialStateProperty.all(AppColors.primary),
+            headingTextStyle: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+            sortAscending: sortAscending,
+            sortColumnIndex: sortColumn == null
+                ? null
+                : _columnIndex(sortColumn!),
+            columns: [
+              DataColumn(label: _sortable("Mapel", "mapel")),
+              DataColumn(label: _sortable("Kelas", "kelas")),
+              const DataColumn(label: Text("Bab / Materi")),
+              DataColumn(label: _sortable("Semester", "semester")),
+              DataColumn(label: _sortable("Tanggal", "tanggal")),
+              const DataColumn(label: Text("Status")),
+              const DataColumn(label: Text("Aksi")),
+            ],
+            rows: filtered.map((item) {
+              return DataRow(
+                cells: [
+                  DataCell(Text(item["mapel"])),
+                  DataCell(Text(item["kelas"])),
+                  DataCell(
+                    Text(
+                      item["bab"],
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  DataCell(Text(item["semester"])),
+                  DataCell(Text(item["tanggalStr"])),
+                  DataCell(_statusChip(item["status"])),
+                  DataCell(_actionMenu(item)),
+                ],
+              );
+            }).toList(),
+          ),
         );
-      }).toList(),
+      },
     );
   }
 
@@ -282,49 +277,32 @@ class _RppListPageState extends State<RppListPage> {
     );
   }
 
-  int _columnIndex(String field) {
-    const map = {"mapel": 0, "kelas": 1, "semester": 3, "tanggal": 4};
-    return map[field]!;
-  }
+  int _columnIndex(String field) =>
+      {"mapel": 0, "kelas": 1, "semester": 3, "tanggal": 4}[field]!;
 
-  // ================= STATUS =================
   Widget _statusChip(String status) {
-    Color color;
-    switch (status) {
-      case "Draft":
-        color = Colors.grey;
-        break;
-      case "Menunggu Review":
-        color = Colors.blue;
-        break;
-      case "Revisi":
-        color = Colors.orange;
-        break;
-      case "Disetujui":
-        color = Colors.green;
-        break;
-      default:
-        color = Colors.grey;
-    }
+    final color =
+        {
+          "Draft": Colors.grey,
+          "Menunggu Review": Colors.blue,
+          "Revisi": Colors.orange,
+          "Disetujui": Colors.green,
+        }[status] ??
+        Colors.grey;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: color.withOpacity(.15),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         status,
-        style: TextStyle(
-          color: color,
-          fontWeight: FontWeight.w600,
-          fontSize: 13,
-        ),
+        style: TextStyle(color: color, fontWeight: FontWeight.w600),
       ),
     );
   }
 
-  // ================= ACTION =================
   Widget _actionMenu(Map<String, dynamic> item) {
     return PopupMenuButton<String>(
       onSelected: (v) {
@@ -334,29 +312,13 @@ class _RppListPageState extends State<RppListPage> {
           Navigator.pushNamed(context, "/rpp/preview", arguments: item);
         } else if (v == "export") {
           exportRppToPdf(item);
-        } else if (v == "history") {
-          Navigator.pushNamed(context, "/rpp/history", arguments: item);
         }
       },
-      itemBuilder: (_) => [
-        _menu(Icons.edit, "Edit", "edit"),
-        _menu(Icons.visibility, "Lihat", "view"),
-        _menu(Icons.picture_as_pdf, "Export PDF", "export"),
-        _menu(Icons.history, "Riwayat", "history"),
+      itemBuilder: (_) => const [
+        PopupMenuItem(value: "edit", child: Text("Edit")),
+        PopupMenuItem(value: "view", child: Text("Lihat")),
+        PopupMenuItem(value: "export", child: Text("Export PDF")),
       ],
-    );
-  }
-
-  PopupMenuItem<String> _menu(IconData icon, String label, String value) {
-    return PopupMenuItem(
-      value: value,
-      child: Row(
-        children: [
-          Icon(icon, size: 18),
-          const SizedBox(width: 10),
-          Text(label),
-        ],
-      ),
     );
   }
 }
