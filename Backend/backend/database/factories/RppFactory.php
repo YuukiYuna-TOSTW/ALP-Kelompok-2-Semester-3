@@ -11,7 +11,7 @@ class RppFactory extends Factory
         return [
             'Nama_Mata_Pelajaran' => $this->faker->randomElement(['Matematika', 'IPA', 'IPS', 'Bahasa Indonesia', 'Bahasa Inggris']),
             'Kelas' => $this->faker->randomElement(['VII', 'VIII', 'IX']),
-            'Bab_Materi' => $this->faker->sentence(3),
+            'Bab/Materi' => $this->faker->sentence(3),
             'Semester' => $this->faker->randomElement(['Ganjil', 'Genap']),
             'Kompetensi_Dasar' => $this->faker->paragraph(),
             'Kompetensi_Inti' => $this->faker->paragraph(),

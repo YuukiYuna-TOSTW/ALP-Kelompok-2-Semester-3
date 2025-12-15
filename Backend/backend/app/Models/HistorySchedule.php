@@ -18,7 +18,9 @@ class HistorySchedule extends Model
      */
     protected $fillable = [
         'Schedule_ID',
-        'Tanggal_History_Schedule',
+        'Status',
+        'Catatan',
+        'Waktu_Pelaksanaan',
     ];
 
     /**
@@ -29,7 +31,7 @@ class HistorySchedule extends Model
     protected function casts(): array
     {
         return [
-            'Tanggal_History_Schedule' => 'date',
+            'Waktu_Pelaksanaan' => 'datetime',
         ];
     }
 

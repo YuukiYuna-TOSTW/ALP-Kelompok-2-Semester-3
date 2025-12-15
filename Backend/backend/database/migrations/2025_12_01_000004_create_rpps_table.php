@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('RPP_ID');
             $table->string('Nama_Mata_Pelajaran');
             $table->string('Kelas');
-            $table->string('Bab_Materi');
+            $table->string('Bab/Materi');
             $table->string('Semester');
             $table->text('Kompetensi_Dasar')->nullable();
             $table->text('Kompetensi_Inti')->nullable();

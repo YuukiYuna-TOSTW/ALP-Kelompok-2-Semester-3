@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('History_Schedules', function (Blueprint $table) {
             $table->id('History_Schedule_ID');
             $table->unsignedBigInteger('Schedule_ID');
-            $table->date('Tanggal_History_Schedule');
+            $table->string('Status')->nullable(); // Selesai, Dibatalkan, Berlangsung, etc.
+            $table->text('Catatan')->nullable();
+            $table->dateTime('Waktu_Pelaksanaan')->nullable();
             $table->timestamps();
 
             $table->foreign('Schedule_ID')->references('Schedule_ID')->on('Schedules')->onDelete('cascade');

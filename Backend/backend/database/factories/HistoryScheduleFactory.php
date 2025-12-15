@@ -22,7 +22,9 @@ class HistoryScheduleFactory extends Factory
     {
         return [
             'Schedule_ID' => Schedule::factory(),
-            'Tanggal_History_Schedule' => fake()->date(),
+            'Status' => fake()->randomElement(['Selesai', 'Dibatalkan', 'Berlangsung', 'Tertunda']),
+            'Catatan' => fake()->sentence(),
+            'Waktu_Pelaksanaan' => fake()->dateTimeBetween('-1 month', 'now'),
         ];
     }
 }
