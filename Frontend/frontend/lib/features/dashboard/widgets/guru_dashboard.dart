@@ -131,16 +131,6 @@ class GuruDashboardContent extends StatelessWidget {
                   onTap: () => Navigator.pushNamed(context, "/rpp"),
                 ),
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: QuickActionButton(
-                  icon: Icons.file_download_rounded,
-                  label: "Export Jadwal",
-                  onTap: () {
-                    Navigator.pushNamed(context, "/schedule/export");
-                  },
-                ),
-              ),
             ],
           ),
 

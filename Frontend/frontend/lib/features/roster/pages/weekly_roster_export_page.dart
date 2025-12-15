@@ -14,63 +14,85 @@ class WeeklyRosterExportPage extends StatelessWidget {
     return RppLayout(
       role: role,
       selectedRoute: "/schedule",
-      content: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1100),
-            child: _card(context),
-          ),
+      content: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: _card(context),
         ),
       ),
     );
   }
 
   // ======================================================
-  // CARD WRAPPER
+  // CARD BESAR (HEADER MENTOK + CONTENT)
   // ======================================================
   Widget _card(BuildContext context) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _header(),
-            const SizedBox(height: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _cardHeader(context),
 
-            if (role == "guru")
-              const WeeklyTableGuru()
-            else
-              const WeeklyTableAdmin(),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ================= TABLE =================
+                SizedBox(
+                  width: double.infinity, // ⬅️ FULL WIDTH
+                  child: role == "guru"
+                      ? const WeeklyTableGuru()
+                      : const WeeklyTableAdmin(),
+                ),
 
-            const SizedBox(height: 32),
-            _exportButtons(context),
-          ],
-        ),
+                const SizedBox(height: 32),
+
+                // ================= BUTTONS =================
+                _exportButtons(context),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
   // ======================================================
-  // HEADER
+  // HEADER (PRIMARY + BACK)
   // ======================================================
-  Widget _header() {
-    return Row(
-      children: [
-        Icon(Icons.table_chart_rounded, color: AppColors.primary),
-        const SizedBox(width: 10),
-        Text(
-          "Export Jadwal Mingguan",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: AppColors.primary,
-          ),
+  Widget _cardHeader(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.primary, AppColors.primary.withOpacity(.75)],
         ),
-      ],
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            tooltip: "Kembali",
+          ),
+          const SizedBox(width: 6),
+          const Icon(Icons.table_chart_rounded, color: Colors.white, size: 22),
+          const SizedBox(width: 10),
+          const Text(
+            "Export Jadwal Mingguan",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -90,10 +112,10 @@ class WeeklyRosterExportPage extends StatelessWidget {
           label: const Text("Export PDF"),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 14),
         OutlinedButton.icon(
           onPressed: () {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -102,6 +124,9 @@ class WeeklyRosterExportPage extends StatelessWidget {
           },
           icon: const Icon(Icons.grid_on),
           label: const Text("Export Excel"),
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+          ),
         ),
       ],
     );

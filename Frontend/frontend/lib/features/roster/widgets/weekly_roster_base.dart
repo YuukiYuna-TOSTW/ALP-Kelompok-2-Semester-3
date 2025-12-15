@@ -67,45 +67,46 @@ class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
     return RppLayout(
       role: widget.role,
       selectedRoute: "/schedule",
-      content: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1000),
-            child: _bigScheduleCard(),
-          ),
+      content: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: _bigScheduleCard(context),
         ),
       ),
     );
   }
 
   // ======================================================
-  // CARD BESAR (HEADER + DAY + CONTENT)
+  // CARD BESAR (HEADER MENTOK + CONTENT)
   // ======================================================
-  Widget _bigScheduleCard() {
+  Widget _bigScheduleCard(BuildContext context) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _header(),
-            const SizedBox(height: 16),
-            _daySelector(),
-            const SizedBox(height: 20),
-            _scheduleList(),
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _cardHeader(context),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _daySelector(),
+                const SizedBox(height: 20),
+                _scheduleList(),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
   // ======================================================
-  // HEADER
+  // HEADER (STYLE SAMA DENGAN RPP + BACK BUTTON)
   // ======================================================
-  Widget _header() {
+  Widget _cardHeader(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
@@ -113,10 +114,16 @@ class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
         gradient: LinearGradient(
           colors: [AppColors.primary, AppColors.primary.withOpacity(.75)],
         ),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       ),
       child: Row(
         children: [
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            tooltip: "Kembali",
+          ),
+          const SizedBox(width: 6),
           const Icon(Icons.calendar_month, color: Colors.white),
           const SizedBox(width: 10),
           Text(
@@ -133,11 +140,11 @@ class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
   }
 
   // ======================================================
-  // DAY SELECTOR (HARI SAJA)
+  // DAY SELECTOR
   // ======================================================
   Widget _daySelector() {
     return SizedBox(
-      height: 56,
+      height: 54,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: dayNames.length,
@@ -147,7 +154,7 @@ class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
           return GestureDetector(
             onTap: () => setState(() => selectedDay = i),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 18),
               margin: const EdgeInsets.only(right: 10),
               decoration: BoxDecoration(
                 color: active ? AppColors.primary : Colors.white,
@@ -197,7 +204,7 @@ class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
   }
 
   // ======================================================
-  // CARD ITEM JADWAL (ROLE BASED)
+  // ITEM JADWAL
   // ======================================================
   Widget _scheduleItemCard(Map<String, String> item) {
     return Container(
