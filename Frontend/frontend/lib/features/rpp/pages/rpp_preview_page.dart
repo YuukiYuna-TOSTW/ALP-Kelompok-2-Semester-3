@@ -104,12 +104,9 @@ class RppPreviewPage extends StatelessWidget {
           // IDENTITAS
           // ===============================
           _infoRow("Nama Guru", data["guru"] ?? "Budi Santoso, S.Pd."),
-          _infoRow("NIP", data["nip"] ?? "19780212 200501 1 001"),
           _infoRow("Mata Pelajaran", mapel),
           _infoRow("Kelas / Semester", "$kelas / ${data["semester"] ?? "-"}"),
           _infoRow("Bab / Materi", bab),
-          _infoRow("Pertemuan Ke", data["pertemuan"] ?? "-"),
-          _infoRow("Alokasi Waktu", data["alokasi"] ?? "-"),
 
           const SizedBox(height: 28),
 

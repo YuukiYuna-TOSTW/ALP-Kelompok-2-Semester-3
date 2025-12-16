@@ -24,6 +24,12 @@ return new class extends Migration
             $table->text('Pendahuluan');
             $table->text('Kegiatan_Inti');
             $table->text('Penutup');
+            $table->text('Materi_Pembelajaran');
+            $table->text('Asesmen_Pembelajaran');
+            $table->text('Metode_Pembelajaran');
+            $table->text('Media_Pembelajaran');
+            $table->text('Sumber_Belajar');
+            $table->text('Lampiran');
             $table->text('Catatan_Tambahan');
             $table->enum('Status', ['Menunggu Review', 'Minta Revisi', 'Revisi', 'Disetujui'])->default('Menunggu Review');
             $table->timestamps();

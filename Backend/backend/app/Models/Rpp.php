@@ -25,6 +25,12 @@ class Rpp extends Model
         'Pendahuluan',
         'Kegiatan_Inti',
         'Penutup',
+        'Materi_Pembelajaran',
+        'Asesmen_Pembelajaran',
+        'Metode_Pembelajaran',
+        'Media_Pembelajaran',
+        'Sumber_Belajar',
+        'Lampiran',
         'Catatan_Tambahan',
         'Status',
     ];
