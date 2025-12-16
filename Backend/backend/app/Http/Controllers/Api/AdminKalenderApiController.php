@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Schedule;
 use Illuminate\Http\JsonResponse;
 
-class KepsekKalenderApiController extends Controller
+class AdminKalenderApiController extends Controller
 {
     public function index(): JsonResponse
     {

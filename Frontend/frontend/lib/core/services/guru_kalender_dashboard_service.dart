@@ -22,10 +22,13 @@ class GuruKalenderDashboardService {
   };
 
   /// Ambil jadwal kalender untuk guru tertentu (namaUser opsional, default Kelompok2Guru)
-  static Future<List<CalendarEvent>> getSchedules({String namaUser = 'Kelompok2Guru'}) async {
+  static Future<List<CalendarEvent>> getSchedules({
+    String namaUser = 'Kelompok2Guru',
+  }) async {
     try {
-      final uri = Uri.parse('$baseUrl/dashboard/gurukalender')
-          .replace(queryParameters: {'nama_user': namaUser});
+      final uri = Uri.parse(
+        '$baseUrl/dashboard/gurukalender',
+      ).replace(queryParameters: {'nama_user': namaUser});
       final res = await http
           .get(uri, headers: _headers)
           .timeout(const Duration(seconds: 12));
@@ -38,11 +41,30 @@ class GuruKalenderDashboardService {
       final body = jsonDecode(res.body) as Map<String, dynamic>;
       final data = body['data'] as List? ?? [];
 
+      print('📅 Guru Kalender: loaded ${data.length} schedules');
+      if (data.isNotEmpty) {
+        print('📅 First schedule: ${data.first}');
+      }
+
       return data.map<CalendarEvent>((item) {
-        return CalendarEvent(
-          date: DateTime.tryParse(item['Tanggal_Mulai'] ?? '') ?? DateTime.now(),
+        final tanggalStr = item['Tanggal_Mulai'] ?? '';
+        DateTime date;
+
+        try {
+          date = DateTime.parse(tanggalStr);
+        } catch (e) {
+          print('⚠️ Failed to parse date: $tanggalStr - $e');
+          date = DateTime.now();
+        }
+
+        final event = CalendarEvent(
+          date: DateTime(date.year, date.month, date.day),
           title: item['Nama_Kegiatan'] ?? 'Kegiatan',
         );
+
+        print('📅 Guru Mapped: ${item['Nama_Kegiatan']} -> ${event.date}');
+
+        return event;
       }).toList();
     } catch (e) {
       print('❌ Error: $e');

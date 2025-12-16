@@ -18,6 +18,9 @@ use App\Http\Controllers\Api\RppHistoryApiController;
 use App\Http\Controllers\Api\RppReviewDetailApiController;
 use App\Http\Controllers\Api\ScheduleReviewApiController;
 use App\Http\Controllers\Api\GuruKalenderApiController;
+use App\Http\Controllers\Api\AdminRPPApiController;
+use App\Http\Controllers\Api\AdminStatistikApiController;
+use App\Http\Controllers\Api\AdminKalenderApiController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -60,6 +63,11 @@ Route::prefix('dashboard')->group(function () {
     Route::get('/kepsekstatistiksekolah', [KepsekStatistikSekolahApiController::class, 'index']);
     Route::get('/kepsekkalender', [KepsekKalenderApiController::class, 'index']);
     Route::get('/gurukalender', [GuruKalenderApiController::class, 'index']);
+    
+    // Admin endpoints
+    Route::get('/admin/rpps', [AdminRPPApiController::class, 'index']);
+    Route::get('/admin/statistik', [AdminStatistikApiController::class, 'index']);
+    Route::get('/admin/kalender', [AdminKalenderApiController::class, 'index']);
 });
 
 // RPP info untuk frontend (tanpa catatan reviewer)

@@ -26,6 +26,20 @@ class _MiniCalendarState extends State<MiniCalendar> {
     super.initState();
     _currentMonth = DateTime(DateTime.now().year, DateTime.now().month, 1);
     _selectedDate = DateTime.now();
+
+    // Debug: Print event yang diterima
+    print('🗓️ MiniCalendar initialized with ${widget.events.length} events');
+    for (var event in widget.events) {
+      print('🗓️ Event: ${event.title} on ${event.date}');
+    }
+  }
+
+  @override
+  void didUpdateWidget(MiniCalendar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.events.length != oldWidget.events.length) {
+      print('🗓️ MiniCalendar updated: ${widget.events.length} events');
+    }
   }
 
   void _nextMonth() {
@@ -137,12 +151,20 @@ class _MiniCalendarState extends State<MiniCalendar> {
               );
 
               // Event check
-              final bool hasEvent = widget.events.any(
-                (e) =>
+              final bool hasEvent = widget.events.any((e) {
+                final match =
                     e.date.year == date.year &&
                     e.date.month == date.month &&
-                    e.date.day == date.day,
-              );
+                    e.date.day == date.day;
+
+                if (match) {
+                  print(
+                    '✅ Event found on $day/${_currentMonth.month}/${_currentMonth.year}: ${e.title}',
+                  );
+                }
+
+                return match;
+              });
 
               // Hari ini
               final bool isToday = _isSameDate(date, DateTime.now());

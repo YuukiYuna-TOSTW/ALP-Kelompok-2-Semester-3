@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../config/theme/colors.dart';
+import '../../../core/services/admin_rpp_service.dart';
 import '../layout/rpp_layout.dart';
+import 'package:intl/intl.dart';
 
 class AdminRppListPage extends StatefulWidget {
   const AdminRppListPage({super.key});
@@ -10,46 +12,9 @@ class AdminRppListPage extends StatefulWidget {
 }
 
 class _AdminRppListPageState extends State<AdminRppListPage> {
-  final List<Map<String, dynamic>> _allRpp = [
-    {
-      "guru": "Ari Pratama",
-      "mapel": "Matematika",
-      "kelas": "8A",
-      "semester": "Ganjil",
-      "bab": "Persamaan Linear",
-      "tanggal": "10 Jan 2025",
-      "status": "Draft",
-    },
-    {
-      "guru": "Indah Sari",
-      "mapel": "Bahasa Indonesia",
-      "kelas": "7B",
-      "semester": "Genap",
-      "bab": "Teks Eksposisi",
-      "tanggal": "12 Jan 2025",
-      "status": "Menunggu Review",
-    },
-    {
-      "guru": "Rama Putra",
-      "mapel": "IPA",
-      "kelas": "9A",
-      "semester": "Ganjil",
-      "bab": "Sistem Pernafasan",
-      "tanggal": "5 Jan 2025",
-      "status": "Disetujui",
-    },
-    {
-      "guru": "Sinta Dewi",
-      "mapel": "IPS",
-      "kelas": "7A",
-      "semester": "Genap",
-      "bab": "Interaksi Sosial",
-      "tanggal": "9 Jan 2025",
-      "status": "Revisi",
-    },
-  ];
-
+  List<Map<String, dynamic>> _allRpp = [];
   List<Map<String, dynamic>> filtered = [];
+  bool _isLoading = true;
 
   String search = "";
   String filterStatus = "Semua";
@@ -58,7 +23,43 @@ class _AdminRppListPageState extends State<AdminRppListPage> {
   @override
   void initState() {
     super.initState();
-    filtered = [..._allRpp];
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _isLoading = true);
+
+    final result = await AdminRppService.getAllRpp();
+
+    if (result['success'] == true) {
+      final rawData = result['data'] as List;
+      _allRpp = rawData.map((item) {
+        // Format tanggal
+        String formattedDate = "N/A";
+        try {
+          final createdAt = item['created_at'];
+          if (createdAt != null && createdAt.isNotEmpty) {
+            final DateTime dt = DateTime.parse(createdAt);
+            formattedDate = DateFormat('dd MMM yyyy').format(dt);
+          }
+        } catch (_) {}
+
+        return {
+          "rpp_id": item['RPP_ID'],
+          "guru": item['Guru_Nama'] ?? 'N/A',
+          "mapel": item['Nama_Mata_Pelajaran'] ?? 'N/A',
+          "kelas": item['Kelas'] ?? 'N/A',
+          "semester": item['Semester'] ?? 'N/A',
+          "bab": item['Nama_Mata_Pelajaran'] ?? 'N/A',
+          "tanggal": formattedDate,
+          "status": item['Status'] ?? 'Draft',
+        };
+      }).toList();
+
+      filtered = [..._allRpp];
+    }
+
+    setState(() => _isLoading = false);
   }
 
   void _applyFilters() {
@@ -82,7 +83,9 @@ class _AdminRppListPageState extends State<AdminRppListPage> {
       content: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),
-          child: _card(),
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _card(),
         ),
       ),
     );

@@ -1,10 +1,24 @@
 import 'package:flutter/material.dart';
 import '../../../config/theme/colors.dart';
+import '../../../core/services/admin_statistik_service.dart';
 import '../components/stat_card.dart';
 import '../components/quick_action_button.dart';
 
-class AdminDashboardContent extends StatelessWidget {
+class AdminDashboardContent extends StatefulWidget {
   const AdminDashboardContent({super.key});
+
+  @override
+  State<AdminDashboardContent> createState() => _AdminDashboardContentState();
+}
+
+class _AdminDashboardContentState extends State<AdminDashboardContent> {
+  late Future<Map<String, dynamic>> statisticsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    statisticsFuture = AdminStatistikService.getStatistics();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,56 +38,79 @@ class AdminDashboardContent extends StatelessWidget {
         ),
         const SizedBox(height: 14),
 
-        Row(
-          children: const [
-            Expanded(
-              child: StatCard(
-                icon: Icons.person_rounded,
-                value: "48",
-                title: "Total Guru",
-              ),
-            ),
-            SizedBox(width: 14),
-            Expanded(
-              child: StatCard(
-                icon: Icons.school_rounded,
-                value: "24",
-                title: "Total Kelas",
-              ),
-            ),
-            SizedBox(width: 14),
-            Expanded(
-              child: StatCard(
-                icon: Icons.book_rounded,
-                value: "16",
-                title: "Mata Pelajaran",
-              ),
-            ),
-          ],
-        ),
+        FutureBuilder<Map<String, dynamic>>(
+          future: statisticsFuture,
+          builder: (context, snapshot) {
+            String totalGuru = "48";
+            String totalKelas = "24";
+            String mataPelajaran = "16";
+            String totalJadwal = "192";
+            String totalRpp = "73";
 
-        const SizedBox(height: 14),
+            if (snapshot.connectionState == ConnectionState.done &&
+                (snapshot.data?['success'] ?? false)) {
+              final data = snapshot.data?['data'] ?? {};
+              totalGuru = (data['total_guru'] ?? 48).toString();
+              totalKelas = (data['total_kelas'] ?? 24).toString();
+              mataPelajaran = (data['mata_pelajaran'] ?? 16).toString();
+              totalJadwal = (data['total_jadwal'] ?? 192).toString();
+              totalRpp = (data['total_rpp'] ?? 73).toString();
+            }
 
-        Row(
-          children: const [
-            Expanded(
-              child: StatCard(
-                icon: Icons.calendar_month_rounded,
-                value: "192",
-                title: "Total Jadwal",
-              ),
-            ),
-            SizedBox(width: 14),
-            Expanded(
-              child: StatCard(
-                icon: Icons.menu_book_rounded,
-                value: "73",
-                title: "Total RPP",
-              ),
-            ),
-            SizedBox(width: 14),
-            Expanded(child: SizedBox()),
-          ],
+            return Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: StatCard(
+                        icon: Icons.person_rounded,
+                        value: totalGuru,
+                        title: "Total Guru",
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: StatCard(
+                        icon: Icons.school_rounded,
+                        value: totalKelas,
+                        title: "Total Kelas",
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: StatCard(
+                        icon: Icons.book_rounded,
+                        value: mataPelajaran,
+                        title: "Mata Pelajaran",
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: StatCard(
+                        icon: Icons.calendar_month_rounded,
+                        value: totalJadwal,
+                        title: "Total Jadwal",
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: StatCard(
+                        icon: Icons.menu_book_rounded,
+                        value: totalRpp,
+                        title: "Total RPP",
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    const Expanded(child: SizedBox()),
+                  ],
+                ),
+              ],
+            );
+          },
         ),
 
         const SizedBox(height: 32),
