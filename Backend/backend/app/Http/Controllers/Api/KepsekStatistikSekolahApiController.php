@@ -17,7 +17,7 @@ class KepsekStatistikSekolahApiController extends Controller
             'data' => [
                 'total_guru'   => User::where('Role', 'Guru')->count(),
                 'rpp_pending'  => Rpp::where('Status', 'Menunggu Review')->count(),
-                'total_kelas'  => Schedule::count(),
+                'total_kelas'  => Rpp::distinct('Kelas')->count('Kelas'),
             ],
             'message' => 'OK',
         ], 200);

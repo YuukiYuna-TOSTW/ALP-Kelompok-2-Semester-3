@@ -41,6 +41,14 @@ class _AdminDashboardContentState extends State<AdminDashboardContent> {
         FutureBuilder<Map<String, dynamic>>(
           future: statisticsFuture,
           builder: (context, snapshot) {
+            // Debug logging
+            print('📊 Admin Stats - State: ${snapshot.connectionState}');
+            print('📊 Admin Stats - Has Data: ${snapshot.hasData}');
+            print('📊 Admin Stats - Data: ${snapshot.data}');
+            if (snapshot.hasError) {
+              print('❌ Admin Stats - Error: ${snapshot.error}');
+            }
+
             String totalGuru = "48";
             String totalKelas = "24";
             String mataPelajaran = "16";
@@ -55,6 +63,10 @@ class _AdminDashboardContentState extends State<AdminDashboardContent> {
               mataPelajaran = (data['mata_pelajaran'] ?? 16).toString();
               totalJadwal = (data['total_jadwal'] ?? 192).toString();
               totalRpp = (data['total_rpp'] ?? 73).toString();
+
+              print(
+                '✅ Admin Stats - Updated values: Guru=$totalGuru, Kelas=$totalKelas, Mapel=$mataPelajaran, Jadwal=$totalJadwal, RPP=$totalRpp',
+              );
             }
 
             return Column(
