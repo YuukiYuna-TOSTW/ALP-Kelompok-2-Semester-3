@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\KepsekKalenderApiController;
 use App\Http\Controllers\Api\KepsekRppReviewerApiController;
 use App\Http\Controllers\Api\KepsekRppSetujuApiController;
 use App\Http\Controllers\Api\RppHistoryApiController;
+use App\Http\Controllers\Api\RppReviewDetailApiController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -63,5 +64,6 @@ Route::prefix('rpps/{rppId}')->group(function () {
     Route::delete('rppreviewer', [KepsekRppReviewerApiController::class, 'clearNotes']);
     Route::put('rppsetujui', [KepsekRppSetujuApiController::class, 'approve']);
     Route::get('rpphistory', [RppHistoryApiController::class, 'index']);
+    Route::get('rppdetail', [RppReviewDetailApiController::class, 'show']);
 });
 
