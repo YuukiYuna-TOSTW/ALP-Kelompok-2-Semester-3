@@ -2,27 +2,35 @@ import 'package:flutter/material.dart';
 import '../../../config/theme/colors.dart';
 import '../components/guru_activity_tile.dart';
 import '../components/mini_calendar.dart';
+import '../../../core/services/guru_kalender_dashboard_service.dart'; // ✅ tambah
 
-class GuruRightPanel extends StatelessWidget {
+class GuruRightPanel extends StatefulWidget {
   const GuruRightPanel({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // ===============================
-    // 📌 DAFTAR KEGIATAN SEKOLAH
-    // ===============================
-    final events = [
-      CalendarEvent(date: DateTime(2025, 1, 12), title: "Upacara Bendera"),
-      CalendarEvent(date: DateTime(2025, 1, 12), title: "Piket Kelas 8A"),
-      CalendarEvent(
-        date: DateTime(2025, 1, 17),
-        title: "Penilaian Tengah Semester",
-      ),
-    ];
+  State<GuruRightPanel> createState() => _GuruRightPanelState();
+}
 
+class _GuruRightPanelState extends State<GuruRightPanel> {
+  List<CalendarEvent> _events = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEvents();
+  }
+
+  Future<void> _loadEvents() async {
+    final data = await GuruKalenderDashboardService.getSchedules(
+      namaUser: 'Kelompok2Guru', // patokan user
+    );
+    if (mounted) setState(() => _events = data);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(8, 0, 4, 40),
-
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -72,9 +80,8 @@ class GuruRightPanel extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          /// ✔ MiniCalendar otomatis menampilkan kegiatan hari terpilih
-          /// ✔ Tidak perlu onDateSelected lagi
-          MiniCalendar(events: events),
+          // Layout tetap, hanya sumber data diganti service
+          MiniCalendar(events: _events),
 
           const SizedBox(height: 20),
         ],
