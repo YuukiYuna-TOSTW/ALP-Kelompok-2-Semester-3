@@ -45,7 +45,7 @@ class Schedule extends Model
      */
     public function penyelenggara(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'Penyelenggara_ID', 'User_ID');
+        return $this->belongsTo(\App\Models\User::class, 'Penyelenggara_ID', 'id'); // ✅ gunakan 'id' bukan 'User_ID'
     }
 
     /**

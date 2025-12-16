@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\KepsekRppReviewerApiController;
 use App\Http\Controllers\Api\KepsekRppSetujuApiController;
 use App\Http\Controllers\Api\RppHistoryApiController;
 use App\Http\Controllers\Api\RppReviewDetailApiController;
+use App\Http\Controllers\Api\ScheduleReviewApiController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -70,4 +71,8 @@ Route::prefix('rpps/{rppId}')->group(function () {
     Route::get('rpphistory', [RppHistoryApiController::class, 'index']);
     Route::get('rppdetail', [RppReviewDetailApiController::class, 'show']);
 });
+
+// ✅ TAMBAH: route untuk review schedule
+Route::get('schedule-review', [ScheduleReviewApiController::class, 'index']);
+Route::get('schedule-review/{id}', [ScheduleReviewApiController::class, 'show']);
 
