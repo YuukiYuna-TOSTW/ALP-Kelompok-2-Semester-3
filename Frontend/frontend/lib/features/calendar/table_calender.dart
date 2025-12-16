@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../config/theme/colors.dart';
-import 'tambah_kegiatan.dart'; // ⬅️ PENTING
+import '../../../core/services/kepsek_kalender_dashboard_service.dart';
+import 'tambah_kegiatan.dart';
 
 class CalendarSchoolPage extends StatefulWidget {
   const CalendarSchoolPage({super.key});
@@ -14,12 +15,36 @@ class _CalendarSchoolPageState extends State<CalendarSchoolPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
-  final Map<DateTime, List<Map<String, dynamic>>> _events = {
-    DateTime(2025, 1, 10): [
-      {"judul": "Rapat Guru", "deskripsi": "Rapat koordinasi"},
-      {"judul": "Persiapan Ujian", "deskripsi": "Briefing ujian"},
-    ],
-  };
+  // ✅ Ganti dari Map statis ke Map dinamis dari service
+  final Map<DateTime, List<Map<String, dynamic>>> _events = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEventsFromService(); // ✅ Load data dari backend
+  }
+
+  Future<void> _loadEventsFromService() async {
+    final schedules = await KepsekKalenderDashboardService.getSchedules();
+
+    setState(() {
+      _events.clear();
+      for (final schedule in schedules) {
+        final key = DateTime(schedule.date.year, schedule.date.month, schedule.date.day);
+        _events.putIfAbsent(key, () => []);
+        _events[key]!.add({
+          'judul': schedule.title,
+          'deskripsi': '', // dari service tidak ada deskripsi, bisa ditambah di backend
+        });
+      }
+    });
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${schedules.length} kegiatan dimuat')),
+      );
+    }
+  }
 
   List<Map<String, dynamic>> _getEventsForDay(DateTime day) {
     final key = DateTime(day.year, day.month, day.day);
@@ -133,7 +158,7 @@ class _CalendarSchoolPageState extends State<CalendarSchoolPage> {
       lastDay: DateTime.utc(2030, 12, 31),
       focusedDay: _focusedDay,
       selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-      eventLoader: _getEventsForDay,
+      eventLoader: _getEventsForDay, // ✅ Tetap gunakan method ini (sudah terintegrasi)
 
       onDaySelected: (selectedDay, focusedDay) {
         setState(() {
@@ -172,7 +197,7 @@ class _CalendarSchoolPageState extends State<CalendarSchoolPage> {
                 margin: const EdgeInsets.only(top: 2),
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.85), // ⬅️ FIX 2
+                  color: AppColors.primary.withValues(alpha: 0.85),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(

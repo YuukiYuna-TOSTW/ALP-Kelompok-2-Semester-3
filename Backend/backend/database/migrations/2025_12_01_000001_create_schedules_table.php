@@ -20,7 +20,8 @@ return new class extends Migration
             $table->time('Waktu_Mulai');
             $table->time('Waktu_Selesai');
             $table->string('Tempat', 100)->nullable();
-            $table->unsignedBigInteger('Penyelenggara_ID'); // ✅ kolom terlebih dahulu
+            $table->unsignedBigInteger('Penyelenggara_ID'); // ✅ kolom terlebih dahulu\
+            $table->string('Lampiran')->nullable();
             $table->enum('Status', ['Terjadwal', 'Berlangsung', 'Selesai', 'Dibatalkan'])->default('Terjadwal');
             $table->timestamps();
 
