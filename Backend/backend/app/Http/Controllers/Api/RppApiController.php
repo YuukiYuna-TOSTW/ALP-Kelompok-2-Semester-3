@@ -15,16 +15,28 @@ class RppApiController extends Controller
     public function index(Request $request): JsonResponse
     {
         $status = $request->query('status');
+        $namaUser = $request->query('nama_user'); // ✅ baru
+        $role = $request->query('role');          // ✅ baru
+
         $query = Rpp::with('user')->latest();
+
         if ($status) {
             $query->where('Status', $status);
+        }
+
+        if ($namaUser) {
+            $query->whereHas('user', fn($q) => $q->where('Nama_User', $namaUser));
+        }
+
+        if ($role) {
+            $query->whereHas('user', fn($q) => $q->where('Role', $role));
         }
 
         $rpps = $query->get();
 
         return response()->json([
             'success' => true,
-            'data' => RppResource::collection($rpps), // ✅ gunakan kelas yang benar
+            'data' => RppResource::collection($rpps),
             'message' => 'OK',
         ]);
     }
