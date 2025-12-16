@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\OtpApiController;
 use App\Http\Controllers\Api\KepsekRPPApiController;
 use App\Http\Controllers\Api\KepsekStatistikSekolahApiController;
 use App\Http\Controllers\Api\KepsekKalenderApiController;
-use App\Http\Controllers\Api\KepsekRppReviewController;
+use App\Http\Controllers\Api\KepsekRppReviewerApiController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -54,4 +54,10 @@ Route::prefix('dashboard')->group(function () {
 
 // RPP info untuk frontend (tanpa catatan reviewer)
 Route::get('rppreview/{rppId}', [\App\Http\Controllers\Api\KepsekRppReviewApiController::class, 'show']);
+
+Route::prefix('rpps/{rppId}')->group(function () {
+    Route::get('rppreviewer', [KepsekRppReviewerApiController::class, 'showNotes']);
+    Route::put('rppreviewer', [KepsekRppReviewerApiController::class, 'upsertNotes']);
+    Route::delete('rppreviewer', [KepsekRppReviewerApiController::class, 'clearNotes']);
+});
 
