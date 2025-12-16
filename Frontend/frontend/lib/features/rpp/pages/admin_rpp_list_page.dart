@@ -50,7 +50,7 @@ class _AdminRppListPageState extends State<AdminRppListPage> {
           "mapel": item['Nama_Mata_Pelajaran'] ?? 'N/A',
           "kelas": item['Kelas'] ?? 'N/A',
           "semester": item['Semester'] ?? 'N/A',
-          "bab": item['Nama_Mata_Pelajaran'] ?? 'N/A',
+          "bab": item['Bab_Materi'] ?? 'N/A',
           "tanggal": formattedDate,
           "status": item['Status'] ?? 'Draft',
         };
