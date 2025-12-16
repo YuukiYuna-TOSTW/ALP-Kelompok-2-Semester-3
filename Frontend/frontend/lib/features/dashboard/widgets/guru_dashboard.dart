@@ -3,9 +3,42 @@ import '../../../config/theme/colors.dart';
 import '../components/stat_card.dart';
 import '../components/quick_action_button.dart';
 import '../components/schedule_card.dart';
+import '../../../core/services/schedule_review_service.dart'; // ✅ TAMBAH import
 
-class GuruDashboardContent extends StatelessWidget {
+class GuruDashboardContent extends StatefulWidget {
   const GuruDashboardContent({super.key});
+
+  @override
+  State<GuruDashboardContent> createState() => _GuruDashboardContentState();
+}
+
+class _GuruDashboardContentState extends State<GuruDashboardContent> {
+  List<Map<String, dynamic>> _todaySchedules = [];
+  bool _loadingSchedules = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTodaySchedules();
+  }
+
+  Future<void> _loadTodaySchedules() async {
+    setState(() => _loadingSchedules = true);
+    final allSchedules = await ScheduleReviewService.getAllSchedules();
+    
+    // ✅ Filter hanya jadwal hari ini
+    final today = DateTime.now();
+    final todayStr = '${today.year.toString().padLeft(4, '0')}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    
+    final todayOnly = allSchedules
+        .where((e) => (e['Tanggal_Mulai'] ?? '').toString().startsWith(todayStr))
+        .toList();
+
+    setState(() {
+      _todaySchedules = todayOnly;
+      _loadingSchedules = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,33 +61,41 @@ class GuruDashboardContent extends StatelessWidget {
           ),
           const SizedBox(height: 14),
 
-          SizedBox(
-            height: 150,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: const [
-                  TeachingScheduleCard(
-                    subject: "Matematika",
-                    time: "08:00 – 09:30",
-                    className: "8A",
-                  ),
-                  SizedBox(width: 14),
-                  TeachingScheduleCard(
-                    subject: "IPA",
-                    time: "10:00 – 11:30",
-                    className: "7B",
-                  ),
-                  SizedBox(width: 14),
-                  TeachingScheduleCard(
-                    subject: "Pendidikan Agama",
-                    time: "12:30 – 14:00",
-                    className: "9C",
-                  ),
-                ],
-              ),
-            ),
-          ),
+          _loadingSchedules
+              ? const SizedBox(
+                  height: 150,
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              : _todaySchedules.isEmpty
+                  ? const SizedBox(
+                      height: 150,
+                      child: Center(
+                        child: Text(
+                          'Tidak ada jadwal hari ini',
+                          style: TextStyle(color: Colors.black54),
+                        ),
+                      ),
+                    )
+                  : SizedBox(
+                      height: 150,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: _todaySchedules
+                              .map((schedule) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 14),
+                                  child: TeachingScheduleCard(
+                                    subject: schedule['Nama_Kegiatan'] ?? '-',
+                                    time: '${schedule['Waktu_Mulai'] ?? '00:00'} – ${schedule['Waktu_Selesai'] ?? '00:00'}',
+                                    className: schedule['Tempat'] ?? '-',
+                                  ),
+                                );
+                              })
+                              .toList(),
+                        ),
+                      ),
+                    ),
 
           const SizedBox(height: 28),
 
