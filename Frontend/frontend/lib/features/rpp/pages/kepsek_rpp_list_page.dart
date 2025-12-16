@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // ✅ tambahkan untuk format tanggal
 import '../../../config/theme/colors.dart';
 import '../layout/rpp_layout.dart';
 import '../utils/rpp_exporter.dart';
+import '../../../core/services/rpp_history_service.dart';
 
 class RppAllListPage extends StatefulWidget {
   const RppAllListPage({super.key});
@@ -11,33 +13,7 @@ class RppAllListPage extends StatefulWidget {
 }
 
 class _RppAllListPageState extends State<RppAllListPage> {
-  final List<Map<String, dynamic>> _allRpp = [
-    {
-      "guru": "Bu Sinta",
-      "mapel": "Matematika",
-      "kelas": "8A",
-      "semester": "Ganjil",
-      "tanggal": "10 Jan 2025",
-      "status": "Menunggu Review",
-    },
-    {
-      "guru": "Pak Amir",
-      "mapel": "IPA",
-      "kelas": "9A",
-      "semester": "Ganjil",
-      "tanggal": "12 Jan 2025",
-      "status": "Revisi",
-    },
-    {
-      "guru": "Bu Ayu",
-      "mapel": "Bahasa Indonesia",
-      "kelas": "7B",
-      "semester": "Genap",
-      "tanggal": "9 Jan 2025",
-      "status": "Disetujui",
-    },
-  ];
-
+  final List<Map<String, dynamic>> _allRpp = []; // ✅ inisialisasi kosong
   List<Map<String, dynamic>> filtered = [];
 
   String search = "";
@@ -49,16 +25,53 @@ class _RppAllListPageState extends State<RppAllListPage> {
   @override
   void initState() {
     super.initState();
-    filtered = [..._allRpp];
+    _loadFromService(); // ✅ ambil data dari backend
+  }
+
+  Future<void> _loadFromService() async {
+    final res = await RppHistoryService.fetchAll();
+    if (res['success'] == true) {
+      final List<Map<String, dynamic>> list =
+          (res['data'] as List).cast<Map<String, dynamic>>();
+
+      setState(() {
+        _allRpp
+          ..clear()
+          ..addAll(list.map((e) {
+            // ✅ format tanggal di sini agar konsisten
+            String formattedDate = '-';
+            if (e['tanggal'] != null && e['tanggal'] != '-') {
+              try {
+                final dt = DateTime.parse(e['tanggal']);
+                formattedDate = DateFormat('dd-MM-yyyy').format(dt);
+              } catch (_) {
+                formattedDate = e['tanggal'];
+              }
+            }
+
+            return {
+              ...e,
+              'tanggal': formattedDate,
+            };
+          }));
+        filtered = [..._allRpp];
+      });
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(res['message'] ?? 'Gagal memuat daftar RPP')),
+        );
+      }
+    }
   }
 
   void _applyFilters() {
     final q = search.toLowerCase();
     setState(() {
       filtered = _allRpp.where((e) {
-        return (e["guru"].toLowerCase().contains(q) ||
-                e["mapel"].toLowerCase().contains(q) ||
-                e["kelas"].toLowerCase().contains(q)) &&
+        return (e["guru"].toString().toLowerCase().contains(q) ||
+                e["mapel"].toString().toLowerCase().contains(q) ||
+                e["kelas"].toString().toLowerCase().contains(q)) &&
             (fGuru == "Semua" || e["guru"] == fGuru) &&
             (fMapel == "Semua" || e["mapel"] == fMapel) &&
             (fKelas == "Semua" || e["kelas"] == fKelas) &&
@@ -217,7 +230,7 @@ class _RppAllListPageState extends State<RppAllListPage> {
     );
   }
 
-  // ================= TABLE (SAMA DENGAN GURU) =================
+  // ================= TABLE =================
   Widget _table() {
     return LayoutBuilder(
       builder: (context, c) {
@@ -242,12 +255,12 @@ class _RppAllListPageState extends State<RppAllListPage> {
             rows: filtered.map((e) {
               return DataRow(
                 cells: [
-                  DataCell(Text(e["guru"])),
-                  DataCell(Text(e["mapel"])),
-                  DataCell(Text(e["kelas"])),
-                  DataCell(Text(e["semester"])),
-                  DataCell(Text(e["tanggal"])),
-                  DataCell(_statusChip(e["status"])),
+                  DataCell(Text(e["guru"] ?? "-")),
+                  DataCell(Text(e["mapel"] ?? "-")),
+                  DataCell(Text(e["kelas"] ?? "-")),
+                  DataCell(Text(e["semester"] ?? "-")),
+                  DataCell(Text(e["tanggal"] ?? "-")),
+                  DataCell(_statusChip(e["status"] ?? "-")),
                   DataCell(_action(e)),
                 ],
               );
@@ -259,13 +272,15 @@ class _RppAllListPageState extends State<RppAllListPage> {
   }
 
   Widget _statusChip(String s) {
-    final c = s == "Disetujui"
+    // ✅ Perbaiki kondisi untuk mencocokkan status dari database
+    final status = s.trim(); // hapus spasi ekstra
+    final c = status == "Disetujui"
         ? Colors.green
-        : s == "Revisi"
-        ? Colors.orange
-        : s == "Menunggu Review"
-        ? Colors.blue
-        : Colors.grey;
+        : status == "Revisi"
+            ? Colors.orange
+            : status == "Menunggu Review"
+                ? Colors.blue
+                : Colors.grey;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -274,8 +289,8 @@ class _RppAllListPageState extends State<RppAllListPage> {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        s,
-        style: TextStyle(color: c, fontWeight: FontWeight.w600),
+        status,
+        style: TextStyle(color: c, fontWeight: FontWeight.w600, fontSize: 12),
       ),
     );
   }
