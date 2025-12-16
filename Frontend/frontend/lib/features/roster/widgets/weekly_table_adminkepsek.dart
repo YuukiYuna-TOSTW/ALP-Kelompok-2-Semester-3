@@ -34,7 +34,7 @@ class WeeklyTableAdmin extends StatelessWidget {
         ),
         DataRow(
           cells: [
-            DataCell(Text("8B")),
+            DataCell(Text("67")),
             DataCell(Text("Senin")),
             DataCell(Text("08:30 - 09:20")),
             DataCell(Text("Bahasa Indonesia")),
