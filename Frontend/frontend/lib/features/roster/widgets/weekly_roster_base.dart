@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../config/theme/colors.dart';
 import '../../rpp/layout/rpp_layout.dart';
+import '../../../core/services/schedule_review_service.dart';
 
 class WeeklyRosterRppPage extends StatefulWidget {
   final String role;
@@ -29,38 +30,67 @@ class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
     "Minggu",
   ];
 
-  final Map<int, List<Map<String, String>>> weeklySchedule = {
-    0: [
-      {
-        "subject": "Biologi",
-        "start": "09:10",
-        "end": "10:00",
-        "teacher": "Pak Budi",
-        "kelas": "9A",
-      },
-    ],
-    1: [
-      {
-        "subject": "Matematika",
-        "start": "08:00",
-        "end": "09:30",
-        "teacher": "Bu Sinta",
-        "kelas": "8B",
-      },
-    ],
-    3: [
-      {
-        "subject": "IPA",
-        "start": "10:00",
-        "end": "11:30",
-        "teacher": "Pak Amir",
-        "kelas": "9C",
-      },
-    ],
-  };
+  List<Map<String, dynamic>> _allSchedules = [];
+  bool _loading = true;
 
-  List<Map<String, String>> get todaySchedule =>
-      weeklySchedule[selectedDay] ?? [];
+  // ✅ UBAH: ambil dari backend dan filter by hari
+  List<Map<String, String>> get todaySchedule {
+    if (_allSchedules.isEmpty) return [];
+
+    return _allSchedules
+        .where((e) {
+          final raw = (e['Tanggal_Mulai'] ?? '').toString();
+          if (raw.isEmpty) return false;
+
+          // ambil tanggal saja untuk hindari geser zona waktu
+          final dateStr = raw.split('T').first; // YYYY-MM-DD
+          final date = DateTime.tryParse(dateStr);
+          if (date == null) return false;
+
+          final mappedDay = date.weekday == DateTime.sunday ? 6 : date.weekday - 1;
+          debugPrint('raw=$raw date=$date mapped=$mappedDay selected=$selectedDay');
+
+          return mappedDay == selectedDay;
+        })
+        .map((e) {
+          final mulai = (e['Waktu_Mulai'] ?? '00:00:00').toString();
+          final selesai = (e['Waktu_Selesai'] ?? '00:00:00').toString();
+          return {
+            "subject": (e['Nama_Kegiatan'] ?? '-').toString(),
+            "start": mulai.length >= 5 ? mulai.substring(0, 5) : '00:00',
+            "end": selesai.length >= 5 ? selesai.substring(0, 5) : '00:00',
+            "teacher": (e['Penyelenggara'] ?? 'Unknown').toString(),
+            "kelas": (e['Tempat'] ?? '-').toString(),
+          };
+        })
+        .toList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // ✅ set hari aktif ke hari ini (0=Senin, ..., 6=Minggu)
+    final todayIdx = DateTime.now().weekday == 7
+        ? 6
+        : DateTime.now().weekday - 1;
+    selectedDay = todayIdx;
+
+    _loadSchedules();
+  }
+
+  Future<void> _loadSchedules() async {
+    setState(() => _loading = true);
+    final data = await ScheduleReviewService.getAllSchedules();
+
+    // 🔍 debug: cek jumlah dan contoh data
+    debugPrint('loaded schedules: ${data.length}');
+    if (data.isNotEmpty) debugPrint('first: ${data.first}');
+
+    setState(() {
+      _allSchedules = data;
+      _loading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +100,9 @@ class _WeeklyRosterRppPageState extends State<WeeklyRosterRppPage> {
       content: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1000),
-          child: _bigScheduleCard(),
+          child: _loading
+              ? const Center(child: CircularProgressIndicator())
+              : _bigScheduleCard(),
         ),
       ),
     );

@@ -77,7 +77,6 @@ class ScheduleApiController extends Controller
             'Tempat' => 'nullable|string|max:100',
             'Penyelenggara_ID' => 'required|integer|exists:users,id',
             'Status' => 'nullable|in:Terjadwal,Berlangsung,Selesai,Dibatalkan',
-            // lampiran optional file
             'Lampiran' => 'nullable|file|max:5120', // 5MB
         ]);
 
