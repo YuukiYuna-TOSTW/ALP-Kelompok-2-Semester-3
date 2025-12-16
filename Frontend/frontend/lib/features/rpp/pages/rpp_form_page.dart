@@ -265,13 +265,6 @@ class _RppFormPageState extends State<RppFormPage> {
 
         const SizedBox(width: 12),
 
-        OutlinedButton(
-          onPressed: _saving ? null : () => _submit(draft: false), // ✅ Kirim untuk Review
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          ),
-          child: const Text("Kirim untuk Review"),
-        ),
       ],
     );
   }

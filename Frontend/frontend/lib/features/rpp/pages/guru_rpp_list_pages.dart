@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/services/guru_rpp_review_service.dart';
 import '../../../../config/theme/colors.dart';
 import '../layout/rpp_layout.dart';
 import '../utils/rpp_exporter.dart';
@@ -12,42 +13,6 @@ class RppListPage extends StatefulWidget {
 
 class _RppListPageState extends State<RppListPage> {
   final List<Map<String, dynamic>> _allRpp = [
-    {
-      "mapel": "Matematika",
-      "kelas": "8A",
-      "bab": "Persamaan Linear",
-      "semester": "Ganjil",
-      "tanggalStr": "10 Jan 2025",
-      "tanggal": DateTime(2025, 1, 10),
-      "status": "Draft",
-    },
-    {
-      "mapel": "Bahasa Indonesia",
-      "kelas": "7B",
-      "bab": "Teks Eksposisi",
-      "semester": "Genap",
-      "tanggalStr": "12 Jan 2025",
-      "tanggal": DateTime(2025, 1, 12),
-      "status": "Menunggu Review",
-    },
-    {
-      "mapel": "IPA",
-      "kelas": "9A",
-      "bab": "Sistem Pernafasan",
-      "semester": "Ganjil",
-      "tanggalStr": "5 Jan 2025",
-      "tanggal": DateTime(2025, 1, 5),
-      "status": "Disetujui",
-    },
-    {
-      "mapel": "IPS",
-      "kelas": "7A",
-      "bab": "Interaksi Sosial",
-      "semester": "Genap",
-      "tanggalStr": "9 Jan 2025",
-      "tanggal": DateTime(2025, 1, 9),
-      "status": "Revisi",
-    },
   ];
 
   List<Map<String, dynamic>> filtered = [];
@@ -61,6 +26,32 @@ class _RppListPageState extends State<RppListPage> {
   void initState() {
     super.initState();
     filtered = [..._allRpp];
+    _loadFromService(); // ✅ muat data dari backend
+  }
+
+  Future<void> _loadFromService() async {
+    // Nama User dari session/login jika ada, jika tidak biarkan null agar default Kelompok2Guru
+    final res = await GuruRppListService.fetchMyRpps(
+      namaUser: null, // biarkan null: default Kelompok2Guru
+      status: null,   // boleh isi "Menunggu Review" dll jika ingin filter awal
+    );
+    if (res['success'] == true) {
+      final List<Map<String, dynamic>> list = (res['data'] as List).cast<Map<String, dynamic>>();
+      setState(() {
+        _allRpp
+          ..clear()
+          ..addAll(list);
+        filtered = [..._allRpp];
+        _applySorting();
+      });
+    } else {
+      // tetap pakai dummy jika gagal, tanpa mengubah tampilan
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(res['message'] ?? 'Gagal memuat RPP')),
+        );
+      }
+    }
   }
 
   void _applyFilters() {
