@@ -15,6 +15,7 @@ class KepsekRPPDashboard extends JsonResource
             'Kelas' => $this->Kelas,
             'Guru_Nama' => $this->user?->Nama_User ?? 'Guru',
             'Semester' => $this->Semester,
+            'Bab_Materi' => $this->{'Bab/Materi'} ?? '',
             'Status' => $this->Status,
             'created_at' => $this->created_at?->toISOString(),
         ];
