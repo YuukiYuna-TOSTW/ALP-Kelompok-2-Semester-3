@@ -52,15 +52,6 @@ class KepsekRppReviewerApiController extends Controller
             ], 404);
         }
 
-        // Hanya izinkan isi catatan saat Status = "Menunggu Review"
-        if ($rpp->Status !== Rpp::STATUS_MENUNGGU_REVIEW) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Status RPP bukan "Menunggu Review", catatan tidak dapat disimpan.',
-                'data' => [],
-            ], 409);
-        }
-
         $data = $request->validate([
             'Catatan_KD' => 'nullable|string',
             'Catatan_KI' => 'nullable|string',
