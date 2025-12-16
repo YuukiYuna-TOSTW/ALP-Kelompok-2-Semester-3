@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../config/theme/colors.dart';
 import '../../../core/services/kepsek_rpp_reviewer_service.dart';
 import '../../../core/services/kepsek_rpp_review_service.dart';
+import '../../../core/services/kepsek_rpp_setuju_service.dart';
 import '../layout/rpp_layout.dart';
 
 class RppReviewPage extends StatefulWidget {
@@ -230,7 +231,6 @@ class _RppReviewPageState extends State<RppReviewPage> {
   // SUBMISSION HANDLER
   // =====================================================
   void _submit(BuildContext context, String status) async {
-    // Jika tidak ada rppId, fallback ke perilaku lama
     if (_rppId == 0) {
       Navigator.pop(context, {
         "status": status,
@@ -246,41 +246,44 @@ class _RppReviewPageState extends State<RppReviewPage> {
       return;
     }
 
-    // Tampilkan loading
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) => const Center(child: CircularProgressIndicator()),
     );
 
-    final noteMap = notes.map((k, v) => MapEntry(k, v.text));
-    final resp = await KepsekRppReviewerService.upsertNotes(_rppId, noteMap);
+    Map<String, dynamic> resp;
+    if (status == "Disetujui") {
+      // Hanya ubah status menjadi Disetujui, tanpa menyimpan catatan
+      resp = await KepsekRppSetujuService.approve(_rppId);
+    } else {
+      // Minta Revisi tetap simpan catatan seperti semula
+      final noteMap = notes.map((k, v) => MapEntry(k, v.text));
+      resp = await KepsekRppReviewerService.upsertNotes(_rppId, noteMap);
+    }
 
-    if (mounted) Navigator.of(context).pop(); // tutup loading
+    if (mounted) Navigator.of(context).pop();
 
     if (resp['success'] == true) {
-      // Sukses simpan ke backend
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(resp['message'] ?? 'Catatan disimpan'),
+            content: Text(resp['message'] ?? 'Berhasil'),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 2),
           ),
         );
-        // kembalikan hasil ke caller (perilaku lama dipertahankan)
         Navigator.pop(context, {
           "status": status,
-          "notes": noteMap,
+          "notes": notes.map((k, v) => MapEntry(k, v.text)),
           "saved": true,
         });
       }
     } else {
-      // Gagal simpan ke backend
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(resp['message'] ?? 'Gagal menyimpan catatan'),
+            content: Text(resp['message'] ?? 'Gagal memproses'),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 3),
           ),
