@@ -10,7 +10,7 @@ class Rpp extends Model
     use HasFactory;
 
     protected $table = 'rpps';
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'RPP_ID';
     public $timestamps = true;
 
     protected $fillable = [
@@ -34,5 +34,37 @@ class Rpp extends Model
     {
         return $this->belongsTo(User::class, 'User_ID');
     }
+    public const STATUS_MENUNGGU_REVIEW = 'Menunggu Review'; // jika Anda pakai label ini
+    public const STATUS_MINTA_REVISI    = 'Minta Revisi';
+    public const STATUS_REVISI          = 'Revisi';
+    public const STATUS_DISETUJUI       = 'Disetujui';
 
+    public function reviews()
+    {
+        return $this->hasMany(RppReview::class, 'RPP_ID', 'RPP_ID');
+    }
+
+    protected static function booted()
+    {
+        static::updated(function (Rpp $rpp) {
+            $nullifyStatuses = [
+                self::STATUS_MENUNGGU_REVIEW,
+                self::STATUS_MINTA_REVISI,
+                self::STATUS_REVISI,
+                self::STATUS_DISETUJUI,
+            ];
+
+            if (in_array($rpp->Status, $nullifyStatuses, true)) {
+                $rpp->reviews()->update([
+                    'Reviewer_Kompetensi_Dasar'      => null,
+                    'Reviewer_Kompetensi_Inti'       => null,
+                    'Reviewer_Tujuan_Pembelajaran'   => null,
+                    'Reviewer_Pendahuluan'           => null,
+                    'Reviewer_Kegiatan_Inti'         => null,
+                    'Reviewer_Penutup'               => null,
+                    'Reviewer_Catatan_Tambahan'      => null,
+                ]);
+            }
+        });
+    }
 }

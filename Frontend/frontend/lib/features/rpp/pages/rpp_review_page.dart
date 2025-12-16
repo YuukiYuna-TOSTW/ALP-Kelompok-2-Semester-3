@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../config/theme/colors.dart';
+import '../../../core/services/kepsek_rpp_reviewer_service.dart';
 import '../../../core/services/kepsek_rpp_review_service.dart';
 import '../layout/rpp_layout.dart';
 
@@ -25,15 +26,16 @@ class _RppReviewPageState extends State<RppReviewPage> {
   };
 
   late Future<Map<String, dynamic>> _rppFuture;
+  int _rppId = 0; // ✅ simpan rppId untuk submit backend
 
   @override
   void initState() {
     super.initState();
     final localData = widget.data ?? {};
-    final id = widget.rppId ?? localData['rpp_id'] ?? localData['id'];
-    if (id != null) {
+    _rppId = widget.rppId ?? localData['rpp_id'] ?? localData['id'] ?? 0; // ✅ tentukan rppId
+    if (_rppId != 0) {
       // Ambil dari service
-      _rppFuture = KepsekRppReviewService.getRppInfo(id);
+      _rppFuture = KepsekRppReviewService.getRppInfo(_rppId);
     } else {
       // Pakai data yang sudah dibawa
       _rppFuture = Future.value({'success': true, 'data': localData});
@@ -227,18 +229,63 @@ class _RppReviewPageState extends State<RppReviewPage> {
   // =====================================================
   // SUBMISSION HANDLER
   // =====================================================
-  void _submit(BuildContext context, String status) {
-    Navigator.pop(context, {
-      "status": status,
-      "notes": notes.map((key, ctrl) => MapEntry(key, ctrl.text)),
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          status == "Disetujui" ? "RPP disetujui." : "RPP diminta revisi.",
+  void _submit(BuildContext context, String status) async {
+    // Jika tidak ada rppId, fallback ke perilaku lama
+    if (_rppId == 0) {
+      Navigator.pop(context, {
+        "status": status,
+        "notes": notes.map((key, ctrl) => MapEntry(key, ctrl.text)),
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            status == "Disetujui" ? "RPP disetujui." : "Minta Revisi.",
+          ),
         ),
-      ),
+      );
+      return;
+    }
+
+    // Tampilkan loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
     );
+
+    final noteMap = notes.map((k, v) => MapEntry(k, v.text));
+    final resp = await KepsekRppReviewerService.upsertNotes(_rppId, noteMap);
+
+    if (mounted) Navigator.of(context).pop(); // tutup loading
+
+    if (resp['success'] == true) {
+      // Sukses simpan ke backend
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(resp['message'] ?? 'Catatan disimpan'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        // kembalikan hasil ke caller (perilaku lama dipertahankan)
+        Navigator.pop(context, {
+          "status": status,
+          "notes": noteMap,
+          "saved": true,
+        });
+      }
+    } else {
+      // Gagal simpan ke backend
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(resp['message'] ?? 'Gagal menyimpan catatan'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 }
