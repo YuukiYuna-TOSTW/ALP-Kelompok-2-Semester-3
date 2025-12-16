@@ -16,6 +16,7 @@ class Rpp extends JsonResource
     {
         return [
             'RPP_ID' => $this->RPP_ID,
+            'User_ID' => $this->User_ID, // ✅ opsional
             'Nama_Mata_Pelajaran' => $this->Nama_Mata_Pelajaran,
             'Kelas' => $this->Kelas,
             'Bab/Materi' => $this->{"Bab/Materi"},
@@ -35,10 +36,6 @@ class Rpp extends JsonResource
             'Catatan_Tambahan' => $this->Catatan_Tambahan,
             'Guru_Nama' => $this->user?->Nama_User ?? 'Guru',
             'Status' => $this->Status,
-            'user' => [
-                'id' => $this->user?->id,
-                'Nama_User' => $this->user?->Nama_User,
-            ],
         ];
     }
 }
