@@ -31,12 +31,16 @@ Route::prefix('otp')->group(function () {
     Route::delete('/{email}', [OtpApiController::class, 'destroy']);
 });
 
+// ✅ PINDAHKAN: route khusus schedules SEBELUM apiResource
+Route::get('schedules/penyelenggara', [ScheduleApiController::class, 'getPenyelenggara']);
+
 // API resource routes for models (Schedule)
 Route::apiResource('schedules', ScheduleApiController::class);
 Route::apiResource('chatbot-ai', ChatbotAiApiController::class);
 Route::apiResource('history-schedules', HistoryScheduleApiController::class);
 Route::apiResource('rpps', RppApiController::class);
 Route::apiResource('users', UserApiController::class);
+
 // schedule_user (pivot) custom routes (composite key)
 Route::get('schedule-user', [ScheduleUserApiController::class, 'index']);
 Route::post('schedule-user', [ScheduleUserApiController::class, 'store']);

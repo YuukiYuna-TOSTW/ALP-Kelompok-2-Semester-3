@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb, Uint8List;
 import 'package:frontend/config/theme/colors.dart';
+import '../../../core/services/tambah_kegiatan_service.dart';
 
 class EventFormCard extends StatefulWidget {
   const EventFormCard({Key? key}) : super(key: key);
@@ -12,8 +14,8 @@ class EventFormCard extends StatefulWidget {
 class _EventFormCardState extends State<EventFormCard> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _judulCtrl = TextEditingController();
-  final TextEditingController _penyelenggaraCtrl = TextEditingController();
   final TextEditingController _deskripsiCtrl = TextEditingController();
+  final TextEditingController _tempatCtrl = TextEditingController(); // ✅ TAMBAH controller tempat
 
   DateTime? _mulaiDate;
   TimeOfDay? _mulaiTime;
@@ -21,6 +23,44 @@ class _EventFormCardState extends State<EventFormCard> {
   TimeOfDay? _selesaiTime;
 
   String _pickedFileName = '';
+  String? _pickedFilePath; // ✅ simpan path file
+  Uint8List? _pickedFileBytes; // ✅ untuk Web
+
+  List<Map<String, dynamic>> _penyelenggaraList = [];
+  int? _selectedPenyelenggaraId;
+  bool _loadingPenyelenggara = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPenyelenggara();
+  }
+
+  Future<void> _loadPenyelenggara() async {
+    setState(() {
+      _loadingPenyelenggara = true;
+    });
+
+    final data = await TambahKegiatanService.getPenyelenggara();
+    print('🎯 Loaded penyelenggara count: ${data.length}');
+    
+    if (mounted) {
+      setState(() {
+        _penyelenggaraList = data;
+        _loadingPenyelenggara = false;
+        if (_penyelenggaraList.isNotEmpty) {
+          _selectedPenyelenggaraId = _penyelenggaraList[0]['id'] as int;
+          print('✅ Default selected: ${_penyelenggaraList[0]}');
+        } else {
+          print('⚠️ Penyelenggara list kosong!');
+        }
+      });
+    }
+  }
+
+  void _retryLoadPenyelenggara() {
+    _loadPenyelenggara();
+  }
 
   Future<void> _pickDateTime({
     required bool isMulai,
@@ -92,7 +132,7 @@ class _EventFormCardState extends State<EventFormCard> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () => Navigator.pop(context), // ✅ FIX
+                      onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.close, color: Colors.grey),
                     ),
                   ],
@@ -116,16 +156,85 @@ class _EventFormCardState extends State<EventFormCard> {
                       ),
                       const SizedBox(height: 12),
 
+                      // ✅ TAMBAH: Input Tempat (sama seperti Judul)
                       TextFormField(
-                        controller: _penyelenggaraCtrl,
+                        controller: _tempatCtrl,
                         decoration: const InputDecoration(
-                          labelText: 'Penyelenggara*',
+                          labelText: 'Tempat*',
                           isDense: true,
                         ),
                         validator: (v) => v == null || v.trim().isEmpty
-                            ? 'Wajib diisi'
+                            ? 'Tempat wajib diisi'
                             : null,
                       ),
+                      const SizedBox(height: 12),
+
+                      // DROPDOWN PENYELENGGARA
+                      _loadingPenyelenggara
+                          ? const SizedBox(
+                              height: 48,
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            )
+                          : _penyelenggaraList.isEmpty
+                              ? Column(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.red),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Text(
+                                        '❌ Gagal memuat penyelenggara. Periksa backend.',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.orange,
+                                        ),
+                                        onPressed: _retryLoadPenyelenggara,
+                                        child: const Text(
+                                          'Coba Lagi',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : DropdownButtonFormField<int>(
+                                  value: _selectedPenyelenggaraId,
+                                  isExpanded: true,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Penyelenggara*',
+                                    isDense: true,
+                                  ),
+                                  items: _penyelenggaraList
+                                      .map((e) {
+                                        final nama = e['nama'] ?? '-';
+                                        final id = e['id'];
+                                        return DropdownMenuItem<int>(
+                                          value: id,
+                                          child: Text(nama),
+                                        );
+                                      })
+                                      .toList(),
+                                  onChanged: (v) {
+                                    setState(() {
+                                      _selectedPenyelenggaraId = v;
+                                      print('Selected: $v');
+                                    });
+                                  },
+                                  validator: (v) => v == null
+                                      ? 'Penyelenggara wajib dipilih'
+                                      : null,
+                                ),
+
                       const SizedBox(height: 16),
 
                       Row(
@@ -176,11 +285,18 @@ class _EventFormCardState extends State<EventFormCard> {
                                   : _pickedFileName,
                             ),
                             onPressed: () async {
-                              final result = await FilePicker.platform
-                                  .pickFiles();
+                              final result = await FilePicker.platform.pickFiles(withData: kIsWeb);
                               if (result != null && result.files.isNotEmpty) {
+                                final f = result.files.first;
                                 setState(() {
-                                  _pickedFileName = result.files.first.name;
+                                  _pickedFileName = f.name;
+                                  if (kIsWeb) {
+                                    _pickedFileBytes = f.bytes;          // ✅ Web: bytes
+                                    _pickedFilePath = null;
+                                  } else {
+                                    _pickedFilePath = f.path;            // ✅ non-Web: path
+                                    _pickedFileBytes = null;
+                                  }
                                 });
                               }
                             },
@@ -196,9 +312,72 @@ class _EventFormCardState extends State<EventFormCard> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              Navigator.pop(context); // optional auto close
+                              if (_mulaiDate == null || _mulaiTime == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text('Tanggal & waktu mulai wajib dipilih')),
+                                );
+                                return;
+                              }
+                              if (_selesaiDate == null || _selesaiTime == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text('Tanggal & waktu selesai wajib dipilih')),
+                                );
+                                return;
+                              }
+
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (_) => const Center(
+                                    child: CircularProgressIndicator()),
+                              );
+
+                              // ✅ KIRIM data termasuk tempat
+                              final res = await TambahKegiatanService.createSchedule(
+                                namaKegiatan: _judulCtrl.text,
+                                deskripsi: _deskripsiCtrl.text,
+                                tanggalMulai: _mulaiDate!,
+                                waktuMulai: '${_mulaiTime!.hour.toString().padLeft(2, '0')}:${_mulaiTime!.minute.toString().padLeft(2, '0')}',
+                                tanggalSelesai: _selesaiDate!,
+                                waktuSelesai: '${_selesaiTime!.hour.toString().padLeft(2, '0')}:${_selesaiTime!.minute.toString().padLeft(2, '0')}',
+                                penyelenggaraId: _selectedPenyelenggaraId ?? 1,
+                                tempat: _tempatCtrl.text,
+                                lampiranPath: _pickedFilePath,        // ✅ non-Web
+                                lampiranBytes: _pickedFileBytes,      // ✅ Web
+                                lampiranName: _pickedFileName,
+                              );
+
+                              if (mounted) Navigator.of(context).pop();
+
+                              if (res['success'] == true) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(res['message'] ?? 'Kegiatan disimpan'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                  Navigator.pop(context, {
+                                    'judul': _judulCtrl.text,
+                                    'deskripsi': _deskripsiCtrl.text,
+                                  });
+                                }
+                              } else {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(res['message'] ?? 'Gagal menyimpan'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              }
                             }
                           },
                           child: const Text(

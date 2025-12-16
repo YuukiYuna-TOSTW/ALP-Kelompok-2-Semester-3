@@ -23,7 +23,9 @@ class Schedule extends JsonResource
             'Jam_Schedule_Dimulai' => $this->Jam_Schedule_Dimulai,
             'Jam_Schedule_Berakhir' => $this->Jam_Schedule_Berakhir,
             'Deskripsi_Schedule' => $this->Deskripsi_Schedule,
-            'Dokumen' => $this->Dokumen,
+            'Lampiran' => $this->Lampiran,
+            'Tempat' => $this->Tempat,
+            'Status' => $this->Status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

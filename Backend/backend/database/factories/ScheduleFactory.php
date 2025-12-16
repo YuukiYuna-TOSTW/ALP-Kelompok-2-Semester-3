@@ -32,6 +32,7 @@ class ScheduleFactory extends Factory
             'Waktu_Selesai' => fake()->time('H:i:s'),
             'Tempat' => fake()->city(),
             'Penyelenggara_ID' => User::factory(), // ✅ akan otomatis mengambil id
+            'Lampiran' => fake()->sentence(),
             'Status' => fake()->randomElement(['Terjadwal', 'Berlangsung', 'Selesai', 'Dibatalkan']),
         ];
     }

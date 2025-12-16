@@ -20,14 +20,24 @@ class Schedule extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'Nama_Schedule',
+        'Nama_Kegiatan',
+        'Deskripsi',
+        'Tanggal_Mulai',
+        'Tanggal_Selesai',
+        'Waktu_Mulai',
+        'Waktu_Selesai',
+        'Tempat',
         'Penyelenggara_ID',
-        'Tanggal_Schedule_Dimulai',
-        'Tanggal_Schedule_Berakhir',
-        'Jam_Schedule_Dimulai',
-        'Jam_Schedule_Berakhir',
-        'Deskripsi_Schedule',
-        'Dokumen',
+        'Lampiran',
+        'Tempat',
+        'Status',
+    ];
+
+    protected $casts = [
+        'Tanggal_Mulai' => 'date',
+        'Tanggal_Selesai' => 'date',
+        'Waktu_Mulai' => 'string',
+        'Waktu_Selesai' => 'string',
     ];
 
     /**
