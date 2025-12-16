@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\KepsekRppSetujuApiController;
 use App\Http\Controllers\Api\RppHistoryApiController;
 use App\Http\Controllers\Api\RppReviewDetailApiController;
 use App\Http\Controllers\Api\ScheduleReviewApiController;
+use App\Http\Controllers\Api\GuruKalenderApiController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -58,6 +59,7 @@ Route::prefix('dashboard')->group(function () {
     Route::get('/rpps/pending', [KepsekRPPApiController::class, 'pending']);
     Route::get('/kepsekstatistiksekolah', [KepsekStatistikSekolahApiController::class, 'index']);
     Route::get('/kepsekkalender', [KepsekKalenderApiController::class, 'index']);
+    Route::get('/gurukalender', [GuruKalenderApiController::class, 'index']);
 });
 
 // RPP info untuk frontend (tanpa catatan reviewer)
