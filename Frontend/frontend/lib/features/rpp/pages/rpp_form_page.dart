@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../config/theme/colors.dart';
+import '../../../core/services/rpp_service.dart'; // ✅ tambah
 
 import '../layout/rpp_layout.dart';
 import '../components/rpp_ai_dialog.dart';
@@ -37,6 +38,8 @@ class _RppFormPageState extends State<RppFormPage> {
   final sumberCtrl = TextEditingController();
 
   List<String> attachments = [];
+
+  bool _saving = false; // ✅ tambah
 
   @override
   Widget build(BuildContext context) {
@@ -252,38 +255,18 @@ class _RppFormPageState extends State<RppFormPage> {
     return Row(
       children: [
         ElevatedButton(
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Draft RPP berhasil disimpan!")),
-            );
-
-            // ⏱️ beri jeda agar snackbar terlihat
-            Future.delayed(const Duration(milliseconds: 500), () {
-              Navigator.pushReplacementNamed(context, "/rpp");
-            });
-          },
+          onPressed: _saving ? null : () => _submit(draft: true), // ✅ Simpan Draft
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           ),
-          child: const Text("Simpan Draft"),
+          child: Text(_saving ? "Menyimpan..." : "Simpan Draft"),
         ),
 
         const SizedBox(width: 12),
 
         OutlinedButton(
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("RPP berhasil dikirim untuk review!"),
-              ),
-            );
-
-            // ⏱️ beri jeda agar snackbar terlihat
-            Future.delayed(const Duration(milliseconds: 500), () {
-              Navigator.pushReplacementNamed(context, "/rpp");
-            });
-          },
+          onPressed: _saving ? null : () => _submit(draft: false), // ✅ Kirim untuk Review
           style: OutlinedButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           ),
@@ -291,5 +274,43 @@ class _RppFormPageState extends State<RppFormPage> {
         ),
       ],
     );
+  }
+
+  Future<void> _submit({required bool draft}) async {
+    if (_saving) return;
+    setState(() => _saving = true);
+
+    final payload = {
+      'Nama_Mata_Pelajaran': mapelCtrl.text.trim(),
+      'Kelas': kelasCtrl.text.trim(),
+      'Semester': semesterCtrl.text.trim(),
+      'Bab/Materi': babCtrl.text.trim(),
+      'Kompetensi_Dasar': kdCtrl.text.trim().isNotEmpty ? kdCtrl.text.trim() : '-',
+      'Kompetensi_Inti': kiCtrl.text.trim().isNotEmpty ? kiCtrl.text.trim() : '-',
+      'Tujuan_Pembelajaran': tujuanCtrl.text.trim().isNotEmpty ? tujuanCtrl.text.trim() : '-',
+      'Pendahuluan': pendahuluanCtrl.text.trim().isNotEmpty ? pendahuluanCtrl.text.trim() : '-',
+      'Kegiatan_Inti': intiCtrl.text.trim().isNotEmpty ? intiCtrl.text.trim() : '-',
+      'Penutup': penutupCtrl.text.trim().isNotEmpty ? penutupCtrl.text.trim() : '-',
+      'Materi_Pembelajaran': materiCtrl.text.trim().isNotEmpty ? materiCtrl.text.trim() : '-',
+      'Asesmen_Pembelajaran': asesmenCtrl.text.trim().isNotEmpty ? asesmenCtrl.text.trim() : '-',
+      'Metode_Pembelajaran': metodeCtrl.text.trim().isNotEmpty ? metodeCtrl.text.trim() : '-',
+      'Media_Pembelajaran': mediaCtrl.text.trim().isNotEmpty ? mediaCtrl.text.trim() : '-',
+      'Sumber_Belajar': sumberCtrl.text.trim().isNotEmpty ? sumberCtrl.text.trim() : '-',
+      'Lampiran': attachments.isNotEmpty ? attachments.join(', ') : '-',
+      'Catatan_Tambahan': '-',
+      'Status': draft ? 'Minta Revisi' : 'Menunggu Review', // ✅ draft/kirim
+    };
+
+    final res = await RppService.createRpp(payload: payload, namaUser: 'Kelompok2Guru');
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(res['message'] ?? '')),
+      );
+      if (res['success'] == true) {
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (mounted) Navigator.pushReplacementNamed(context, "/rpp");
+      }
+    }
+    if (mounted) setState(() => _saving = false);
   }
 }
