@@ -2,31 +2,81 @@ import 'package:flutter/material.dart';
 import '../../../config/theme/colors.dart';
 import '../components/rpp_status_badge.dart';
 import '../layout/rpp_layout.dart';
+import '../../../core/services/rpp_revied_detail_service.dart';
 
-class RppPreviewPage extends StatelessWidget {
-  final String mapel;
-  final String kelas;
-  final String bab;
-  final String status;
+class RppPreviewPage extends StatefulWidget {
+  final String? mapel;
+  final String? kelas;
+  final String? bab;
+  final String? status;
+  final int? rppId;
 
   const RppPreviewPage({
     super.key,
-    required this.mapel,
-    required this.kelas,
-    required this.bab,
-    required this.status,
+    this.mapel,
+    this.kelas,
+    this.bab,
+    this.status,
+    this.rppId,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final Map<String, dynamic> data =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ??
-        {};
+  State<RppPreviewPage> createState() => _RppPreviewPageState();
+}
 
+class _RppPreviewPageState extends State<RppPreviewPage> {
+  late Future<Map<String, dynamic>> _detailFuture;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final rppId = widget.rppId ?? args?['rpp_id'] ?? args?['RPP_ID'];
+    
+    if (rppId != null) {
+      _detailFuture = RppReviewDetailService.getDetail(
+        rppId is int ? rppId : int.tryParse('$rppId') ?? 0,
+      );
+    } else {
+      _detailFuture = Future.value({'success': false, 'data': null});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return RppLayout(
       role: "guru",
       selectedRoute: "/rpp",
-      content: _buildContent(context, data),
+      content: FutureBuilder<Map<String, dynamic>>(
+        future: _detailFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final res = snapshot.data ?? {};
+          final data = res['data'] as Map<String, dynamic>? ?? {};
+
+          if (res['success'] != true || data.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(res['message'] ?? 'Gagal memuat detail RPP'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Kembali'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return _buildContent(context, data);
+        },
+      ),
     );
   }
 
@@ -34,6 +84,11 @@ class RppPreviewPage extends StatelessWidget {
   // MAIN CONTENT
   // ==========================================================
   Widget _buildContent(BuildContext context, Map<String, dynamic> data) {
+    final mapel = data['Nama_Mata_Pelajaran'] ?? widget.mapel ?? '-';
+    final kelas = data['Kelas'] ?? widget.kelas ?? '-';
+    final bab = data['Bab_Materi'] ?? widget.bab ?? '-';
+    final status = data['Status'] ?? widget.status ?? '-';
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(28),
       child: Column(
@@ -56,12 +111,14 @@ class RppPreviewPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "Preview RPP – $mapel Kelas $kelas",
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.textDark,
+              Expanded(
+                child: Text(
+                  "Preview RPP – $mapel Kelas $kelas",
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textDark,
+                  ),
                 ),
               ),
               RppStatusBadge(status: status),
@@ -70,7 +127,7 @@ class RppPreviewPage extends StatelessWidget {
 
           const SizedBox(height: 30),
 
-          _buildRppDocument(context, data),
+          _buildRppDocument(context, data, mapel, kelas, bab),
         ],
       ),
     );
@@ -79,7 +136,7 @@ class RppPreviewPage extends StatelessWidget {
   // ==========================================================
   // RPP DOCUMENT (IDENTITAS + ISI RPP)
   // ==========================================================
-  Widget _buildRppDocument(BuildContext context, Map<String, dynamic> data) {
+  Widget _buildRppDocument(BuildContext context, Map<String, dynamic> data, String mapel, String kelas, String bab) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(28),
@@ -103,79 +160,84 @@ class RppPreviewPage extends StatelessWidget {
           // ===============================
           // IDENTITAS
           // ===============================
-          _infoRow("Nama Guru", data["guru"] ?? "Budi Santoso, S.Pd."),
+          _infoRow("Nama Guru", data["Nama_Guru"] ?? "-"),
           _infoRow("Mata Pelajaran", mapel),
-          _infoRow("Kelas / Semester", "$kelas / ${data["semester"] ?? "-"}"),
+          _infoRow("Kelas / Semester", "$kelas / ${data["Semester"] ?? "-"}"),
           _infoRow("Bab / Materi", bab),
+
+          const SizedBox(height: 28),
+
+          // ===============================
+          // KOMPETENSI DASAR & INTI
+          // ===============================
+          _sectionTitle("I. KOMPETENSI DASAR"),
+          _longText(data["Kompetensi_Dasar"]),
+
+          const SizedBox(height: 20),
+
+          _sectionTitle("II. KOMPETENSI INTI"),
+          _longText(data["Kompetensi_Inti"]),
 
           const SizedBox(height: 28),
 
           // ===============================
           // TUJUAN PEMBELAJARAN
           // ===============================
-          _sectionTitle("I. TUJUAN PEMBELAJARAN"),
-          _bulletList(data["tujuan"]),
+          _sectionTitle("III. TUJUAN PEMBELAJARAN"),
+          _bulletList(data["Tujuan_Pembelajaran"]),
 
           const SizedBox(height: 28),
 
           // ===============================
-          // KEGIATAN PEMBELAJARAN (OPTION 2)
+          // KEGIATAN PEMBELAJARAN
           // ===============================
-          _sectionTitle("II. KEGIATAN PEMBELAJARAN"),
+          _sectionTitle("IV. KEGIATAN PEMBELAJARAN"),
 
           const SizedBox(height: 14),
           _subHeader("A. Pendahuluan"),
-          _longText(data["pendahuluan"]),
+          _longText(data["Pendahuluan"]),
 
           const SizedBox(height: 14),
           _subHeader("B. Inti"),
-          _longText(data["inti"]),
+          _longText(data["Kegiatan_Inti"]),
 
           const SizedBox(height: 14),
           _subHeader("C. Penutup"),
-          _longText(data["penutup"]),
+          _longText(data["Penutup"]),
 
           const SizedBox(height: 28),
 
           // ===============================
           // ASESMEN
           // ===============================
-          _sectionTitle("III. ASESMEN PEMBELAJARAN"),
-          _longText(data["asesmen"]),
+          _sectionTitle("V. ASESMEN PEMBELAJARAN"),
+          _longText(data["Asesmen_Pembelajaran"]),
 
           const SizedBox(height: 28),
 
           // ===============================
           // KOMPONEN TAMBAHAN
           // ===============================
-          _sectionTitle("IV. METODE PEMBELAJARAN"),
-          _longText(data["metode"]),
+          _sectionTitle("VI. METODE PEMBELAJARAN"),
+          _longText(data["Metode_Pembelajaran"]),
 
           const SizedBox(height: 20),
 
-          _sectionTitle("V. MEDIA PEMBELAJARAN"),
-          _longText(data["media"]),
+          _sectionTitle("VII. MEDIA PEMBELAJARAN"),
+          _longText(data["Media_Pembelajaran"]),
 
           const SizedBox(height: 20),
 
-          _sectionTitle("VI. SUMBER BELAJAR"),
-          _longText(data["sumber"]),
+          _sectionTitle("VIII. SUMBER BELAJAR"),
+          _longText(data["Sumber_Belajar"]),
 
           const SizedBox(height: 20),
 
-          if ((data["lampiran"] ?? []).isNotEmpty)
-            _sectionTitle("VII. LAMPIRAN"),
+          if ((data["Lampiran"] ?? "").toString().isNotEmpty)
+            _sectionTitle("IX. LAMPIRAN"),
 
-          if ((data["lampiran"] ?? []).isNotEmpty)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: (data["lampiran"] as List<String>).map((e) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Text("• $e"),
-                );
-              }).toList(),
-            ),
+          if ((data["Lampiran"] ?? "").toString().isNotEmpty)
+            _longText(data["Lampiran"]),
         ],
       ),
     );
