@@ -32,8 +32,6 @@ Route::prefix('otp')->group(function () {
     Route::post('/generate', [OtpController::class, 'generate']);
     Route::post('/verify', [OtpController::class, 'verify']);
     Route::post('/resend', [OtpController::class, 'resend']);
-    Route::get('/{email}', [OtpController::class, 'show']);
-    Route::delete('/{email}', [OtpController::class, 'destroy']);
 });
 
 // ✅ PINDAHKAN: route khusus schedules SEBELUM apiResource
@@ -41,8 +39,6 @@ Route::get('schedules/penyelenggara', [ScheduleApiController::class, 'getPenyele
 
 // API resource routes for models (Schedule)
 Route::apiResource('schedules', ScheduleApiController::class);
-Route::apiResource('chatbot-ai', ChatbotAiApiController::class);
-Route::apiResource('history-schedules', HistoryScheduleApiController::class);
 
 // Pindahkan route create khusus ke atas apiResource agar tidak tertimpa
 Route::post('rpps/create', [RppApiController::class, 'store']);
@@ -54,13 +50,6 @@ Route::post('rpps/create', [RppApiController::class, 'store']);
 // DELETE /rpps/{rpp}  -> destroy
 Route::apiResource('rpps', RppApiController::class);
 Route::apiResource('users', UserApiController::class);
-
-// schedule_user (pivot) custom routes (composite key)
-Route::get('schedule-user', [ScheduleUserApiController::class, 'index']);
-Route::post('schedule-user', [ScheduleUserApiController::class, 'store']);
-Route::get('schedule-user/{user_id}/{schedule_id}', [ScheduleUserApiController::class, 'show']);
-Route::put('schedule-user/{user_id}/{schedule_id}', [ScheduleUserApiController::class, 'update']);
-Route::delete('schedule-user/{user_id}/{schedule_id}', [ScheduleUserApiController::class, 'destroy']);
 
 // Auth Routes
 Route::post('/login', [UserApiController::class, 'login']);
