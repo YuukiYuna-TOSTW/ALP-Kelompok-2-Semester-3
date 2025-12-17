@@ -60,6 +60,9 @@ import '../../features/users/pages/admin_user_list_page.dart';
 import '../../features/users/pages/admin_add_user_page.dart';
 import '../../features/users/pages/admin_edit_user_page.dart';
 
+// ONBOARDING
+import '../../features/onboard/pages/onboard_page.dart';
+
 class AppRoutes {
   static Map<String, WidgetBuilder> allRoutes(BuildContext context) {
     return {
@@ -256,6 +259,7 @@ class AppRoutes {
       // ============================================================
       "/about": (_) => const AboutScreen(),
       "/": (_) => const Scaffold(body: Center(child: Text("Welcome"))),
+      "/onboard": (_) => const OnboardingPage(),
     };
   }
 

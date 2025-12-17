@@ -216,7 +216,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
         await Future.delayed(const Duration(milliseconds: 1500));
         if (mounted) {
           Navigator.of(context).pushNamedAndRemoveUntil(
-            '/dashboard',
+            '/onboard', // dulu '/dashboard'
             (route) => false,
           );
         }
