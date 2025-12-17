@@ -114,7 +114,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (_currentPage == data.length - 1) {
-                        Navigator.pushReplacementNamed(context, '/roster');
+                        Navigator.pushReplacementNamed(context, '/dashboard'); // dulu '/roster'
                       } else {
                         _controller.nextPage(
                           duration: const Duration(milliseconds: 300),
