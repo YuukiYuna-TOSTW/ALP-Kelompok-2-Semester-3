@@ -63,6 +63,7 @@ class GuruRppListService {
           final semester = item['Semester'] ?? item['semester'] ?? '-';
           final statusVal = (item['Status'] ?? item['status'] ?? '-').toString();
           final tanggalStrRaw = item['created_at'] ?? item['tanggal'] ?? null;
+          final id = item['id'] ?? item['RPP_ID'] ?? 0;
 
           // Parse tanggal ke DateTime + string tampilan (contoh konsisten: dd MMM yyyy)
           DateTime? tanggalDt;
@@ -82,6 +83,7 @@ class GuruRppListService {
           }
 
           list.add({
+            'RPP_ID': id is int ? id : int.tryParse('$id'), // ✅ pastikan integer
             'mapel': mapel.toString(),
             'kelas': kelas.toString(),
             'bab': bab.toString(),

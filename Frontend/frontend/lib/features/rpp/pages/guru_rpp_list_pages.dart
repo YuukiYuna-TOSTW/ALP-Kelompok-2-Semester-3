@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/services/guru_rpp_review_service.dart';
+import '../../../core/services/guru_rpp_edit_service.dart'; // ✅ tambah
 import '../../../../config/theme/colors.dart';
 import '../layout/rpp_layout.dart';
 import '../utils/rpp_exporter.dart';
@@ -296,11 +297,76 @@ class _RppListPageState extends State<RppListPage> {
 
   Widget _actionMenu(Map<String, dynamic> item) {
     return PopupMenuButton<String>(
-      onSelected: (v) {
+      onSelected: (v) async {
+        // ✅ Ambil RPP_ID dari item
+        final rppId = item['RPP_ID'];
+        if (rppId == null) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('ID RPP tidak ditemukan')),
+            );
+          }
+          return;
+        }
+
+        final id = rppId is int ? rppId : int.tryParse('$rppId');
+        if (id == null || id <= 0) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('ID RPP tidak valid')),
+            );
+          }
+          return;
+        }
+
         if (v == "edit") {
-          Navigator.pushNamed(context, "/rpp/edit", arguments: item);
+          // ✅ Prefetch detail dari API sebelum navigate
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Memuat detail RPP...')),
+            );
+          }
+          
+          final res = await GuruRppEditService.getDetail(id);
+          if (res['success'] == true) {
+            final detail = res['data'] as Map<String, dynamic>;
+            if (mounted) {
+              Navigator.pushNamed(context, "/rpp/edit", arguments: {
+                'RPP_ID': id, // ✅ kirim ID eksplisit
+                'detail': detail, // ✅ kirim detail lengkap dari API
+                'status': item['status'], // untuk readOnly check
+                // kirim data list untuk fallback
+                'mapel': item['mapel'],
+                'kelas': item['kelas'],
+                'bab': item['bab'],
+                'semester': item['semester'],
+              });
+            }
+          } else {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(res['message'] ?? 'Gagal memuat detail RPP')),
+              );
+            }
+          }
         } else if (v == "view") {
-          Navigator.pushNamed(context, "/rpp/preview", arguments: item);
+          // ✅ Prefetch detail untuk preview
+          final res = await GuruRppEditService.getDetail(id);
+          if (res['success'] == true) {
+            final detail = res['data'] as Map<String, dynamic>;
+            if (mounted) {
+              Navigator.pushNamed(context, "/rpp/preview", arguments: {
+                'RPP_ID': id,
+                'detail': detail,
+              });
+            }
+          } else {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(res['message'] ?? 'Gagal memuat detail RPP')),
+              );
+            }
+          }
         } else if (v == "export") {
           exportRppToPdf(item);
         }
