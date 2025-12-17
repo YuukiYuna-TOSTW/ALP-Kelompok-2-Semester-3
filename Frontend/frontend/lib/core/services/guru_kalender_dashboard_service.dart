@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:frontend/features/dashboard/components/mini_calendar.dart'; // CalendarEvent
+import 'package:shared_preferences/shared_preferences.dart'; // tambah
 
 class GuruKalenderDashboardService {
   static String get baseUrl {
@@ -21,14 +22,25 @@ class GuruKalenderDashboardService {
     'Accept': 'application/json',
   };
 
-  /// Ambil jadwal kalender untuk guru tertentu (namaUser opsional, default Kelompok2Guru)
+  /// Ambil jadwal kalender untuk guru tertentu (namaUser opsional)
   static Future<List<CalendarEvent>> getSchedules({
-    String namaUser = 'Kelompok2Guru',
+    String? namaUser,
   }) async {
     try {
-      final uri = Uri.parse(
-        '$baseUrl/dashboard/gurukalender',
-      ).replace(queryParameters: {'nama_user': namaUser});
+      // Ambil dari parameter, jika null/empty ambil dari SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final resolvedUser = (namaUser != null && namaUser.trim().isNotEmpty)
+          ? namaUser.trim()
+          : (prefs.getString('Nama_User') ?? '');
+
+      if (resolvedUser.isEmpty) {
+        print('❌ Nama_User kosong, silakan login ulang');
+        return [];
+      }
+
+      final uri = Uri.parse('$baseUrl/dashboard/gurukalender')
+          .replace(queryParameters: {'nama_user': resolvedUser});
+
       final res = await http
           .get(uri, headers: _headers)
           .timeout(const Duration(seconds: 12));
@@ -41,7 +53,7 @@ class GuruKalenderDashboardService {
       final body = jsonDecode(res.body) as Map<String, dynamic>;
       final data = body['data'] as List? ?? [];
 
-      print('📅 Guru Kalender: loaded ${data.length} schedules');
+      print('📅 Guru Kalender: loaded ${data.length} schedules (user: $resolvedUser)');
       if (data.isNotEmpty) {
         print('📅 First schedule: ${data.first}');
       }
@@ -49,22 +61,16 @@ class GuruKalenderDashboardService {
       return data.map<CalendarEvent>((item) {
         final tanggalStr = item['Tanggal_Mulai'] ?? '';
         DateTime date;
-
         try {
           date = DateTime.parse(tanggalStr);
         } catch (e) {
           print('⚠️ Failed to parse date: $tanggalStr - $e');
           date = DateTime.now();
         }
-
-        final event = CalendarEvent(
+        return CalendarEvent(
           date: DateTime(date.year, date.month, date.day),
           title: item['Nama_Kegiatan'] ?? 'Kegiatan',
         );
-
-        print('📅 Guru Mapped: ${item['Nama_Kegiatan']} -> ${event.date}');
-
-        return event;
       }).toList();
     } catch (e) {
       print('❌ Error: $e');
