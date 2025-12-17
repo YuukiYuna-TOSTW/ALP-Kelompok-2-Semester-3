@@ -43,6 +43,15 @@ Route::get('schedules/penyelenggara', [ScheduleApiController::class, 'getPenyele
 Route::apiResource('schedules', ScheduleApiController::class);
 Route::apiResource('chatbot-ai', ChatbotAiApiController::class);
 Route::apiResource('history-schedules', HistoryScheduleApiController::class);
+
+// Pindahkan route create khusus ke atas apiResource agar tidak tertimpa
+Route::post('rpps/create', [RppApiController::class, 'store']);
+
+// apiResource akan handle:
+// GET    /rpps        -> index
+// GET    /rpps/{rpp}  -> show
+// PUT    /rpps/{rpp}  -> update
+// DELETE /rpps/{rpp}  -> destroy
 Route::apiResource('rpps', RppApiController::class);
 Route::apiResource('users', UserApiController::class);
 

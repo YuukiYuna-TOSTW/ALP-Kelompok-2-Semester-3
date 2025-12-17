@@ -80,11 +80,17 @@ class RppApiController extends Controller
 
     public function show(Rpp $rpp): JsonResponse
     {
-        return response()->json(new RppResource($rpp));
+        $rpp->load('user'); // ✅ eager load relasi
+        return response()->json([
+            'success' => true,
+            'data' => new RppResource($rpp),
+            'message' => 'OK',
+        ]);
     }
 
     public function update(Request $request, Rpp $rpp): JsonResponse
     {
+        // ✅ rpp sudah di-resolve otomatis oleh route model binding berdasarkan RPP_ID
         $data = $request->validate([
             'Nama_Mata_Pelajaran' => 'required|string|max:255',
             'Kelas' => 'required|string|max:50',
@@ -103,11 +109,16 @@ class RppApiController extends Controller
             'Sumber_Belajar' => 'required|string',
             'Lampiran' => 'nullable|string',
             'Catatan_Tambahan' => 'nullable|string',
-            'Status' => 'required|string',
+            'Status' => 'required|string|in:Menunggu Review,Minta Revisi,Revisi,Disetujui',
         ]);
 
         $rpp->update($data);
-        return response()->json(new RppResource($rpp));
+        
+        return response()->json([
+            'success' => true,
+            'data' => new RppResource($rpp->fresh()), // ✅ ambil data terbaru
+            'message' => 'RPP berhasil diperbarui',
+        ]);
     }
 
     public function destroy(Rpp $rpp): JsonResponse

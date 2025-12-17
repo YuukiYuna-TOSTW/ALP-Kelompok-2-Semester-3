@@ -2,23 +2,30 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Rpp extends Model
 {
     use HasFactory;
 
     protected $table = 'rpps';
-    protected $primaryKey = 'RPP_ID';
-    public $timestamps = true;
+    protected $primaryKey = 'RPP_ID'; // ✅ penting: Laravel tahu primary key
+    public $incrementing = true;
+    protected $keyType = 'int';
+
+    // ✅ Tambahkan konstanta status
+    const STATUS_MENUNGGU_REVIEW = 'Menunggu Review';
+    const STATUS_MINTA_REVISI = 'Minta Revisi';
+    const STATUS_REVISI = 'Revisi';
+    const STATUS_DISETUJUI = 'Disetujui';
 
     protected $fillable = [
         'User_ID',
         'Nama_Mata_Pelajaran',
         'Kelas',
-        'Bab/Materi',
         'Semester',
+        'Bab/Materi',
         'Kompetensi_Dasar',
         'Kompetensi_Inti',
         'Tujuan_Pembelajaran',
@@ -35,42 +42,8 @@ class Rpp extends Model
         'Status',
     ];
 
-    // ✅ Relasi ke User
     public function user()
     {
-        return $this->belongsTo(User::class, 'User_ID');
-    }
-    public const STATUS_MENUNGGU_REVIEW = 'Menunggu Review'; // jika Anda pakai label ini
-    public const STATUS_MINTA_REVISI    = 'Minta Revisi';
-    public const STATUS_REVISI          = 'Revisi';
-    public const STATUS_DISETUJUI       = 'Disetujui';
-
-    public function reviews()
-    {
-        return $this->hasMany(RppReview::class, 'RPP_ID', 'RPP_ID');
-    }
-
-    protected static function booted()
-    {
-        static::updated(function (Rpp $rpp) {
-            $nullifyStatuses = [
-                self::STATUS_MENUNGGU_REVIEW,
-                self::STATUS_MINTA_REVISI,
-                self::STATUS_REVISI,
-                self::STATUS_DISETUJUI,
-            ];
-
-            if (in_array($rpp->Status, $nullifyStatuses, true)) {
-                $rpp->reviews()->update([
-                    'Reviewer_Kompetensi_Dasar'      => null,
-                    'Reviewer_Kompetensi_Inti'       => null,
-                    'Reviewer_Tujuan_Pembelajaran'   => null,
-                    'Reviewer_Pendahuluan'           => null,
-                    'Reviewer_Kegiatan_Inti'         => null,
-                    'Reviewer_Penutup'               => null,
-                    'Reviewer_Catatan_Tambahan'      => null,
-                ]);
-            }
-        });
+        return $this->belongsTo(User::class, 'User_ID', 'id');
     }
 }
