@@ -116,38 +116,25 @@ class _LoginCardState extends State<LoginCard> {
 
     setState(() => isLoading = true);
     try {
-      // Step 1: Login
+      // Step 1: Login ke backend
       final loginResult = await LoginRegisterService.login(
         email: emailC.text,
         password: passC.text,
       );
 
       if (loginResult['success'] == true) {
-        // Step 2: Generate OTP setelah login berhasil
+        // Step 2: Generate OTP dari backend
         final otpResult = await OtpService.generateOtp(email: emailC.text);
 
-        // Debug: Print response
-        print('OTP Result: $otpResult');
-
         if (otpResult['success'] == true) {
-          final otpCode = otpResult['otp_code'] ?? '';
-
-          // Debug: Print OTP code
-          print('OTP Code: $otpCode');
-
-          // Step 3: Navigate ke OTP Verification dengan kode OTP
           if (mounted) {
-            // Jika otpCode kosong, tampilkan snackbar warning
-            if (otpCode.isEmpty) {
-              snack(
-                "OTP berhasil dikirim tapi kode tidak ditemukan dalam response",
-              );
-            }
-
-            Navigator.of(context).pushReplacement(
+            // ✅ Jangan simpan/tampilkan OTP code
+            // Navigasi langsung ke OTP verification page
+            Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) =>
-                    OtpVerificationPage(email: emailC.text, otpCode: otpCode),
+                builder: (context) => OtpVerificationPage(
+                  email: emailC.text,
+                ),
               ),
             );
           }
@@ -155,24 +142,7 @@ class _LoginCardState extends State<LoginCard> {
           snack("Gagal mengirim OTP: ${otpResult['message']}");
         }
       } else {
-        final raw = (loginResult['message'] ?? '').toString();
-        final msg = raw.toLowerCase();
-        if (msg.contains("invalid") ||
-            msg.contains("salah") ||
-            msg.contains("unauthorized")) {
-          snack("Email atau password salah");
-        } else if (msg.contains("timeout") ||
-            msg.contains("koneksi") ||
-            msg.contains("failed host")) {
-          snack("Gagal terhubung ke server");
-        } else if (msg.contains("server") ||
-            msg.contains("internal") ||
-            msg.contains("bad gateway") ||
-            msg.contains("unavailable")) {
-          snack("Terjadi kesalahan pada server, coba lagi nanti");
-        } else {
-          snack("Login gagal: ${raw.isEmpty ? 'Terjadi kesalahan' : raw}");
-        }
+        snack(loginResult['message'] ?? "Login gagal");
       }
     } catch (e) {
       snack("Terjadi kesalahan koneksi: $e");

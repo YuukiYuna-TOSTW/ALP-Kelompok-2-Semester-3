@@ -7,6 +7,8 @@ import '../../main.dart';
 // AUTH
 import '../../features/auth/pages/role_preview_page.dart';
 import '../../features/auth/widgets/about.screen.dart';
+import '../../features/auth/pages/login_register_flip.dart';
+import '../../features/auth/widgets/otp_verification_screen.dart';
 
 // DASHBOARD
 import '../../features/dashboard/dashboard_page.dart';
@@ -65,6 +67,7 @@ class AppRoutes {
       // AUTH
       // ============================================================
       "/role-preview": (_) => const RolePreviewPage(),
+      '/login': (context) => const LoginRegisterFlip(),
 
       // ============================================================
       // DASHBOARD
@@ -262,5 +265,24 @@ class AppRoutes {
   static Map<String, dynamic> _safeArgs(dynamic args) {
     if (args is Map) return Map<String, dynamic>.from(args);
     return {};
+  }
+
+  // ✅ TAMBAH: method onGenerateRoute untuk handle dynamic route
+  static Route<dynamic> onGenerateRoute(RouteSettings settings) {
+    switch (settings.name) {
+      case '/otp':
+        final args = settings.arguments as Map<String, dynamic>?;
+        final email = args?['email'] as String? ?? '';
+        return MaterialPageRoute(
+          builder: (context) => OtpVerificationPage(email: email),
+          settings: settings,
+        );
+      
+      // Add other routes as needed
+      default:
+        return MaterialPageRoute(
+          builder: (context) => const LoginRegisterFlip(),
+        );
+    }
   }
 }

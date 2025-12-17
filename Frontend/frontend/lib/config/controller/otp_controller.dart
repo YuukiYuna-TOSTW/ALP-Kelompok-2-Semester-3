@@ -1,29 +1,29 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:frontend/features/homepage/widgets/otp_success_dialog.dart';
-import 'package:frontend/core/services/otp_service.dart';
+import 'package:frontend/core/services/otp_service.dart'; // ✅ pastikan ada
 import 'package:frontend/features/auth/widgets/otp_code_dialog.dart';
+import 'package:frontend/main.dart';
 
 class OtpController {
   final VoidCallback onUpdate;
-  final String email; // Email user untuk verify OTP
+  final String email;
 
   OtpController({required this.onUpdate, required this.email});
 
-  int remainingTime = 300; // 5 menit (300 detik) sesuai backend
+  int remainingTime = 300;
   bool canResend = false;
   bool isVerifying = false;
 
-  List<TextEditingController> controllers = List.generate(
-    6,
-    (_) => TextEditingController(),
-  );
+  List<TextEditingController> controllers = List.generate(6, (_) => TextEditingController());
   List<FocusNode> focusNodes = List.generate(6, (_) => FocusNode());
 
   Timer? _timer;
-
   late AnimationController animationController;
   late Animation<double> scaleAnimation;
+
+  // ✅ TAMBAH: property untuk ambil OTP yang diinput
+  String get pin => controllers.map((c) => c.text).join();
 
   void initAnimation(TickerProvider vsync) {
     animationController = AnimationController(
@@ -111,13 +111,14 @@ class OtpController {
     }
   }
 
-  Future<void> verifyOtp(BuildContext context) async {
-    String otp = controllers.map((c) => c.text).join();
+  // ✅ BARU: method untuk verify OTP + get user role
+  Future<void> verifyOtpWithRole(BuildContext context, RoleController roleController) async {
+    String otp = pin;
 
     if (otp.length != 6) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Masukkan 6 digit OTP")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Masukkan 6 digit OTP")),
+      );
       return;
     }
 
@@ -125,20 +126,24 @@ class OtpController {
     onUpdate();
 
     try {
-      final result = await OtpService.verifyOtp(email: email, kodeOtp: otp);
+      final result = await OtpService.verifyOtp(email: email, otp: otp);
 
       if (result['success'] == true) {
-        // OTP berhasil diverifikasi
+        final userData = result['user'] as Map<String, dynamic>?;
+        final role = userData?['Role']?.toString() ?? 'guru';
+
+        // ✅ Set role ke RoleController
+        roleController.setRole(role);
+
         if (context.mounted) {
           showOtpSuccessDialog(context);
+          await Future.delayed(const Duration(milliseconds: 1500));
+          Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (route) => false);
         }
       } else {
-        // OTP gagal
         final msg = result['message'] ?? 'Kode OTP tidak valid';
         if (context.mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(msg)));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
         }
       }
     } catch (e) {
