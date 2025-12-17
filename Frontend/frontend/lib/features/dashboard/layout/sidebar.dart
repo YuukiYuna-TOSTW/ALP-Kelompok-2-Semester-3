@@ -185,9 +185,10 @@ class DashboardSidebar extends StatelessWidget {
                   "Logout",
                   style: TextStyle(color: Colors.red),
                 ),
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
-                  Navigator.pushReplacementNamed(context, "/role-preview");
+                  // opsional: await SharedPreferences.getInstance()..clear();
+                  Navigator.pushNamedAndRemoveUntil(context, "/login", (r) => false);
                 },
               ),
             ],
