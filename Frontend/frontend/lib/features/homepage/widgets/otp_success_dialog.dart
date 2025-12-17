@@ -1,72 +1,34 @@
 import 'package:flutter/material.dart';
-import '../../../../config/theme/colors.dart';
 
 void showOtpSuccessDialog(BuildContext context) {
   showDialog(
     context: context,
-    barrierColor: Colors.black54,
-    builder: (context) {
-      return Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          padding: const EdgeInsets.all(30),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [AppColors.cardLight, AppColors.cardBlue],
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.check_circle,
+              color: Colors.green,
+              size: 64,
             ),
-            borderRadius: BorderRadius.circular(25),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withOpacity(0.3),
-                blurRadius: 20,
+            const SizedBox(height: 16),
+            const Text(
+              'Verifikasi Berhasil!',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.primary, AppColors.secondary],
-                  ),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.verified,
-                  color: Colors.white,
-                  size: 40,
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Verifikasi Berhasil! 🎉',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 15),
-              const Text(
-                "Email Anda berhasil diverifikasi.",
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 25),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                  ),
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text(
-                    "Mulai Jelajahi",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Anda akan diarahkan ke dashboard',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ],
         ),
       );
     },

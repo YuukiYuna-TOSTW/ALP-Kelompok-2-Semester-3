@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../config/theme/colors.dart';
 import '../../homepage/widgets/otp_background.dart';
 import 'package:frontend/config/controller/otp_controller.dart';
 import '../../homepage/widgets/otp_input_fields.dart';
+import '../../../main.dart';
+import '../../../core/services/otp_service.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String email;
-  final String otpCode; // Kode OTP dari backend untuk ditampilkan
 
   const OtpVerificationPage({
     super.key,
     required this.email,
-    required this.otpCode,
   });
 
   @override
@@ -29,13 +30,6 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
     otp.initAnimation(this);
     otp.startTimer();
     otp.setupFocusListeners();
-
-    // Pop-up kode OTP dihilangkan karena menggunakan dummy code 123456 untuk semua email
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   if (mounted && widget.otpCode.isNotEmpty) {
-    //     showOtpCodeDialog(context, widget.otpCode, widget.email);
-    //   }
-    // });
   }
 
   @override
@@ -47,7 +41,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Stack(
           children: [
@@ -71,13 +65,13 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
                       width: 100,
                       height: 100,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [AppColors.primary, AppColors.secondary],
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF75CFFF), Color(0xFF4DAFF5)],
                         ),
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.4),
+                            color: const Color(0xFF75CFFF).withOpacity(0.4),
                             blurRadius: 15,
                             spreadRadius: 2,
                           ),
@@ -94,8 +88,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
                   const SizedBox(height: 25),
 
                   ShaderMask(
-                    shaderCallback: (bounds) => LinearGradient(
-                      colors: [AppColors.primary, AppColors.secondary],
+                    shaderCallback: (bounds) => const LinearGradient(
+                      colors: [Color(0xFF75CFFF), Color(0xFF4DAFF5)],
                     ).createShader(bounds),
                     child: const Text(
                       'Verifikasi Email',
@@ -122,10 +116,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
 
                   Text(
                     otp.formattedTime,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.secondary,
+                      color: Color(0xFF4DAFF5),
                     ),
                   ),
 
@@ -135,11 +129,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
                     width: double.infinity,
                     height: 55,
                     child: ElevatedButton(
-                      onPressed: otp.isVerifying
-                          ? null
-                          : () => otp.verifyOtp(context),
+                      // ✅ UBAH: panggil method verify
+                      onPressed: otp.isVerifying ? null : () => _verifyOtpFromUser(),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
+                        backgroundColor: const Color(0xFF4DAFF5),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
                         ),
@@ -162,11 +155,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
 
                   const SizedBox(height: 20),
                   TextButton(
-                    onPressed: otp.canResend
-                        ? () {
-                            otp.resendOtp(context);
-                          }
-                        : null,
+                    onPressed: otp.canResend ? () => otp.resendOtp(context) : null,
                     child: Text(
                       otp.canResend
                           ? "Tidak menerima kode? Kirim Ulang"
@@ -175,7 +164,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: otp.canResend
-                            ? AppColors.secondary
+                            ? const Color(0xFF4DAFF5)
                             : Colors.grey,
                       ),
                     ),
@@ -188,4 +177,99 @@ class _OtpVerificationPageState extends State<OtpVerificationPage>
       ),
     );
   }
+
+  // ✅ BARU: Verify OTP yang diinput user dengan OTP dari backend
+  Future<void> _verifyOtpFromUser() async {
+    otp.isVerifying = true;
+    setState(() {});
+
+    final otpInput = otp.pin; // ✅ ambil OTP yang user inputkan
+
+    if (otpInput.isEmpty || otpInput.length != 6) {
+      _showSnack("Masukkan 6 digit OTP");
+      otp.isVerifying = false;
+      setState(() {});
+      return;
+    }
+
+    // ✅ Kirim OTP yang user inputkan ke backend untuk verifikasi
+    final res = await OtpService.verifyOtp(
+      email: widget.email,
+      otp: otpInput,
+    );
+
+    if (res['success'] == true) {
+      final userData = res['user'] as Map<String, dynamic>;
+      final role = userData['Role']?.toString() ?? 'guru';
+
+      print('✅ OTP Verified with backend');
+      print('User: ${userData['Nama_User']}');
+      print('Role: $role');
+
+      if (mounted) {
+        // ✅ Set role dari response backend
+        context.read<RoleController>().setRole(role);
+
+        // ✅ Tampilkan success dialog
+        showOtpSuccessDialog(context);
+
+        await Future.delayed(const Duration(milliseconds: 1500));
+        if (mounted) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            '/dashboard',
+            (route) => false,
+          );
+        }
+      }
+    } else {
+      _showSnack(res['message'] ?? 'OTP tidak valid atau kadaluarsa');
+    }
+
+    otp.isVerifying = false;
+    if (mounted) setState(() {});
+  }
+
+  void _showSnack(String msg) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg)),
+      );
+    }
+  }
+}
+
+// ✅ IMPORT dialog
+void showOtpSuccessDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.check_circle,
+              color: Colors.green,
+              size: 64,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Verifikasi Berhasil!',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Anda akan diarahkan ke dashboard',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }

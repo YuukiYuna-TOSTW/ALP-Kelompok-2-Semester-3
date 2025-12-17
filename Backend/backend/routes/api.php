@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\HistoryScheduleApiController;
 use App\Http\Controllers\Api\RppApiController;
 use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\Api\ScheduleUserApiController;
-use App\Http\Controllers\Api\OtpApiController;
+use App\Http\Controllers\Api\OtpController;
 use App\Http\Controllers\Api\KepsekRPPApiController;
 use App\Http\Controllers\Api\KepsekStatistikSekolahApiController;
 use App\Http\Controllers\Api\KepsekKalenderApiController;
@@ -28,12 +28,12 @@ Route::get('/user', function (Request $request) {
 
 // OTP Routes
 Route::prefix('otp')->group(function () {
-    Route::get('/', [OtpApiController::class, 'index']);
-    Route::post('/generate', [OtpApiController::class, 'generate']);
-    Route::post('/verify', [OtpApiController::class, 'verify']);
-    Route::post('/resend', [OtpApiController::class, 'resend']);
-    Route::get('/{email}', [OtpApiController::class, 'show']);
-    Route::delete('/{email}', [OtpApiController::class, 'destroy']);
+    Route::get('/', [OtpController::class, 'index']);
+    Route::post('/generate', [OtpController::class, 'generate']);
+    Route::post('/verify', [OtpController::class, 'verify']);
+    Route::post('/resend', [OtpController::class, 'resend']);
+    Route::get('/{email}', [OtpController::class, 'show']);
+    Route::delete('/{email}', [OtpController::class, 'destroy']);
 });
 
 // ✅ PINDAHKAN: route khusus schedules SEBELUM apiResource

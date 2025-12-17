@@ -1,57 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_core/firebase_core.dart';
-
-import 'config/theme/app_theme.dart';
 import 'config/routes/app_routes.dart';
-import 'firebase_options.dart';
+import 'features/auth/pages/login_register_flip.dart';
 
-//
-// =======================================================
-// 🟣 ROLE CONTROLLER (Testing role saat belum ada login backend)
-// =======================================================
 class RoleController extends ChangeNotifier {
-  String role = "admin"; // default role
+  String _role = 'guru';
+
+  String get role => _role;
 
   void setRole(String newRole) {
-    role = newRole;
+    _role = newRole.toLowerCase().trim();
+    if (_role.contains('kepala') || _role.contains('kepsek')) {
+      _role = 'kepsek';
+    } else if (_role.contains('admin')) {
+      _role = 'admin';
+    } else {
+      _role = 'guru';
+    }
+    print('✅ RoleController.setRole: $_role');
+    notifyListeners();
+  }
+
+  void clearRole() {
+    _role = 'guru';
     notifyListeners();
   }
 }
 
-//
-// =======================================================
-// 🚀 MAIN ENTRY POINT
-// =======================================================
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => RoleController())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => RoleController()),
+      ],
       child: const MyApp(),
     ),
   );
 }
 
-//
-// =======================================================
-// 🎨 ROOT APP — Tema + Routing
-// =======================================================
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'ALP Aplikasi',
       debugShowCheckedModeBanner: false,
-      title: "SMPN 1 Bontonompo Selatan",
-      theme: AppTheme.lightTheme,
-
-      // halaman pertama
-      initialRoute: "/role-preview",
-
-      // semua routes dipusatkan di app_routes.dart
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
+      ),
+      // ✅ TIDAK ada home, gunakan initialRoute saja
+      initialRoute: '/login', // ✅ mulai dari login
       routes: AppRoutes.allRoutes(context),
     );
   }
